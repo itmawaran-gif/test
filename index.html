@@ -20,7 +20,7 @@ button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:point
 #topInfo { background:#eef; padding:10px; border-radius:8px; margin-bottom:10px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 #topInfo span { font-weight:bold; }
 #editBtn { width:auto; padding:6px 10px; font-size:14px; background:#666; cursor:pointer; }
-#cityEdit { width:auto; padding:6px; font-size:14px; }
+#cityEdit { width:auto; padding:6px 10px; font-size:14px; }
 </style>
 </head>
 
@@ -98,7 +98,7 @@ button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:point
   <input id="visitDays" inputmode="numeric">
 
   <!-- اختيارية -->
-  <label>نوع الزيت من ماركة اخره- جۆری ئەو ڕۆنەی کە بەکاری دەهێنێت</label>
+  <label>نوع الزيت من ماركة اخرى- جۆری ئەو ڕۆنەی کە بەکاری دەهێنێت</label>
   <input id="oilType">
 
   <label>درجة الزيت - پلەی ڕۆن</label>
@@ -117,7 +117,7 @@ button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:point
   <input id="oilPrice" inputmode="numeric">
 
   <!-- رفع الصورة -->
-  <label>صورة المتجر / الزيت</label>
+  <label>صورة المتجر / الزيت *</label>
   <input type="file" id="imageInput" accept="image/*" capture="environment">
 
   <button onclick="send()">إرسال</button>
@@ -127,11 +127,22 @@ button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:point
 </div>
 
 <script>
-const URL = "https://script.google.com/macros/s/AKfycby_64ltA8Buhi0CUa3waM8P-saBtiIBMR7Vk-t9DizX19B4Wk3ytW0G7XEzYQ3kTfyB/exec"; // رابط Web App من Apps Script
+const URL = "https://script.google.com/macros/s/AKfycby_64ltA8Buhi0CUa3waM8P-saBtiIBMR7Vk-t9DizX19B4Wk3ytW0G7XEzYQ3kTfyB/exec"; // ضع رابط Web App هنا
 let uploadedImageData = "";
 
-// عرض بيانات تسجيل الدخول
-if(localStorage.repName){
+// ===== عرض بيانات تسجيل الدخول من localStorage =====
+const login = document.getElementById("login");
+const formBox = document.getElementById("formBox");
+const repShow = document.getElementById("repShow");
+const cityShow = document.getElementById("cityShow");
+const cityEdit = document.getElementById("cityEdit");
+const editBtn = document.getElementById("editBtn");
+const msg = document.getElementById("msg");
+const repNameInput = document.getElementById("repName");
+const cityInput = document.getElementById("city");
+const imageInput = document.getElementById("imageInput");
+
+if(localStorage.repName && localStorage.city){
   login.classList.add("hidden");
   formBox.classList.remove("hidden");
   repShow.textContent = localStorage.repName;
@@ -140,9 +151,12 @@ if(localStorage.repName){
 }
 
 function saveLogin(){
-  if(!repName.value || !city.value) return;
-  localStorage.repName = repName.value;
-  localStorage.city = city.value;
+  if(!repNameInput.value || !cityInput.value){
+    alert("الرجاء إدخال اسم المندوب والمدينة");
+    return;
+  }
+  localStorage.repName = repNameInput.value;
+  localStorage.city = cityInput.value;
   location.reload();
 }
 
@@ -175,7 +189,6 @@ function send(){
   const required = [useOil, tradeName, ownerName, address, phone, category, rate, visitDays];
   let ok = true;
 
-  // تحقق من الحقول النصية
   required.forEach(f => {
     f.classList.remove("error");
     if(!f.value){ 
@@ -184,7 +197,7 @@ function send(){
     }
   });
 
-  // تحقق من الصورة
+  // التحقق من الصورة
   if(!uploadedImageData){
     imageInput.classList.add("error");
     ok = false;
@@ -230,7 +243,7 @@ function send(){
       if(res.status==="success"){
         msg.textContent="✅ تم الإرسال بنجاح";
 
-        // مسح الحقول بعد الإرسال
+        // مسح الحقول بعد الإرسال ما عدا بيانات المندوب والمدينة
         document.querySelectorAll("#formBox input,#formBox textarea,#formBox select")
           .forEach(e=>{
             if(!["cityEdit","imageInput"].includes(e.id)) e.value="";
@@ -239,7 +252,14 @@ function send(){
       } else {
         msg.textContent="❌ "+res.message;
       }
+    })
+    .catch(err=>{
+      msg.textContent="❌ خطأ في الاتصال بالخادم";
     });
-  }, ()=>msg.textContent="❌ لم يتم تحديد الموقع");
+  }, ()=>{
+    msg.textContent="❌ لم يتم تحديد الموقع";
+  });
 }
-
+</script>
+</body>
+</html>
