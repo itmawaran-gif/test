@@ -175,13 +175,25 @@ function send(){
   const required = [useOil, tradeName, ownerName, address, phone, category, rate, visitDays];
   let ok = true;
 
+  // تحقق من الحقول النصية
   required.forEach(f => {
     f.classList.remove("error");
-    if(!f.value){ f.classList.add("error"); ok=false; }
+    if(!f.value){ 
+      f.classList.add("error"); 
+      ok=false; 
+    }
   });
 
+  // تحقق من الصورة
+  if(!uploadedImageData){
+    imageInput.classList.add("error");
+    ok = false;
+  } else {
+    imageInput.classList.remove("error");
+  }
+
   if(!ok){
-    msg.textContent = "❌ الرجاء ملء جميع الحقول الإلزامية";
+    msg.textContent = "❌ الرجاء ملء جميع الحقول الإلزامية ورفع الصورة";
     return;
   }
 
@@ -217,8 +229,12 @@ function send(){
     .then(res=>{
       if(res.status==="success"){
         msg.textContent="✅ تم الإرسال بنجاح";
+
+        // مسح الحقول بعد الإرسال
         document.querySelectorAll("#formBox input,#formBox textarea,#formBox select")
-          .forEach(e=>{ if(!["cityEdit","imageInput"].includes(e.id)) e.value=""; });
+          .forEach(e=>{
+            if(!["cityEdit","imageInput"].includes(e.id)) e.value="";
+          });
         uploadedImageData = "";
       } else {
         msg.textContent="❌ "+res.message;
@@ -226,6 +242,3 @@ function send(){
     });
   }, ()=>msg.textContent="❌ لم يتم تحديد الموقع");
 }
-</script>
-</body>
-</html>
