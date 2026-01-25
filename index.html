@@ -98,7 +98,7 @@ button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:point
   <input id="visitDays" inputmode="numeric">
 
   <!-- اختيارية -->
-  <label>نوع الزيت من ماركة اخرى- جۆری ئەو ڕۆنەی کە بەکاری دەهێنێت</label>
+  <label>نوع الزيت من ماركة اخره- جۆری ئەو ڕۆنەی کە بەکاری دەهێنێت</label>
   <input id="oilType">
 
   <label>درجة الزيت - پلەی ڕۆن</label>
@@ -130,19 +130,8 @@ button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:point
 const URL = "https://script.google.com/macros/s/AKfycby_64ltA8Buhi0CUa3waM8P-saBtiIBMR7Vk-t9DizX19B4Wk3ytW0G7XEzYQ3kTfyB/exec"; // ضع رابط Web App هنا
 let uploadedImageData = "";
 
-// ===== عرض بيانات تسجيل الدخول من localStorage =====
-const login = document.getElementById("login");
-const formBox = document.getElementById("formBox");
-const repShow = document.getElementById("repShow");
-const cityShow = document.getElementById("cityShow");
-const cityEdit = document.getElementById("cityEdit");
-const editBtn = document.getElementById("editBtn");
-const msg = document.getElementById("msg");
-const repNameInput = document.getElementById("repName");
-const cityInput = document.getElementById("city");
-const imageInput = document.getElementById("imageInput");
-
-if(localStorage.repName && localStorage.city){
+// عرض بيانات تسجيل الدخول
+if(localStorage.repName){
   login.classList.add("hidden");
   formBox.classList.remove("hidden");
   repShow.textContent = localStorage.repName;
@@ -151,12 +140,9 @@ if(localStorage.repName && localStorage.city){
 }
 
 function saveLogin(){
-  if(!repNameInput.value || !cityInput.value){
-    alert("الرجاء إدخال اسم المندوب والمدينة");
-    return;
-  }
-  localStorage.repName = repNameInput.value;
-  localStorage.city = cityInput.value;
+  if(!repName.value || !city.value) return;
+  localStorage.repName = repName.value;
+  localStorage.city = city.value;
   location.reload();
 }
 
@@ -173,15 +159,43 @@ function toggleEdit(){
   }
 }
 
-// قراءة الصورة من الكاميرا / ملف
+// ===== ضغط الصورة قبل الإرسال =====
+function resizeImage(file, maxWidth, maxHeight, callback){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const img = new Image();
+    img.onload = function(){
+      let width = img.width;
+      let height = img.height;
+
+      if(width > maxWidth){
+        height = height * (maxWidth / width);
+        width = maxWidth;
+      }
+      if(height > maxHeight){
+        width = width * (maxHeight / height);
+        height = maxHeight;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // ضغط الجودة 70%
+      callback(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 imageInput.addEventListener("change", function(){
   const file = this.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    uploadedImageData = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  resizeImage(file, 800, 800, function(resizedData){
+    uploadedImageData = resizedData;
+  });
 });
 
 // ===== إرسال البيانات =====
@@ -189,6 +203,7 @@ function send(){
   const required = [useOil, tradeName, ownerName, address, phone, category, rate, visitDays];
   let ok = true;
 
+  // تحقق من الحقول النصية
   required.forEach(f => {
     f.classList.remove("error");
     if(!f.value){ 
@@ -197,7 +212,7 @@ function send(){
     }
   });
 
-  // التحقق من الصورة
+  // تحقق من الصورة
   if(!uploadedImageData){
     imageInput.classList.add("error");
     ok = false;
@@ -206,7 +221,7 @@ function send(){
   }
 
   if(!ok){
-    msg.textContent = "❌ الرجاء ملء جميع الحقول الإلزامية ورفع الصورة";
+    msg.textContent = "❌ الرجاء ملء جميع الحقول الإجبارية ورفع الصورة";
     return;
   }
 
@@ -243,7 +258,7 @@ function send(){
       if(res.status==="success"){
         msg.textContent="✅ تم الإرسال بنجاح";
 
-        // مسح الحقول بعد الإرسال ما عدا بيانات المندوب والمدينة
+        // مسح الحقول بعد الإرسال
         document.querySelectorAll("#formBox input,#formBox textarea,#formBox select")
           .forEach(e=>{
             if(!["cityEdit","imageInput"].includes(e.id)) e.value="";
@@ -252,13 +267,8 @@ function send(){
       } else {
         msg.textContent="❌ "+res.message;
       }
-    })
-    .catch(err=>{
-      msg.textContent="❌ خطأ في الاتصال بالخادم";
     });
-  }, ()=>{
-    msg.textContent="❌ لم يتم تحديد الموقع";
-  });
+  }, ()=>msg.textContent="❌ لم يتم تحديد الموقع");
 }
 </script>
 </body>
