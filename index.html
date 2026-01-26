@@ -17,10 +17,10 @@ button:disabled { background:#999; cursor:not-allowed; }
 #msg { text-align:center; margin-top:10px; font-weight:bold; }
 .hidden { display:none; }
 
-/* top info */
+/* ===== top info ===== */
 #topInfo { background:#eef; padding:10px; border-radius:8px; margin-bottom:10px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 #topInfo span { font-weight:bold; }
-#editBtn { width:auto; padding:6px 10px; font-size:14px; background:#666; }
+#editBtn { width:auto; padding:6px 10px; font-size:14px; background:#666; cursor:pointer; }
 #cityEdit { width:auto; padding:6px 10px; font-size:14px; }
 </style>
 </head>
@@ -31,45 +31,50 @@ button:disabled { background:#999; cursor:not-allowed; }
 <!-- تسجيل الدخول -->
 <div id="login">
   <h2>تسجيل الدخول</h2>
-  <label>اسم المندوب *</label>
+
+  <label> نوێنەر - اسم المندوب *</label>
   <input id="repName">
-  <label>المدينة *</label>
+
+  <label>المدينة - شار*</label>
   <input id="city">
+
   <button onclick="saveLogin()">دخول</button>
 </div>
 
 <!-- الفورم -->
 <div id="formBox" class="hidden">
 
+  <!-- اسم المندوب + المدينة -->
   <div id="topInfo">
     <span>المندوب:</span> <span id="repShow"></span> |
     <span>المدينة:</span> <span id="cityShow"></span>
+
     <input id="cityEdit" class="hidden">
     <button id="editBtn" onclick="toggleEdit()">تعديل</button>
   </div>
 
   <h2>MAWARAN CO</h2>
 
-  <label>هل يمتلك زيت ريماكس *</label>
+  <label>هل يمتلك زيت ريماكس - ئایا ڕۆنی ڕیماکس هەیەتی *</label>
   <select id="useOil">
     <option value="">اختر</option>
-    <option>نعم</option>
-    <option>لا</option>
+    <option>نعم - بەڵێ</option>
+    <option>لا - نەخێر</option>
   </select>
 
-  <label>الاسم التجاري *</label>
+  <label>الاسم التجاري - ناوی بازرگانی *</label>
   <input id="tradeName">
 
-  <label>اسم المالك *</label>
+  <label>اسم المالك - ناوی خاوەنەکەی *</label>
   <input id="ownerName">
 
-  <label>العنوان *</label>
+  <label>العنوان ناونیشانەکە *</label>
   <input id="address">
 
-  <label>رقم الهاتف *</label>
+  <label>رقم الهاتف - ژمارەی تەلەفۆن *</label>
   <input id="phone" inputmode="numeric">
 
-  <label>الفئة *</label>
+  <label>الفئة - جۆر *</label>
   <select id="category">
     <option value="">اختر</option>
     <option>كراج</option>
@@ -77,10 +82,10 @@ button:disabled { background:#999; cursor:not-allowed; }
     <option>مفرد</option>
   </select>
 
-  <label>ملاحظة</label>
+  <label>ملاحظة - تێبینی</label>
   <textarea id="note"></textarea>
 
-  <label>التقييم *</label>
+  <label>التقييم - هەڵسەنگاندن *</label>
   <select id="rate">
     <option value="">اختر</option>
     <option value="1">⭐</option>
@@ -90,16 +95,17 @@ button:disabled { background:#999; cursor:not-allowed; }
     <option value="5">⭐⭐⭐⭐⭐</option>
   </select>
 
-  <label>كل كم يوم زيارة *</label>
+  <label>كل كم يوم زيارة - چەند ڕۆژ دوای سەردانەکە؟ *</label>
   <input id="visitDays" inputmode="numeric">
 
-  <label>نوع الزيت</label>
+  <!-- اختيارية -->
+  <label>نوع الزيت من ماركة اخره- جۆری ئەو ڕۆنەی کە بەکاری دەهێنێت</label>
   <input id="oilType">
 
-  <label>درجة الزيت</label>
+  <label>درجة الزيت - پلەی ڕۆن</label>
   <input id="oilGrade">
 
-  <label>المسافة</label>
+  <label>كم المسافة التي يقطعها - تا چەند دەڕوات؟</label>
   <select id="oilDistance">
     <option value="">اختر</option>
     <option>3 كم</option>
@@ -108,23 +114,26 @@ button:disabled { background:#999; cursor:not-allowed; }
     <option>15 كم</option>
   </select>
 
-  <label>سعر اللتر</label>
+  <label>سعر اللتر - نرخی هەر لیترێک</label>
   <input id="oilPrice" inputmode="numeric">
 
+  <!-- رفع الصورة -->
   <label>صورة المتجر *</label>
   <input type="file" id="imageInput" accept="image/*" capture="environment">
 
+  <!-- تعديل بسيط هنا -->
   <button id="sendBtn" onclick="send()">إرسال</button>
   <div id="msg"></div>
 </div>
+
 </div>
 
 <script>
-const URL = "PUT_YOUR_WEBAPP_URL_HERE";
+const URL = "https://script.google.com/macros/s/AKfycbx08juomOJk3mDiL6OS5Ro2lxbdoyVoUGqmyS0CZobXIK4vmXPfbLeTXhRp_QEhYlCd/exec";
 let uploadedImageData = "";
-let isSending = false;
+let isSending = false; // 🔹 جديد
 
-/* تسجيل الدخول */
+// عرض بيانات تسجيل الدخول
 if(localStorage.repName){
   login.classList.add("hidden");
   formBox.classList.remove("hidden");
@@ -146,93 +155,134 @@ function toggleEdit(){
   cityShow.classList.toggle("hidden", editMode);
   cityEdit.classList.toggle("hidden", !editMode);
   editBtn.textContent = editMode ? "حفظ" : "تعديل";
+
   if(!editMode){
     localStorage.city = cityEdit.value;
     cityShow.textContent = cityEdit.value;
   }
 }
 
-/* ضغط الصورة */
-function resizeImage(file, maxW, maxH, cb){
-  const r = new FileReader();
-  r.onload = e=>{
+// ===== ضغط الصورة قبل الإرسال =====
+function resizeImage(file, maxWidth, maxHeight, callback){
+  const reader = new FileReader();
+  reader.onload = function(e){
     const img = new Image();
-    img.onload = ()=>{
-      let w = img.width, h = img.height;
-      if(w > maxW){ h *= maxW / w; w = maxW; }
-      if(h > maxH){ w *= maxH / h; h = maxH; }
-      const c = document.createElement("canvas");
-      c.width = w; c.height = h;
-      c.getContext("2d").drawImage(img,0,0,w,h);
-      cb(c.toDataURL("image/jpeg",0.7));
+    img.onload = function(){
+      let width = img.width;
+      let height = img.height;
+
+      if(width > maxWidth){
+        height = height * (maxWidth / width);
+        width = maxWidth;
+      }
+      if(height > maxHeight){
+        width = width * (maxHeight / height);
+        height = maxHeight;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      callback(canvas.toDataURL("image/jpeg", 0.7));
     };
     img.src = e.target.result;
   };
-  r.readAsDataURL(file);
+  reader.readAsDataURL(file);
 }
 
-imageInput.onchange = ()=>{
-  if(imageInput.files[0])
-    resizeImage(imageInput.files[0],800,800,d=>uploadedImageData=d);
-};
+imageInput.addEventListener("change", function(){
+  const file = this.files[0];
+  if(!file) return;
+  resizeImage(file, 800, 800, function(resizedData){
+    uploadedImageData = resizedData;
+  });
+});
 
-/* الإرسال */
+// ===== إرسال البيانات =====
 function send(){
-  if(isSending) return;
+  if(isSending) return; // 🔒 منع الإرسال المتكرر
 
-  const btn = sendBtn;
-  const req = [useOil, tradeName, ownerName, address, phone, category, rate, visitDays];
+  const btn = document.getElementById("sendBtn");
+  const required = [useOil, tradeName, ownerName, address, phone, category, rate, visitDays];
   let ok = true;
 
-  req.forEach(f=>{
+  required.forEach(f => {
     f.classList.remove("error");
-    if(!f.value){ f.classList.add("error"); ok=false; }
+    if(!f.value){ 
+      f.classList.add("error"); 
+      ok=false; 
+    }
   });
 
-  if(!uploadedImageData){ imageInput.classList.add("error"); ok=false; }
+  if(!uploadedImageData){
+    imageInput.classList.add("error");
+    ok = false;
+  } else {
+    imageInput.classList.remove("error");
+  }
 
   if(!ok){
-    msg.textContent="❌ أكمل الحقول المطلوبة";
+    msg.textContent = "❌ الرجاء ملء جميع الحقول الإجبارية ورفع الصورة";
     return;
   }
 
+  // 🔒 تعطيل الزر
   isSending = true;
   btn.disabled = true;
   btn.textContent = "جاري الإرسال...";
   msg.textContent = "جاري الإرسال...";
 
   navigator.geolocation.getCurrentPosition(pos=>{
+    const data = {
+      repName: localStorage.repName,
+      city: localStorage.city,
+      tradeName: tradeName.value,
+      ownerName: ownerName.value,
+      useOil: useOil.value,
+      address: address.value,
+      phone: phone.value,
+      category: category.value,
+      note: note.value,
+      rate: rate.value,
+      visitDays: visitDays.value,
+      lat: pos.coords.latitude,
+      lng: pos.coords.longitude,
+      oilType: oilType.value,
+      oilGrade: oilGrade.value,
+      oilDistance: oilDistance.value,
+      oilPrice: oilPrice.value,
+      image: uploadedImageData
+    };
+
     fetch(URL,{
       method:"POST",
-      body:JSON.stringify({
-        repName: localStorage.repName,
-        city: localStorage.city,
-        tradeName: tradeName.value,
-        ownerName: ownerName.value,
-        useOil: useOil.value,
-        address: address.value,
-        phone: phone.value,
-        category: category.value,
-        note: note.value,
-        rate: rate.value,
-        visitDays: visitDays.value,
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        oilType: oilType.value,
-        oilGrade: oilGrade.value,
-        oilDistance: oilDistance.value,
-        oilPrice: oilPrice.value,
-        image: uploadedImageData
-      })
+      body:JSON.stringify(data)
     })
     .then(r=>r.json())
-    .then(()=>msg.textContent="✅ تم الإرسال بنجاح")
-    .catch(()=>msg.textContent="❌ خطأ في الإرسال")
+    .then(res=>{
+      if(res.status==="success"){
+        msg.textContent="✅ تم الإرسال بنجاح";
+        document.querySelectorAll("#formBox input,#formBox textarea,#formBox select")
+          .forEach(e=>{
+            if(!["cityEdit","imageInput"].includes(e.id)) e.value="";
+          });
+        uploadedImageData = "";
+      } else {
+        msg.textContent="❌ "+res.message;
+      }
+    })
     .finally(()=>{
-      isSending=false;
-      btn.disabled=false;
-      btn.textContent="إرسال";
+      isSending = false;
+      btn.disabled = false;
+      btn.textContent = "إرسال";
     });
+
+  }, ()=>{
+    msg.textContent="❌ لم يتم تحديد الموقع";
+    isSending = false;
+    btn.disabled = false;
+    btn.textContent = "إرسال";
   });
 }
 </script>
