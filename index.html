@@ -7,24 +7,19 @@
 <style>
     body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
     .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
-    
-    /* تنسيق زر اللغة في الأسفل */
     .lang-switcher { margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
     .lang-switcher select { width: auto; padding: 8px 15px; font-size: 14px; cursor: pointer; border-radius: 20px; background: #f8f9fa; border: 1px solid #ddd; }
-
     h2 { text-align:center; color: #333; margin-bottom: 20px; }
     label { display:block; margin-top:10px; font-weight:bold; font-size: 14px; color: #444; }
     input, select, textarea, button { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:1px solid #ccc; font-size:16px; box-sizing: border-box; }
     button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:pointer; font-weight: bold; }
-    button:disabled { background:#999 !important; cursor:not-allowed; }
+    button:disabled { background:#999 !important; cursor:not-allowed; opacity: 0.6; }
     #msg { text-align:center; margin-top:10px; font-weight:bold; font-size: 14px; }
     .hidden { display:none; }
-    
     .visit-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; flex-direction: column; }
     #startVisitBtn { width: 90px; height: 90px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s; }
     #startVisitBtn.active { background: #dc3545; animation: pulse 1.5s infinite; }
     #cancelVisitBtn { width: auto; padding: 6px 12px; background: #6c757d; font-size: 11px; margin-top: 5px; }
-    
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
     .nav-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
     .nav-tabs button { margin-top: 0; background: #eee; color: #333; flex: 1; font-size: 14px; border: 1px solid #ddd; }
@@ -87,7 +82,6 @@
             </select>
             <label data-key="visit_days_label">كل كم يوم زيارة *</label>
             <input id="visitDays" inputmode="numeric">
-            
             <hr style="opacity: 0.2; margin: 20px 0;">
             <label data-key="other_oil_label">نوع الزيت ماركة أخرى</label>
             <input id="oilType">
@@ -100,7 +94,6 @@
             </select>
             <label data-key="liter_price_label">سعر اللتر</label>
             <input id="oilPrice" inputmode="numeric">
-            
             <label data-key="store_img_label">صورة المتجر *</label>
             <input type="file" id="imageInputNew" accept="image/*" capture="environment">
         </div>
@@ -156,6 +149,7 @@ let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
 let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.getItem('startCoords')) : null;
 let timerInterval;
+let isSending = false; // لمنع الإرسال المتعدد
 
 const translations = {
     ar: {
@@ -170,7 +164,7 @@ const translations = {
         no_order_reason: "سبب عدم إنشاء طلبية *", has_payment_label: "هل تم قبض مبلغ؟", pay_amount_label: "مبلغ القبض *",
         no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
         alert_fill: "يرجى إدخال البيانات", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
-        alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح"
+        alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع..."
     },
     ku: {
         login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
@@ -184,7 +178,7 @@ const translations = {
         no_order_reason: "هۆکاری تۆمارنەکردنی داواکاری *", has_payment_label: "ئایا پارە وەرگیرا؟", pay_amount_label: "بڕی وەرگیراو *",
         no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
         alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
-        alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو"
+        alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن..."
     }
 };
 
@@ -192,7 +186,6 @@ window.onload = () => {
     const savedLang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('langSelect').value = savedLang;
     changeLanguage(savedLang);
-
     if(localStorage.repName) {
         document.getElementById('login').classList.add('hidden');
         document.getElementById('formBox').classList.remove('hidden');
@@ -235,14 +228,23 @@ function switchForm(mode) {
 
 function toggleVisit() {
     const lang = localStorage.getItem('appLang') || 'ar';
+    const btn = document.getElementById('startVisitBtn');
+    
     if(!visitStartTime) {
+        btn.disabled = true;
+        btn.innerHTML = translations[lang].loading;
+        
         navigator.geolocation.getCurrentPosition(pos => {
             visitStartTime = Date.now();
             startCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
             localStorage.setItem('visitStartTime', visitStartTime);
             localStorage.setItem('startCoords', JSON.stringify(startCoords));
             resumeVisit();
-        }, () => alert(translations[lang].alert_geo));
+        }, () => {
+            alert(translations[lang].alert_geo);
+            btn.disabled = false;
+            btn.innerHTML = translations[lang].start_visit;
+        }, { enableHighAccuracy: true });
     }
 }
 
@@ -303,19 +305,35 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 async function handleSend() {
+    if(isSending) return; // منع الإرسال المتكرر
+    
     const lang = localStorage.getItem('appLang') || 'ar';
     if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
+    
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
+    
+    isSending = true; // قفل الدالة
+    btn.disabled = true;
+    btn.innerText = translations[lang].loading;
+
     navigator.geolocation.getCurrentPosition(async pos => {
         const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
-        if(dist > 2000) { alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); return; }
-        btn.disabled = true;
+        if(dist > 2000) { 
+            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
+            isSending = false;
+            btn.disabled = false;
+            btn.innerText = translations[lang].send_data_btn;
+            return; 
+        }
+
         btn.innerText = translations[lang].sending;
         msg.innerText = translations[lang].wait;
         const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
         let data = { sheetName: currentMode === 'new' ? 'data' : 'Clients', repName: localStorage.repName, city: localStorage.city, duration: durationMin, lat: pos.coords.latitude, lng: pos.coords.longitude };
+        
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
+        
         if(fileInput.files.length > 0) {
             const reader = new FileReader();
             reader.readAsDataURL(fileInput.files[0]);
@@ -349,10 +367,17 @@ async function handleSend() {
             };
         } else {
             alert(translations[lang].take_photo_label);
+            isSending = false;
             btn.disabled = false;
             btn.innerText = translations[lang].send_data_btn;
+            msg.innerText = "";
         }
-    }, () => alert(translations[lang].alert_geo));
+    }, () => {
+        alert(translations[lang].alert_geo);
+        isSending = false;
+        btn.disabled = false;
+        btn.innerText = translations[lang].send_data_btn;
+    });
 }
 
 function sendToGoogle(data) {
@@ -366,6 +391,7 @@ function sendToGoogle(data) {
     })
     .catch(() => {
         alert("Error");
+        isSending = false;
         document.getElementById('sendBtn').disabled = false;
     });
 }
