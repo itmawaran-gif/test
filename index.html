@@ -4,322 +4,297 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MAWARAN CO</title>
-
 <style>
-body{font-family:tahoma;background:#f2f4f7;margin:0}
-.container{max-width:500px;margin:auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 10px #0002;transition:background 0.3s}
-h2{text-align:center;margin-bottom:10px}
-label{display:block;margin-top:10px;font-weight:bold}
-input,select,textarea,button{width:100%;padding:10px;margin-top:4px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-button{background:#0a7cff;color:#fff;border:0;cursor:pointer;transition:0.2s}
-button:hover{opacity:0.9}
-button:disabled{background:#999;cursor:not-allowed}
-.hidden{display:none}
-.error{border-color:red;background:#ffecec}
+    body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
+    .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; }
+    h2 { text-align:center; color: #333; }
+    label { display:block; margin-top:10px; font-weight:bold; font-size: 14px; }
+    input, select, textarea, button { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:1px solid #ccc; font-size:16px; box-sizing: border-box; }
+    .error { border-color:red !important; background:#ffecec; }
+    button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:pointer; font-weight: bold; }
+    button:disabled { background:#999; cursor:not-allowed; }
+    #msg { text-align:center; margin-top:10px; font-weight:bold; min-height: 20px; }
+    .hidden { display:none; }
+    
+    /* زر بدء الزيارة الدائري */
+    #startVisitBtn { width: 80px; height: 80px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 12px; font-weight: bold; cursor: pointer; display: block; margin: 10px auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s; }
+    #startVisitBtn.active { background: #dc3545; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-/* زر التبديل */
-#switcher{display:flex;gap:6px;margin-bottom:10px}
-#switcher button{flex:1;padding:10px;font-weight:bold;color:#fff;border-radius:8px;border:none;transition:0.2s}
-#switcher button.active{opacity:1;font-weight:bold}
-
-/* ألوان الفورم */
-#newForm{background:#e0f7ff;padding:10px;border-radius:8px;transition:0.3s}
-#oldForm{background:#fff0e0;padding:10px;border-radius:8px;transition:0.3s}
-
-/* زيارة */
-#visitBox{text-align:center;margin:10px 0}
-#startVisit{width:90px;height:90px;border-radius:50%;font-size:14px;font-weight:bold;background:#0a7cff;color:#fff;border:none;cursor:pointer;transition:0.3s}
-#timer{margin-top:6px;font-weight:bold;font-size:16px}
+    .nav-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+    .nav-tabs button { margin-top: 0; background: #eee; color: #333; flex: 1; font-size: 13px; }
+    .nav-tabs button.active { background: #0a7cff; color: white; }
+    #timerDisplay { text-align: center; font-size: 18px; font-weight: bold; color: #dc3545; margin: 5px 0; }
 </style>
 </head>
-
 <body>
+
 <div class="container">
+    <div id="login">
+        <h2>تسجيل الدخول</h2>
+        <label>اسم المندوب *</label>
+        <input id="repName">
+        <label>المدينة *</label>
+        <input id="city">
+        <button onclick="saveLogin()">دخول</button>
+    </div>
 
-<!-- زر التبديل -->
-<div id="switcher">
-  <button id="btnNew" class="active" onclick="showForm('new')">عميل جديد</button>
-  <button id="btnOld" onclick="showForm('old')">عميل دائمي</button>
-</div>
+    <div id="formBox" class="hidden">
+        <div class="nav-tabs">
+            <button id="tabNew" class="active" onclick="switchForm('new')">عميل جديد</button>
+            <button id="tabRegular" onclick="switchForm('regular')">عميل دائمي</button>
+        </div>
 
-<!-- زر بدء الزيارة -->
-<div id="visitBox">
-  <button id="startVisit">بدء<br>الزيارة</button>
-  <div id="timer">⏱️ 0:00</div>
-</div>
+        <button id="startVisitBtn" onclick="toggleVisit()">بدء<br>الزيارة</button>
+        <div id="timerDisplay" class="hidden">00:00:00</div>
 
-<!-- ===== عميل جديد ===== -->
-<div id="newForm">
+        <div id="newClientForm">
+            <h2>عميل جديد</h2>
+            <label>هل يمتلك زيت ريماكس؟</label>
+            <select id="useOil"><option value="">اختر</option><option>نعم</option><option>لا</option></select>
+            <label>الاسم التجاري *</label>
+            <input id="tradeName">
+            <label>اسم المالك *</label>
+            <input id="ownerName">
+            <label>العنوان *</label>
+            <input id="address">
+            <label>رقم الهاتف *</label>
+            <input id="phone" inputmode="numeric">
+            <label>الفئة *</label>
+            <select id="category"><option value="">اختر</option><option>كراج</option><option>جملة</option><option>مفرد</option></select>
+            <label>ملاحظة</label>
+            <textarea id="note"></textarea>
+            <label>التقييم *</label>
+            <select id="rate"><option value="">اختر</option><option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option></select>
+            <label>كل كم يوم زيارة *</label>
+            <input id="visitDays" inputmode="numeric">
+            <label>صورة المتجر *</label>
+            <input type="file" id="imageInputNew" accept="image/*" capture="environment">
+        </div>
 
-<h2>عميل جديد</h2>
+        <div id="regularClientForm" class="hidden">
+            <h2>عميل دائمي</h2>
+            <label>اسم العميل *</label>
+            <input id="reg_clientName">
+            
+            <label>هل تم عمل طلبية؟</label>
+            <select id="reg_hasOrder" onchange="toggleOrderFields()">
+                <option value="لا">لا</option>
+                <option value="نعم">نعم</option>
+            </select>
+            
+            <div id="orderAmountBox" class="hidden">
+                <label>مبلغ الطلبية *</label>
+                <input id="reg_orderAmount" type="number">
+            </div>
+            <div id="orderReasonBox">
+                <label>سبب عدم إنشاء طلبية *</label>
+                <input id="reg_orderReason">
+            </div>
 
-<label>هل يمتلك زيت ريماكس - ئایا ڕۆنی ڕیماکس هەیەتی *</label>
-<select id="useOil">
-  <option value="">اختر</option>
-  <option>نعم - بەڵێ</option>
-  <option>لا - نەخێر</option>
-</select>
+            <label>هل تم قبض مبلغ؟</label>
+            <select id="reg_hasPayment" onchange="togglePaymentFields()">
+                <option value="لا">لا</option>
+                <option value="نعم">نعم</option>
+            </select>
 
-<label>الاسم التجاري - ناوی بازرگانی *</label>
-<input id="tradeName">
+            <div id="payAmountBox" class="hidden">
+                <label>مبلغ القبض *</label>
+                <input id="reg_payAmount" type="number">
+            </div>
+            <div id="payReasonBox">
+                <label>سبب عدم القبض *</label>
+                <input id="reg_payReason">
+            </div>
 
-<label>اسم المالك - ناوی خاوەنەکەی *</label>
-<input id="ownerName">
+            <label>الملاحظة</label>
+            <textarea id="reg_note"></textarea>
+            
+            <label>التقاط صورة *</label>
+            <input type="file" id="imageInputReg" accept="image/*" capture="environment">
+        </div>
 
-<label>العنوان ناونیشانەکە *</label>
-<input id="address">
-
-<label>رقم الهاتف - ژمارەی تەلەفۆن *</label>
-<input id="phone" inputmode="numeric">
-
-<label>الفئة - جۆر *</label>
-<select id="category">
-  <option value="">اختر</option>
-  <option>كراج</option>
-  <option>جملة</option>
-  <option>مفرد</option>
-</select>
-
-<label>ملاحظة - تێبینی</label>
-<textarea id="note"></textarea>
-
-<label>التقييم - هەڵسەنگاندن *</label>
-<select id="rate">
-  <option value="">اختر</option>
-  <option value="1">⭐</option>
-  <option value="2">⭐⭐</option>
-  <option value="3">⭐⭐⭐</option>
-  <option value="4">⭐⭐⭐⭐</option>
-  <option value="5">⭐⭐⭐⭐⭐</option>
-</select>
-
-<label>كل كم يوم زيارة - چەند ڕۆژ دوای سەردانەکە؟ *</label>
-<input id="visitDays" inputmode="numeric">
-
-<label>نوع الزيت من ماركة اخرى</label>
-<input id="oilType">
-
-<label>درجة الزيت</label>
-<input id="oilGrade">
-
-<label>كم المسافة التي يقطعها</label>
-<select id="oilDistance">
-  <option value="">اختر</option>
-  <option>3K كم</option>
-  <option>5K كم</option>
-  <option>10K كم</option>
-  <option>15K كم</option>
-</select>
-
-<label>سعر اللتر</label>
-<input id="oilPrice" inputmode="numeric">
-
-<label>صورة المتجر *</label>
-<input type="file" id="newImage" accept="image/*" capture="environment">
-
-<button id="sendNewBtn" onclick="sendNew()">إرسال</button>
-<div id="msgNew"></div>
-
-</div>
-
-<!-- ===== عميل دائمي ===== -->
-<div id="oldForm" class="hidden">
-
-<h2>عميل دائمي</h2>
-
-<label>اسم العميل</label>
-<input id="oldName">
-
-<label>هل تم عمل طلبية؟</label>
-<select id="hasOrder" onchange="toggleOrder()">
-  <option value="">اختر</option>
-  <option>نعم</option>
-  <option>لا</option>
-</select>
-
-<div id="orderYes" class="hidden">
-  <label>مبلغ الطلبية</label>
-  <input id="orderAmount" inputmode="numeric">
-</div>
-
-<div id="orderNo" class="hidden">
-  <label>سبب عدم إنشاء طلبية</label>
-  <input id="orderReason">
-</div>
-
-<label>هل تم قبض مبلغ؟</label>
-<select id="hasCash" onchange="toggleCash()">
-  <option value="">اختر</option>
-  <option>نعم</option>
-  <option>لا</option>
-</select>
-
-<div id="cashYes" class="hidden">
-  <label>مبلغ القبض</label>
-  <input id="cashAmount" inputmode="numeric">
-</div>
-
-<div id="cashNo" class="hidden">
-  <label>سبب عدم القبض</label>
-  <input id="cashReason">
-</div>
-
-<label>ملاحظة</label>
-<textarea id="oldNote"></textarea>
-
-<label>صورة *</label>
-<input type="file" id="oldImage" accept="image/*" capture="environment">
-
-<button id="sendOldBtn" onclick="sendOld()">إرسال</button>
-<div id="msgOld"></div>
-
-</div>
-
+        <button id="sendBtn" onclick="handleSend()">إرسال البيانات</button>
+        <div id="msg"></div>
+    </div>
 </div>
 
 <script>
-const URL="https://script.google.com/macros/s/AKfycbw0l4qAtY-nYVznmwk9brxfZs64mn0ZHJG1yKJR51dt6l69fQiB_fkY10UNjcXJlgA/exec";
-let visitTimer;
-let uploadedImageData="";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhpW3NBxRpt-x-ySGJqf4YPtn3SKtJ6WEA7eQmgWjJ1f0atzxbxg9rOwuR09WQh8XD/exec";
+let currentMode = 'new';
+let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
+let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.getItem('startCoords')) : null;
+let timerInterval;
 
-// ===== تبديل الفورم =====
-function showForm(type){
-  const newBg="#e0f7ff", oldBg="#fff0e0";
-  newForm.classList.toggle("hidden",type!=="new");
-  oldForm.classList.toggle("hidden",type!=="old");
-  btnNew.classList.toggle("active",type==="new");
-  btnOld.classList.toggle("active",type==="old");
-  document.querySelector(".container").style.background = type==="new"?newBg:oldBg;
-}
-
-// ===== بدء الزيارة =====
-startVisit.onclick=()=>{
-  navigator.geolocation.getCurrentPosition(p=>{
-    localStorage.visitStart=Date.now();
-    localStorage.startLat=p.coords.latitude;
-    localStorage.startLng=p.coords.longitude;
-    runTimer();
-    alert("✅ تم بدء الزيارة");
-  });
+// تهيئة عند الفتح
+window.onload = () => {
+    if(localStorage.repName) {
+        document.getElementById('login').classList.add('hidden');
+        document.getElementById('formBox').classList.remove('hidden');
+        if(visitStartTime) {
+            startTimer();
+            document.getElementById('startVisitBtn').classList.add('active');
+            document.getElementById('startVisitBtn').innerHTML = "مستمر...";
+        }
+    }
 };
 
-// ===== عداد الوقت =====
-function runTimer(){
-  clearInterval(visitTimer);
-  visitTimer=setInterval(()=>{
-    if(!localStorage.visitStart)return;
-    let d=Date.now()-localStorage.visitStart;
-    let m=Math.floor(d/60000);
-    let s=Math.floor((d%60000)/1000);
-    timer.textContent=`⏱️ ${m}:${s.toString().padStart(2,"0")}`;
-  },1000);
-}
-if(localStorage.visitStart) runTimer();
-
-function visitDuration(){return Math.round((Date.now()-localStorage.visitStart)/60000);}
-
-// ===== المسافة =====
-function distance(lat1,lng1,lat2,lng2){
-  const R=6371e3,toRad=x=>x*Math.PI/180;
-  const dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1);
-  const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+function saveLogin() {
+    const r = document.getElementById('repName').value;
+    const c = document.getElementById('city').value;
+    if(!r || !c) return alert("املاً البيانات");
+    localStorage.repName = r; localStorage.city = c;
+    location.reload();
 }
 
-// ===== قراءة الصورة =====
-function readImage(input,cb){
-  if(!input.files[0]) return cb("");
-  const r=new FileReader();
-  r.onload=e=>cb(e.target.result);
-  r.readAsDataURL(input.files[0]);
+function switchForm(mode) {
+    currentMode = mode;
+    document.getElementById('newClientForm').classList.toggle('hidden', mode !== 'new');
+    document.getElementById('regularClientForm').classList.toggle('hidden', mode !== 'regular');
+    document.getElementById('tabNew').classList.toggle('active', mode === 'new');
+    document.getElementById('tabRegular').classList.toggle('active', mode === 'regular');
 }
 
-// ===== إعادة ضبط الفورم بعد الإرسال =====
-function resetForm(formType){
-  if(formType==="new"){
-    ["tradeName","ownerName","useOil","address","phone","category","note","rate","visitDays","oilType","oilGrade","oilDistance","oilPrice","newImage"]
-    .forEach(id=>{const el=document.getElementById(id);if(el) el.value=""});
-  } else {
-    ["oldName","hasOrder","orderAmount","orderReason","hasCash","cashAmount","cashReason","oldNote","oldImage"]
-    .forEach(id=>{const el=document.getElementById(id);if(el) el.value=""});
-  }
-  uploadedImageData="";
-  localStorage.visitStart=null;
-  timer.textContent="⏱️ 0:00";
-  clearInterval(visitTimer);
-}
-
-// ===== إرسال العميل الجديد =====
-function sendNew(){
-  navigator.geolocation.getCurrentPosition(p=>{
-    if(distance(localStorage.startLat,localStorage.startLng,p.coords.latitude,p.coords.longitude)>2000){
-      msgNew.textContent="❌ خارج موقع الزيارة"; return;
+function toggleVisit() {
+    if(!visitStartTime) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            visitStartTime = Date.now();
+            startCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            localStorage.setItem('visitStartTime', visitStartTime);
+            localStorage.setItem('startCoords', JSON.stringify(startCoords));
+            startTimer();
+            document.getElementById('startVisitBtn').classList.add('active');
+            document.getElementById('startVisitBtn').innerHTML = "مستمر...";
+        }, () => alert("يجب تفعيل الموقع لبدء الزيارة"));
+    } else {
+        alert("الزيارة جارية بالفعل. سيتم حساب الوقت عند الإرسال.");
     }
-    readImage(newImage,img=>{
-      fetch(URL,{method:"POST",body:JSON.stringify({
-        type:"new",
-        repName:"مندوب 1",
-        city:"مدينة 1",
-        tradeName:tradeName.value,
-        ownerName:ownerName.value,
-        useOil:useOil.value,
-        address:address.value,
-        phone:phone.value,
-        category:category.value,
-        note:note.value,
-        rate:rate.value,
-        visitDays:visitDays.value,
-        oilType:oilType.value,
-        oilGrade:oilGrade.value,
-        oilDistance:oilDistance.value,
-        oilPrice:oilPrice.value,
-        image:img,
-        lat:p.coords.latitude,
-        lng:p.coords.longitude,
-        visitDuration:visitDuration()
-      })}).then(r=>r.json()).then(res=>{
-        msgNew.textContent="✅ تم الإرسال";
-        resetForm("new");
-      });
-    });
-  });
 }
 
-// ===== إرسال العميل الدائمي =====
-function toggleOrder(){
-  orderYes.classList.toggle("hidden",hasOrder.value!=="نعم");
-  orderNo.classList.toggle("hidden",hasOrder.value!=="لا");
+function startTimer() {
+    document.getElementById('timerDisplay').classList.remove('hidden');
+    timerInterval = setInterval(() => {
+        const diff = Date.now() - visitStartTime;
+        const h = Math.floor(diff/3600000).toString().padStart(2,'0');
+        const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+        const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+        document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
+    }, 1000);
 }
-function toggleCash(){
-  cashYes.classList.toggle("hidden",hasCash.value!=="نعم");
-  cashNo.classList.toggle("hidden",hasCash.value!=="لا");
+
+function toggleOrderFields() {
+    const val = document.getElementById('reg_hasOrder').value;
+    document.getElementById('orderAmountBox').classList.toggle('hidden', val === 'لا');
+    document.getElementById('orderReasonBox').classList.toggle('hidden', val === 'نعم');
 }
-function sendOld(){
-  navigator.geolocation.getCurrentPosition(p=>{
-    if(distance(localStorage.startLat,localStorage.startLng,p.coords.latitude,p.coords.longitude)>2000){
-      msgOld.textContent="❌ خارج موقع الزيارة"; return;
-    }
-    readImage(oldImage,img=>{
-      fetch(URL,{method:"POST",body:JSON.stringify({
-        type:"old",
-        name:oldName.value,
-        hasOrder:hasOrder.value,
-        orderAmount:orderAmount.value,
-        orderReason:orderReason.value,
-        hasCash:hasCash.value,
-        cashAmount:cashAmount.value,
-        cashReason:cashReason.value,
-        note:oldNote.value,
-        image:img,
-        lat:p.coords.latitude,
-        lng:p.coords.longitude,
-        visitDuration:visitDuration()
-      })}).then(r=>r.json()).then(res=>{
-        msgOld.textContent="✅ تم الإرسال";
-        resetForm("old");
-      });
+
+function togglePaymentFields() {
+    const val = document.getElementById('reg_hasPayment').value;
+    document.getElementById('payAmountBox').classList.toggle('hidden', val === 'لا');
+    document.getElementById('payReasonBox').classList.toggle('hidden', val === 'نعم');
+}
+
+// حساب المسافة بين نقطتين بالمتر
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3;
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δφ = (lat2-lat1) * Math.PI/180;
+    const Δλ = (lon2-lon1) * Math.PI/180;
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+async function handleSend() {
+    if(!visitStartTime) return alert("يرجى الضغط على زر بدء الزيارة أولاً");
+    
+    const msg = document.getElementById('msg');
+    const btn = document.getElementById('sendBtn');
+    
+    // التحقق من الموقع (2000 متر)
+    navigator.geolocation.getCurrentPosition(async pos => {
+        const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
+        if(dist > 2000) {
+            alert(`أنت بعيد جداً عن نقطة البداية (${Math.round(dist)} متر). يجب أن تكون ضمن 2000 متر.`);
+            return;
+        }
+
+        btn.disabled = true;
+        msg.innerText = "جاري المعالجة والإرسال...";
+
+        const durationMs = Date.now() - visitStartTime;
+        const durationMin = Math.floor(durationMs / 60000) + " دقيقة";
+
+        let data = {
+            sheetName: currentMode === 'new' ? 'data' : 'Clients',
+            repName: localStorage.repName,
+            city: localStorage.city,
+            duration: durationMin,
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+        };
+
+        const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
+        if(fileInput.files.length > 0) {
+            const reader = new FileReader();
+            reader.readAsDataURL(fileInput.files[0]);
+            reader.onload = () => {
+                if(currentMode === 'new') {
+                    Object.assign(data, {
+                        tradeName: document.getElementById('tradeName').value,
+                        ownerName: document.getElementById('ownerName').value,
+                        useOil: document.getElementById('useOil').value,
+                        address: document.getElementById('address').value,
+                        phone: document.getElementById('phone').value,
+                        category: document.getElementById('category').value,
+                        note: document.getElementById('note').value,
+                        rate: document.getElementById('rate').value,
+                        visitDays: document.getElementById('visitDays').value,
+                        image: reader.result
+                    });
+                } else {
+                    Object.assign(data, {
+                        clientName: document.getElementById('reg_clientName').value,
+                        hasOrder: document.getElementById('reg_hasOrder').value,
+                        orderAmount: document.getElementById('reg_orderAmount').value,
+                        orderReason: document.getElementById('reg_orderReason').value,
+                        hasPayment: document.getElementById('reg_hasPayment').value,
+                        payAmount: document.getElementById('reg_payAmount').value,
+                        payReason: document.getElementById('reg_payReason').value,
+                        note: document.getElementById('reg_note').value,
+                        image: reader.result
+                    });
+                }
+                sendToGoogle(data);
+            };
+        } else {
+            alert("يرجى التقاط الصورة");
+            btn.disabled = false;
+        }
+    }, () => alert("فشل تحديد الموقع"));
+}
+
+function sendToGoogle(data) {
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if(res.status === "success") {
+            alert("تم الإرسال بنجاح");
+            localStorage.removeItem('visitStartTime');
+            localStorage.removeItem('startCoords');
+            location.reload();
+        } else {
+            alert("خطأ: " + res.message);
+        }
+    })
+    .catch(e => alert("حدث خطأ في الاتصال"))
+    .finally(() => {
+        document.getElementById('sendBtn').disabled = false;
     });
-  });
 }
 </script>
-
+</body>
+</html>
