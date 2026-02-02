@@ -178,10 +178,11 @@ button:disabled{background:#999;cursor:not-allowed}
 </div>
 
 <script>
-const URL="https://script.google.com/macros/s/AKfycbwKg-VeCTqyk3nFKf7GchKp60d5UfVyxsbl3DDW4XUOM4tC1LwuyOMQm_gr79eFwmMF/exec";
+const URL="https://script.google.com/macros/s/AKfycbz-EOoNIlo1ZeQvJEuxlEDwV5kC4x3l3pZl5T2JkSY4LME2_PrmzjaEOzl84b_zNC8x/exec";
 let visitTimer;
+let uploadedImageData="";
 
-// ===== التبديل بين الفورمين =====
+// ===== تبديل الفورم =====
 function showForm(type){
   const newBg="#e0f7ff", oldBg="#fff0e0";
   newForm.classList.toggle("hidden",type!=="new");
@@ -191,7 +192,7 @@ function showForm(type){
   document.querySelector(".container").style.background = type==="new"?newBg:oldBg;
 }
 
-// ===== زر بدء الزيارة =====
+// ===== بدء الزيارة =====
 startVisit.onclick=()=>{
   navigator.geolocation.getCurrentPosition(p=>{
     localStorage.visitStart=Date.now();
@@ -202,6 +203,7 @@ startVisit.onclick=()=>{
   });
 };
 
+// ===== عداد الوقت =====
 function runTimer(){
   clearInterval(visitTimer);
   visitTimer=setInterval(()=>{
@@ -214,6 +216,8 @@ function runTimer(){
 }
 if(localStorage.visitStart) runTimer();
 
+function visitDuration(){return Math.round((Date.now()-localStorage.visitStart)/60000);}
+
 // ===== المسافة =====
 function distance(lat1,lng1,lat2,lng2){
   const R=6371e3,toRad=x=>x*Math.PI/180;
@@ -222,57 +226,66 @@ function distance(lat1,lng1,lat2,lng2){
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-// ===== مدة الزيارة =====
-function visitDuration(){
-  return Math.round((Date.now()-localStorage.visitStart)/60000);
-}
-
 // ===== قراءة الصورة =====
 function readImage(input,cb){
+  if(!input.files[0]) return cb("");
   const r=new FileReader();
   r.onload=e=>cb(e.target.result);
   r.readAsDataURL(input.files[0]);
+}
+
+// ===== إعادة ضبط الفورم بعد الإرسال =====
+function resetForm(formType){
+  if(formType==="new"){
+    ["tradeName","ownerName","useOil","address","phone","category","note","rate","visitDays","oilType","oilGrade","oilDistance","oilPrice","newImage"]
+    .forEach(id=>{const el=document.getElementById(id);if(el) el.value=""});
+  } else {
+    ["oldName","hasOrder","orderAmount","orderReason","hasCash","cashAmount","cashReason","oldNote","oldImage"]
+    .forEach(id=>{const el=document.getElementById(id);if(el) el.value=""});
+  }
+  uploadedImageData="";
+  localStorage.visitStart=null;
+  timer.textContent="⏱️ 0:00";
+  clearInterval(visitTimer);
 }
 
 // ===== إرسال العميل الجديد =====
 function sendNew(){
   navigator.geolocation.getCurrentPosition(p=>{
     if(distance(localStorage.startLat,localStorage.startLng,p.coords.latitude,p.coords.longitude)>2000){
-      msgNew.textContent="❌ خارج موقع الزيارة";
-      return;
+      msgNew.textContent="❌ خارج موقع الزيارة"; return;
     }
     readImage(newImage,img=>{
-      fetch(URL,{
-        method:"POST",
-        body:JSON.stringify({
-          type:"new",        // 👈 مهم
-          repName:"مندوب 1", // أضف المندوب إذا تريد
-          city:"مدينة 1",    // أضف المدينة
-          tradeName:tradeName.value,
-          ownerName:ownerName.value,
-          useOil:useOil.value,
-          address:address.value,
-          phone:phone.value,
-          category:category.value,
-          note:note.value,
-          rate:rate.value,
-          visitDays:visitDays.value,
-          oilType:oilType.value,
-          oilGrade:oilGrade.value,
-          oilDistance:oilDistance.value,
-          oilPrice:oilPrice.value,
-          image:img,
-          lat:p.coords.latitude,
-          lng:p.coords.longitude,
-          visitDuration:visitDuration()
-        })
-      }).then(r=>r.json())
-      .then(res=>msgNew.textContent="✅ تم الإرسال");
+      fetch(URL,{method:"POST",body:JSON.stringify({
+        type:"new",
+        repName:"مندوب 1",
+        city:"مدينة 1",
+        tradeName:tradeName.value,
+        ownerName:ownerName.value,
+        useOil:useOil.value,
+        address:address.value,
+        phone:phone.value,
+        category:category.value,
+        note:note.value,
+        rate:rate.value,
+        visitDays:visitDays.value,
+        oilType:oilType.value,
+        oilGrade:oilGrade.value,
+        oilDistance:oilDistance.value,
+        oilPrice:oilPrice.value,
+        image:img,
+        lat:p.coords.latitude,
+        lng:p.coords.longitude,
+        visitDuration:visitDuration()
+      })}).then(r=>r.json()).then(res=>{
+        msgNew.textContent="✅ تم الإرسال";
+        resetForm("new");
+      });
     });
   });
 }
 
-// ===== عميل دائمي =====
+// ===== إرسال العميل الدائمي =====
 function toggleOrder(){
   orderYes.classList.toggle("hidden",hasOrder.value!=="نعم");
   orderNo.classList.toggle("hidden",hasOrder.value!=="لا");
@@ -281,36 +294,31 @@ function toggleCash(){
   cashYes.classList.toggle("hidden",hasCash.value!=="نعم");
   cashNo.classList.toggle("hidden",hasCash.value!=="لا");
 }
-
 function sendOld(){
   navigator.geolocation.getCurrentPosition(p=>{
     if(distance(localStorage.startLat,localStorage.startLng,p.coords.latitude,p.coords.longitude)>2000){
-      msgOld.textContent="❌ خارج موقع الزيارة";
-      return;
+      msgOld.textContent="❌ خارج موقع الزيارة"; return;
     }
     readImage(oldImage,img=>{
-      fetch(URL,{
-        method:"POST",
-        body:JSON.stringify({
-          type:"old",
-          name:oldName.value,
-          hasOrder:hasOrder.value,
-          orderAmount:orderAmount.value,
-          orderReason:orderReason.value,
-          hasCash:hasCash.value,
-          cashAmount:cashAmount.value,
-          cashReason:cashReason.value,
-          note:oldNote.value,
-          image:img,
-          lat:p.coords.latitude,
-          lng:p.coords.longitude,
-          visitDuration:visitDuration()
-        })
-      }).then(r=>r.json())
-      .then(res=>msgOld.textContent="✅ تم الإرسال");
+      fetch(URL,{method:"POST",body:JSON.stringify({
+        type:"old",
+        name:oldName.value,
+        hasOrder:hasOrder.value,
+        orderAmount:orderAmount.value,
+        orderReason:orderReason.value,
+        hasCash:hasCash.value,
+        cashAmount:cashAmount.value,
+        cashReason:cashReason.value,
+        note:oldNote.value,
+        image:img,
+        lat:p.coords.latitude,
+        lng:p.coords.longitude,
+        visitDuration:visitDuration()
+      })}).then(r=>r.json()).then(res=>{
+        msgOld.textContent="✅ تم الإرسال";
+        resetForm("old");
+      });
     });
   });
 }
 </script>
-</body>
-</html>
