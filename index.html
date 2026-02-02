@@ -6,7 +6,12 @@
 <title>MAWARAN CO</title>
 <style>
     body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
-    .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; }
+    .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
+    
+    /* تنسيق زر اللغة */
+    .lang-switcher { position: absolute; top: 10px; left: 10px; z-index: 100; }
+    .lang-switcher select { width: auto; padding: 5px; font-size: 12px; cursor: pointer; border-radius: 5px; background: #f8f9fa; }
+
     h2 { text-align:center; color: #333; margin-bottom: 20px; }
     label { display:block; margin-top:10px; font-weight:bold; font-size: 14px; color: #444; }
     input, select, textarea, button { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:1px solid #ccc; font-size:16px; box-sizing: border-box; }
@@ -32,98 +37,117 @@
 <body>
 
 <div class="container">
+    <div class="lang-switcher">
+        <select id="langSelect" onchange="changeLanguage(this.value)">
+            <option value="ar">العربية</option>
+            <option value="ku">کوردی (سۆرانی)</option>
+        </select>
+    </div>
+
     <div id="login">
-        <h2>تسجيل الدخول</h2>
-        <label>اسم المندوب *</label>
+        <h2 data-key="login_title">تسجيل الدخول</h2>
+        <label data-key="rep_name_label">اسم المندوب *</label>
         <input id="repName">
-        <label>المدينة *</label>
+        <label data-key="city_label">المدينة *</label>
         <input id="city">
-        <button onclick="saveLogin()">دخول للنظام</button>
+        <button onclick="saveLogin()" data-key="login_btn">دخول للنظام</button>
     </div>
 
     <div id="formBox" class="hidden">
         <div class="nav-tabs">
-            <button id="tabNew" class="active" onclick="switchForm('new')">عميل جديد</button>
-            <button id="tabRegular" onclick="switchForm('regular')">عميل دائمي</button>
+            <button id="tabNew" class="active" onclick="switchForm('new')" data-key="tab_new">عميل جديد</button>
+            <button id="tabRegular" onclick="switchForm('regular')" data-key="tab_regular">عميل دائمي</button>
         </div>
 
         <div id="timerDisplay" class="hidden">00:00:00</div>
         <div class="visit-controls">
-            <button id="startVisitBtn" onclick="toggleVisit()">بدء<br>الزيارة</button>
-            <button id="cancelVisitBtn" class="hidden" onclick="cancelVisit()">إلغاء الزيارة ✖</button>
+            <button id="startVisitBtn" onclick="toggleVisit()" data-key="start_visit">بدء<br>الزيارة</button>
+            <button id="cancelVisitBtn" class="hidden" onclick="cancelVisit()" data-key="cancel_visit">إلغاء الزيارة ✖</button>
         </div>
 
         <div id="newClientForm">
-            <label>هل يمتلك زيت ريماكس؟ *</label>
-            <select id="useOil"><option value="">اختر</option><option>نعم</option><option>لا</option></select>
-            <label>الاسم التجاري *</label>
+            <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
+            <select id="useOil">
+                <option value="" data-key="choose">اختر</option>
+                <option value="نعم" data-key="yes">نعم</option>
+                <option value="لا" data-key="no">لا</option>
+            </select>
+            <label data-key="trade_name_label">الاسم التجاري *</label>
             <input id="tradeName">
-            <label>اسم المالك *</label>
+            <label data-key="owner_name_label">اسم المالك *</label>
             <input id="ownerName">
-            <label>العنوان *</label>
+            <label data-key="address_label">العنوان *</label>
             <input id="address">
-            <label>رقم الهاتف *</label>
+            <label data-key="phone_label">رقم الهاتف *</label>
             <input id="phone" inputmode="numeric">
-            <label>الفئة *</label>
-            <select id="category"><option value="">اختر</option><option>كراج</option><option>جملة</option><option>مفرد</option></select>
-            <label>ملاحظة</label>
+            <label data-key="category_label">الفئة *</label>
+            <select id="category">
+                <option value="" data-key="choose">اختر</option>
+                <option value="كراج" data-key="garage">كراج</option>
+                <option value="جملة" data-key="wholesale">جملة</option>
+                <option value="مفرد" data-key="retail">مفرد</option>
+            </select>
+            <label data-key="note_label">ملاحظة</label>
             <textarea id="note"></textarea>
-            <label>التقييم *</label>
-            <select id="rate"><option value="">اختر</option><option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option></select>
-            <label>كل كم يوم زيارة *</label>
+            <label data-key="rate_label">التقييم *</label>
+            <select id="rate">
+                <option value="" data-key="choose">اختر</option>
+                <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
+            </select>
+            <label data-key="visit_days_label">كل كم يوم زيارة *</label>
             <input id="visitDays" inputmode="numeric">
             
             <hr style="opacity: 0.2; margin: 20px 0;">
-            <label>نوع الزيت ماركة أخرى</label>
+            <label data-key="other_oil_label">نوع الزيت ماركة أخرى</label>
             <input id="oilType">
-            <label>درجة الزيت</label>
+            <label data-key="oil_grade_label">درجة الزيت</label>
             <input id="oilGrade">
-            <label>المسافة</label>
+            <label data-key="distance_label">المسافة</label>
             <select id="oilDistance">
-                <option value="">اختر</option>
+                <option value="" data-key="choose">اختر</option>
                 <option>3K كم</option><option>5K كم</option><option>10K كم</option><option>15K كم</option>
             </select>
-            <label>سعر اللتر</label>
+            <label data-key="liter_price_label">سعر اللتر</label>
             <input id="oilPrice" inputmode="numeric">
             
-            <label>صورة المتجر *</label>
+            <label data-key="store_img_label">صورة المتجر *</label>
             <input type="file" id="imageInputNew" accept="image/*" capture="environment">
         </div>
 
         <div id="regularClientForm" class="hidden">
-            <label>اسم العميل *</label>
+            <label data-key="client_name_label">اسم العميل *</label>
             <input id="reg_clientName">
-            <label>هل تم عمل طلبية؟</label>
+            <label data-key="has_order_label">هل تم عمل طلبية؟</label>
             <select id="reg_hasOrder" onchange="toggleOrderFields()">
-                <option value="لا">لا</option><option value="نعم">نعم</option>
+                <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
             </select>
             <div id="orderAmountBox" class="hidden">
-                <label>مبلغ الطلبية *</label>
+                <label data-key="order_amount_label">مبلغ الطلبية *</label>
                 <input id="reg_orderAmount" type="number">
             </div>
             <div id="orderReasonBox">
-                <label>سبب عدم إنشاء طلبية *</label>
+                <label data-key="no_order_reason">سبب عدم إنشاء طلبية *</label>
                 <input id="reg_orderReason">
             </div>
-            <label>هل تم قبض مبلغ؟</label>
+            <label data-key="has_payment_label">هل تم قبض مبلغ؟</label>
             <select id="reg_hasPayment" onchange="togglePaymentFields()">
-                <option value="لا">لا</option><option value="نعم">نعم</option>
+                <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
             </select>
             <div id="payAmountBox" class="hidden">
-                <label>مبلغ القبض *</label>
+                <label data-key="pay_amount_label">مبلغ القبض *</label>
                 <input id="reg_payAmount" type="number">
             </div>
             <div id="payReasonBox">
-                <label>سبب عدم القبض *</label>
+                <label data-key="no_pay_reason">سبب عدم القبض *</label>
                 <input id="reg_payReason">
             </div>
-            <label>الملاحظة</label>
+            <label data-key="note_label">الملاحظة</label>
             <textarea id="reg_note"></textarea>
-            <label>التقاط صورة *</label>
+            <label data-key="take_photo_label">التقاط صورة *</label>
             <input type="file" id="imageInputReg" accept="image/*" capture="environment">
         </div>
 
-        <button id="sendBtn" onclick="handleSend()">إرسال البيانات</button>
+        <button id="sendBtn" onclick="handleSend()" data-key="send_data_btn">إرسال البيانات</button>
         <div id="msg"></div>
     </div>
 </div>
@@ -135,7 +159,44 @@ let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStor
 let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.getItem('startCoords')) : null;
 let timerInterval;
 
+// كائن الترجمات
+const translations = {
+    ar: {
+        login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
+        tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
+        cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "هل يمتلك زيت ريماكس؟ *", choose: "اختر", yes: "نعم", no: "لا",
+        trade_name_label: "الاسم التجاري *", owner_name_label: "اسم المالك *", address_label: "العنوان *", phone_label: "رقم الهاتف *",
+        category_label: "الفئة *", garage: "كراج", wholesale: "جملة", retail: "مفرد", note_label: "ملاحظة",
+        rate_label: "التقييم *", visit_days_label: "كل كم يوم زيارة *", other_oil_label: "نوع الزيت ماركة أخرى",
+        oil_grade_label: "درجة الزيت", distance_label: "المسافة", liter_price_label: "سعر اللتر", store_img_label: "صورة المتجر *",
+        client_name_label: "اسم العميل *", has_order_label: "هل تم عمل طلبية؟", order_amount_label: "مبلغ الطلبية *",
+        no_order_reason: "سبب عدم إنشاء طلبية *", has_payment_label: "هل تم قبض مبلغ؟", pay_amount_label: "مبلغ القبض *",
+        no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
+        alert_fill: "يرجى إدخال البيانات", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
+        alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح"
+    },
+    ku: {
+        login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
+        tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
+        cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا زەیتی ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
+        trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
+        category_label: "پۆلێن *", garage: "گەراج", wholesale: "کۆمەڵ", retail: "تاک", note_label: "تێبینی",
+        rate_label: "هەڵسەنگاندن *", visit_days_label: "چەند ڕۆژ جارێک سەردان *", other_oil_label: "جۆری زەیتی مارکەیەکی تر",
+        oil_grade_label: "پلەی زەیت", distance_label: "مەودا", liter_price_label: "نرخی لیتر", store_img_label: "وێنەی فرۆشگا *",
+        client_name_label: "ناوی کڕیار *", has_order_label: "ئایا داواکاری تۆمارکرا؟", order_amount_label: "بڕی داواکاری *",
+        no_order_reason: "هۆکاری تۆمارنەکردنی داواکاری *", has_payment_label: "ئایا پارە وەرگیرا؟", pay_amount_label: "بڕی وەرگیراو *",
+        no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
+        alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
+        alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو"
+    }
+};
+
 window.onload = () => {
+    // استرجاع اللغة المحفوظة
+    const savedLang = localStorage.getItem('appLang') || 'ar';
+    document.getElementById('langSelect').value = savedLang;
+    changeLanguage(savedLang);
+
     if(localStorage.repName) {
         document.getElementById('login').classList.add('hidden');
         document.getElementById('formBox').classList.remove('hidden');
@@ -143,10 +204,29 @@ window.onload = () => {
     }
 };
 
+function changeLanguage(lang) {
+    localStorage.setItem('appLang', lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = "rtl"; // كلاهما RTL
+
+    // تحديث النصوص في الصفحة
+    document.querySelectorAll('[data-key]').forEach(el => {
+        const key = el.getAttribute('data-key');
+        if (translations[lang][key]) {
+            if (el.tagName === 'BUTTON' && key === 'start_visit' && visitStartTime) {
+                el.innerHTML = translations[lang]['active_visit'];
+            } else {
+                el.innerHTML = translations[lang][key];
+            }
+        }
+    });
+}
+
 function saveLogin() {
+    const lang = localStorage.getItem('appLang') || 'ar';
     const r = document.getElementById('repName').value;
     const c = document.getElementById('city').value;
-    if(!r || !c) return alert("يرجى إدخال البيانات");
+    if(!r || !c) return alert(translations[lang].alert_fill);
     localStorage.repName = r; localStorage.city = c;
     location.reload();
 }
@@ -160,7 +240,7 @@ function switchForm(mode) {
 }
 
 function toggleVisit() {
-    // التأكد أن الزر يعمل في كلا الفورمين
+    const lang = localStorage.getItem('appLang') || 'ar';
     if(!visitStartTime) {
         navigator.geolocation.getCurrentPosition(pos => {
             visitStartTime = Date.now();
@@ -168,17 +248,18 @@ function toggleVisit() {
             localStorage.setItem('visitStartTime', visitStartTime);
             localStorage.setItem('startCoords', JSON.stringify(startCoords));
             resumeVisit();
-        }, () => alert("يجب تفعيل الموقع لبدء الزيارة"));
+        }, () => alert(translations[lang].alert_geo));
     }
 }
 
 function resumeVisit() {
+    const lang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('timerDisplay').classList.remove('hidden');
     document.getElementById('cancelVisitBtn').classList.remove('hidden');
     const btn = document.getElementById('startVisitBtn');
     btn.classList.add('active');
-    btn.innerHTML = "زيارة<br>جارية";
-    btn.disabled = true; // يتم تعطيله لأنه بدأ بالفعل
+    btn.innerHTML = translations[lang].active_visit;
+    btn.disabled = true;
 
     if(timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
@@ -191,21 +272,20 @@ function resumeVisit() {
 }
 
 function cancelVisit() {
-    if(confirm("سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟")) {
+    const lang = localStorage.getItem('appLang') || 'ar';
+    if(confirm(translations[lang].alert_cancel)) {
         clearInterval(timerInterval);
         localStorage.removeItem('visitStartTime');
         localStorage.removeItem('startCoords');
         visitStartTime = null;
         startCoords = null;
         
-        // إعادة تهيئة شكل الأزرار يدوياً دون الحاجة لتحديث الصفحة
         const btn = document.getElementById('startVisitBtn');
         btn.classList.remove('active');
         btn.disabled = false;
-        btn.innerHTML = "بدء<br>الزيارة";
+        btn.innerHTML = translations[lang].start_visit;
         document.getElementById('timerDisplay').classList.add('hidden');
         document.getElementById('cancelVisitBtn').classList.add('hidden');
-        alert("تم إلغاء الزيارة، يمكنك البدء من جديد.");
     }
 }
 
@@ -230,22 +310,23 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 async function handleSend() {
-    if(!visitStartTime) return alert("يرجى الضغط على زر بدء الزيارة أولاً");
+    const lang = localStorage.getItem('appLang') || 'ar';
+    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
 
     navigator.geolocation.getCurrentPosition(async pos => {
         const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
         if(dist > 2000) {
-            alert(`المسافة بعيدة جداً (${Math.round(dist)}م). يجب أن تكون قريباً من نقطة البداية.`);
+            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`);
             return;
         }
 
-        btn.disabled = true; // تعطيل الإرسال
-        btn.innerText = "جاري الإرسال...";
-        msg.innerText = "⏳ يرجى الانتظار، يتم رفع البيانات...";
+        btn.disabled = true;
+        btn.innerText = translations[lang].sending;
+        msg.innerText = translations[lang].wait;
 
-        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " دقيقة";
+        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
 
         let data = {
             sheetName: currentMode === 'new' ? 'data' : 'Clients',
@@ -287,33 +368,31 @@ async function handleSend() {
                 sendToGoogle(data);
             };
         } else {
-            alert("يرجى التقاط الصورة");
+            alert(translations[lang].take_photo_label);
             btn.disabled = false;
-            btn.innerText = "إرسال البيانات";
+            btn.innerText = translations[lang].send_data_btn;
         }
-    }, () => alert("فشل تحديد الموقع"));
+    }, () => alert(translations[lang].alert_geo));
 }
 
 function sendToGoogle(data) {
+    const lang = localStorage.getItem('appLang') || 'ar';
     fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify(data)
     })
     .then(() => {
-        alert("✅ تم بنجاح");
+        alert(translations[lang].success);
         localStorage.removeItem('visitStartTime');
         localStorage.removeItem('startCoords');
         location.reload();
     })
     .catch(() => {
-        alert("خطأ في الشبكة");
+        alert("Error");
         document.getElementById('sendBtn').disabled = false;
     });
 }
 </script>
 </body>
 </html>
-
-
-
