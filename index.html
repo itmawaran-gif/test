@@ -7,67 +7,122 @@
 
 <style>
 body{font-family:tahoma;background:#f2f4f7;margin:0}
-.container{max-width:420px;margin:auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 10px #0002}
-h2{text-align:center}
+.container{max-width:500px;margin:auto;background:#fff;padding:16px;border-radius:12px;box-shadow:0 4px 10px #0002;transition:background 0.3s}
+h2{text-align:center;margin-bottom:10px}
 label{display:block;margin-top:10px;font-weight:bold}
 input,select,textarea,button{width:100%;padding:10px;margin-top:4px;border-radius:8px;border:1px solid #ccc;font-size:16px}
-button{background:#0a7cff;color:#fff;border:0;cursor:pointer}
-button:disabled{background:#999}
+button{background:#0a7cff;color:#fff;border:0;cursor:pointer;transition:0.2s}
+button:hover{opacity:0.9}
+button:disabled{background:#999;cursor:not-allowed}
 .hidden{display:none}
 .error{border-color:red;background:#ffecec}
 
+/* زر التبديل */
 #switcher{display:flex;gap:6px;margin-bottom:10px}
-#switcher button{background:#555}
+#switcher button{flex:1;padding:10px;font-weight:bold;color:#fff;border-radius:8px;border:none;transition:0.2s}
+#switcher button.active{opacity:1;font-weight:bold}
 
+/* ألوان الفورم */
+#newForm{background:#e0f7ff;padding:10px;border-radius:8px;transition:0.3s}
+#oldForm{background:#fff0e0;padding:10px;border-radius:8px;transition:0.3s}
+
+/* زيارة */
 #visitBox{text-align:center;margin:10px 0}
-#startVisit{width:90px;height:90px;border-radius:50%;font-size:14px}
-#timer{margin-top:6px;font-weight:bold}
+#startVisit{width:90px;height:90px;border-radius:50%;font-size:14px;font-weight:bold;background:#0a7cff;color:#fff;border:none;cursor:pointer;transition:0.3s}
+#timer{margin-top:6px;font-weight:bold;font-size:16px}
 </style>
 </head>
 
 <body>
 <div class="container">
 
-<!-- ===== التبديل ===== -->
+<!-- زر التبديل -->
 <div id="switcher">
-  <button onclick="showForm('new')">عميل جديد</button>
-  <button onclick="showForm('old')">عميل دائمي</button>
+  <button id="btnNew" class="active" onclick="showForm('new')">عميل جديد</button>
+  <button id="btnOld" onclick="showForm('old')">عميل دائمي</button>
 </div>
 
-<!-- ===== بدء الزيارة ===== -->
+<!-- زر بدء الزيارة -->
 <div id="visitBox">
   <button id="startVisit">بدء<br>الزيارة</button>
-  <div id="timer"></div>
+  <div id="timer">⏱️ 0:00</div>
 </div>
 
-<!-- ================== عميل جديد ================== -->
+<!-- ===== عميل جديد ===== -->
 <div id="newForm">
 
 <h2>عميل جديد</h2>
 
-<label>الاسم التجاري *</label>
+<label>هل يمتلك زيت ريماكس - ئایا ڕۆنی ڕیماکس هەیەتی *</label>
+<select id="useOil">
+  <option value="">اختر</option>
+  <option>نعم - بەڵێ</option>
+  <option>لا - نەخێر</option>
+</select>
+
+<label>الاسم التجاري - ناوی بازرگانی *</label>
 <input id="tradeName">
 
-<label>اسم المالك *</label>
+<label>اسم المالك - ناوی خاوەنەکەی *</label>
 <input id="ownerName">
 
-<label>العنوان *</label>
+<label>العنوان ناونیشانەکە *</label>
 <input id="address">
 
-<label>رقم الهاتف *</label>
-<input id="phone">
+<label>رقم الهاتف - ژمارەی تەلەفۆن *</label>
+<input id="phone" inputmode="numeric">
 
-<label>ملاحظة</label>
+<label>الفئة - جۆر *</label>
+<select id="category">
+  <option value="">اختر</option>
+  <option>كراج</option>
+  <option>جملة</option>
+  <option>مفرد</option>
+</select>
+
+<label>ملاحظة - تێبینی</label>
 <textarea id="note"></textarea>
+
+<label>التقييم - هەڵسەنگاندن *</label>
+<select id="rate">
+  <option value="">اختر</option>
+  <option value="1">⭐</option>
+  <option value="2">⭐⭐</option>
+  <option value="3">⭐⭐⭐</option>
+  <option value="4">⭐⭐⭐⭐</option>
+  <option value="5">⭐⭐⭐⭐⭐</option>
+</select>
+
+<label>كل كم يوم زيارة - چەند ڕۆژ دوای سەردانەکە؟ *</label>
+<input id="visitDays" inputmode="numeric">
+
+<label>نوع الزيت من ماركة اخرى</label>
+<input id="oilType">
+
+<label>درجة الزيت</label>
+<input id="oilGrade">
+
+<label>كم المسافة التي يقطعها</label>
+<select id="oilDistance">
+  <option value="">اختر</option>
+  <option>3K كم</option>
+  <option>5K كم</option>
+  <option>10K كم</option>
+  <option>15K كم</option>
+</select>
+
+<label>سعر اللتر</label>
+<input id="oilPrice" inputmode="numeric">
 
 <label>صورة المتجر *</label>
 <input type="file" id="newImage" accept="image/*" capture="environment">
 
 <button id="sendNewBtn" onclick="sendNew()">إرسال</button>
 <div id="msgNew"></div>
+
 </div>
 
-<!-- ================== عميل دائمي ================== -->
+<!-- ===== عميل دائمي ===== -->
 <div id="oldForm" class="hidden">
 
 <h2>عميل دائمي</h2>
@@ -117,28 +172,33 @@ button:disabled{background:#999}
 
 <button id="sendOldBtn" onclick="sendOld()">إرسال</button>
 <div id="msgOld"></div>
+
 </div>
 
 </div>
 
 <script>
-const URL="https://script.google.com/macros/s/AKfycbwLxdZ27xXcPcJPDAxphwPYuEK1ICgj4qkayh00QBeDBR4YbFeX9_-rcNbPIdvJ3wsG/exec";
+const URL="https://script.google.com/macros/s/AKfycbwKg-VeCTqyk3nFKf7GchKp60d5UfVyxsbl3DDW4XUOM4tC1LwuyOMQm_gr79eFwmMF/exec";
 let visitTimer;
 
-// ===== التبديل =====
-function showForm(t){
-  newForm.classList.toggle("hidden",t!=="new");
-  oldForm.classList.toggle("hidden",t!=="old");
+// ===== التبديل بين الفورمين =====
+function showForm(type){
+  const newBg="#e0f7ff", oldBg="#fff0e0";
+  newForm.classList.toggle("hidden",type!=="new");
+  oldForm.classList.toggle("hidden",type!=="old");
+  btnNew.classList.toggle("active",type==="new");
+  btnOld.classList.toggle("active",type==="old");
+  document.querySelector(".container").style.background = type==="new"?newBg:oldBg;
 }
 
-// ===== بدء الزيارة =====
+// ===== زر بدء الزيارة =====
 startVisit.onclick=()=>{
   navigator.geolocation.getCurrentPosition(p=>{
     localStorage.visitStart=Date.now();
     localStorage.startLat=p.coords.latitude;
     localStorage.startLng=p.coords.longitude;
-    alert("✅ تم بدء الزيارة");
     runTimer();
+    alert("✅ تم بدء الزيارة");
   });
 };
 
@@ -152,32 +212,30 @@ function runTimer(){
     timer.textContent=`⏱️ ${m}:${s.toString().padStart(2,"0")}`;
   },1000);
 }
-if(localStorage.visitStart)runTimer();
+if(localStorage.visitStart) runTimer();
 
-// ===== مسافة =====
+// ===== المسافة =====
 function distance(lat1,lng1,lat2,lng2){
   const R=6371e3,toRad=x=>x*Math.PI/180;
   const dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1);
-  const a=Math.sin(dLat/2)**2+
-    Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+  const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
-// ===== مدة =====
+// ===== مدة الزيارة =====
 function visitDuration(){
   return Math.round((Date.now()-localStorage.visitStart)/60000);
 }
 
-// ===== صورة =====
+// ===== قراءة الصورة =====
 function readImage(input,cb){
   const r=new FileReader();
   r.onload=e=>cb(e.target.result);
   r.readAsDataURL(input.files[0]);
 }
 
-// ===== إرسال عميل جديد =====
+// ===== إرسال العميل الجديد =====
 function sendNew(){
-  type: "new",  
   navigator.geolocation.getCurrentPosition(p=>{
     if(distance(localStorage.startLat,localStorage.startLng,p.coords.latitude,p.coords.longitude)>2000){
       msgNew.textContent="❌ خارج موقع الزيارة";
@@ -187,12 +245,22 @@ function sendNew(){
       fetch(URL,{
         method:"POST",
         body:JSON.stringify({
-          type:"new",
+          type:"new",        // 👈 مهم
+          repName:"مندوب 1", // أضف المندوب إذا تريد
+          city:"مدينة 1",    // أضف المدينة
           tradeName:tradeName.value,
           ownerName:ownerName.value,
+          useOil:useOil.value,
           address:address.value,
           phone:phone.value,
+          category:category.value,
           note:note.value,
+          rate:rate.value,
+          visitDays:visitDays.value,
+          oilType:oilType.value,
+          oilGrade:oilGrade.value,
+          oilDistance:oilDistance.value,
+          oilPrice:oilPrice.value,
           image:img,
           lat:p.coords.latitude,
           lng:p.coords.longitude,
@@ -215,7 +283,6 @@ function toggleCash(){
 }
 
 function sendOld(){
-  type: "old", 
   navigator.geolocation.getCurrentPosition(p=>{
     if(distance(localStorage.startLat,localStorage.startLng,p.coords.latitude,p.coords.longitude)>2000){
       msgOld.textContent="❌ خارج موقع الزيارة";
