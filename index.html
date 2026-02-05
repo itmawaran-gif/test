@@ -7,6 +7,24 @@
 <style>
     body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
     .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
+    
+    /* تصميم النافذة المنبثقة الإجبارية */
+    #appModal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85); display: flex; align-items: center;
+        justify-content: center; z-index: 9999;
+    }
+    .modal-content {
+        background: #fff; padding: 30px; border-radius: 15px;
+        text-align: center; width: 80%; max-width: 300px;
+    }
+    .modal-content h3 { margin-top: 0; color: #333; }
+    .modal-content p { font-size: 14px; color: #666; margin-bottom: 20px; }
+    #openAppBtn {
+        background: #28a745; color: #fff; border: 0; padding: 12px 20px;
+        border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+    }
+
     .lang-switcher { margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
     .lang-switcher select { width: auto; padding: 8px 15px; font-size: 14px; cursor: pointer; border-radius: 20px; background: #f8f9fa; border: 1px solid #ddd; }
     h2 { text-align:center; color: #333; margin-bottom: 20px; }
@@ -15,7 +33,7 @@
     button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:pointer; font-weight: bold; }
     button:disabled { background:#999 !important; cursor:not-allowed; opacity: 0.6; }
     #msg { text-align:center; margin-top:10px; font-weight:bold; font-size: 14px; }
-    .hidden { display:none; }
+    .hidden { display:none !important; }
     .visit-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; flex-direction: column; }
     #startVisitBtn { width: 90px; height: 90px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s; }
     #startVisitBtn.active { background: #dc3545; animation: pulse 1.5s infinite; }
@@ -28,6 +46,14 @@
 </style>
 </head>
 <body>
+
+<div id="appModal" class="hidden">
+    <div class="modal-content">
+        <h3 id="modalTitle">تنبيه اليوم</h3>
+        <p id="modalBody">يجب فتح تطبيق Traccar لضمان تسجيل الموقع بشكل صحيح.</p>
+        <button id="openAppBtn" onclick="triggerAppOpening()">فتح التطبيق الآن</button>
+    </div>
+</div>
 
 <div class="container">
     <div id="login">
@@ -153,6 +179,7 @@ let isSending = false;
 
 const translations = {
     ar: {
+        modal_title: "تنبيه اليوم", modal_body: "يجب فتح تطبيق Traccar لضمان تسجيل الموقع بشكل صحيح.", modal_btn: "فتح التطبيق الآن",
         login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
         tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
         cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "هل يمتلك زيت ريماكس؟ *", choose: "اختر", yes: "نعم", no: "لا",
@@ -167,6 +194,7 @@ const translations = {
         alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع..."
     },
     ku: {
+        modal_title: "ئاگاداری ڕۆژ", modal_body: "دەبێت ئەپی Traccar بکەیتەوە بۆ دڵنیابوون لە تۆمارکردنی شوێن.", modal_btn: "ئێستا ئەپەکە بکەرەوە",
         login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
         tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
         cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا زەیتی ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
@@ -182,26 +210,40 @@ const translations = {
     }
 };
 
-// دالة لفتح تطبيق Traccar Client مرة واحدة يومياً
-function openTraccarOnceADay() {
+// وظيفة التحقق من الحاجة لفتح التطبيق
+function checkDailyAppModal() {
     const today = new Date().toLocaleDateString();
     const lastOpen = localStorage.getItem('lastTraccarOpenDate');
+    const lang = localStorage.getItem('appLang') || 'ar';
 
     if (lastOpen !== today) {
-        // الحزمة الصحيحة من رابط المتجر الذي أرسلته
-        const appPackage = "org.traccar.client";
+        // إظهار النافذة المنبثقة
+        const modal = document.getElementById('appModal');
+        modal.classList.remove('hidden');
         
-        // محاولة فتح التطبيق
-        window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
-        
-        // تسجيل أن الفتح تم اليوم
-        localStorage.setItem('lastTraccarOpenDate', today);
+        // تحديث نصوص النافذة حسب اللغة
+        document.getElementById('modalTitle').innerText = translations[lang].modal_title;
+        document.getElementById('modalBody').innerText = translations[lang].modal_body;
+        document.getElementById('openAppBtn').innerText = translations[lang].modal_btn;
     }
 }
 
+// وظيفة يتم استدعاؤها عند الضغط على زر "فتح" داخل النافذة
+function triggerAppOpening() {
+    const today = new Date().toLocaleDateString();
+    const appPackage = "org.traccar.client";
+    
+    // محاولة فتح التطبيق
+    window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
+    
+    // إخفاء النافذة وتسجيل الفتح في الذاكرة
+    document.getElementById('appModal').classList.add('hidden');
+    localStorage.setItem('lastTraccarOpenDate', today);
+}
+
 window.onload = () => {
-    // محاولة فتح التطبيق فور تحميل الصفحة
-    openTraccarOnceADay();
+    // تشغيل التحقق اليومي
+    checkDailyAppModal();
 
     const savedLang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('langSelect').value = savedLang;
@@ -212,6 +254,8 @@ window.onload = () => {
         if(visitStartTime) resumeVisit();
     }
 };
+
+// ... بقية وظائف الكود الخاصة بك (changeLanguage, saveLogin, toggleVisit, إلخ) ...
 
 function changeLanguage(lang) {
     localStorage.setItem('appLang', lang);
