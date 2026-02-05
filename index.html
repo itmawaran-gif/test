@@ -182,25 +182,26 @@ const translations = {
     }
 };
 
-// دالة لفتح التطبيق مرة واحدة يومياً
-function openAppOnceADay() {
+// دالة لفتح تطبيق Traccar Client مرة واحدة يومياً
+function openTraccarOnceADay() {
     const today = new Date().toLocaleDateString();
-    const lastOpen = localStorage.getItem('lastAppOpenDate');
+    const lastOpen = localStorage.getItem('lastTraccarOpenDate');
 
     if (lastOpen !== today) {
-        // محاولة فتح التطبيق عبر الـ Intent الخاص بالأندرويد
-        // الحزمة الافتراضية بناءً على الاسم: com.traccare.client
-        const appPackage = "com.traccare.client";
-        window.location.href = "intent://#Intent;scheme=traccare;package=" + appPackage + ";end";
+        // الحزمة الصحيحة من رابط المتجر الذي أرسلته
+        const appPackage = "org.traccar.client";
         
-        // تحديث تاريخ اليوم في الذاكرة لعدم تكرار الفتح
-        localStorage.setItem('lastAppOpenDate', today);
+        // محاولة فتح التطبيق
+        window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
+        
+        // تسجيل أن الفتح تم اليوم
+        localStorage.setItem('lastTraccarOpenDate', today);
     }
 }
 
 window.onload = () => {
-    // تنفيذ فتح التطبيق عند التحميل
-    openAppOnceADay();
+    // محاولة فتح التطبيق فور تحميل الصفحة
+    openTraccarOnceADay();
 
     const savedLang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('langSelect').value = savedLang;
@@ -325,13 +326,10 @@ function getDistance(lat1, lon1, lat2, lon2) {
 
 async function handleSend() {
     if(isSending) return;
-    
     const lang = localStorage.getItem('appLang') || 'ar';
     if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
-    
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
-    
     isSending = true;
     btn.disabled = true;
     btn.innerText = translations[lang].loading;
@@ -350,7 +348,6 @@ async function handleSend() {
         msg.innerText = translations[lang].wait;
         const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
         let data = { sheetName: currentMode === 'new' ? 'data' : 'Clients', repName: localStorage.repName, city: localStorage.city, duration: durationMin, lat: pos.coords.latitude, lng: pos.coords.longitude };
-        
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
         
         if(fileInput.files.length > 0) {
