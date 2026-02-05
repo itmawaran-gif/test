@@ -25,6 +25,56 @@
     .nav-tabs button { margin-top: 0; background: #eee; color: #333; flex: 1; font-size: 14px; border: 1px solid #ddd; }
     .nav-tabs button.active { background: #0a7cff; color: white; border-color: #0a7cff; }
     #timerDisplay { text-align: center; font-size: 22px; font-weight: bold; color: #dc3545; font-family: monospace; margin-bottom: 10px; }
+    /* ===== نافذة منبثقة لفتح Traccar مرة يومياً ===== */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-box {
+  background: white;
+  padding: 25px;
+  border-radius: 18px;
+  text-align: center;
+  width: 85%;
+  max-width: 320px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.popup-box h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #dc3545;
+}
+
+.popup-box p {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.popup-btn {
+  background: #0a7cff;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  font-size: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.popup-btn:active {
+  transform: scale(0.97);
+}
 </style>
 </head>
 <body>
@@ -186,12 +236,17 @@ window.onload = () => {
     const savedLang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('langSelect').value = savedLang;
     changeLanguage(savedLang);
+
     if(localStorage.repName) {
         document.getElementById('login').classList.add('hidden');
         document.getElementById('formBox').classList.remove('hidden');
         if(visitStartTime) resumeVisit();
     }
+
+    // ✅ تشغيل نافذة Traccar اليومية
+    checkTraccarPopup();
 };
+
 
 function changeLanguage(lang) {
     localStorage.setItem('appLang', lang);
@@ -395,6 +450,54 @@ function sendToGoogle(data) {
         document.getElementById('sendBtn').disabled = false;
     });
 }
+/* ===== Traccar Popup مرة واحدة يومياً ===== */
+
+function checkTraccarPopup() {
+    const today = new Date().toISOString().split("T")[0];
+    const lastOpen = localStorage.getItem("traccarOpenedDate");
+
+    if (lastOpen !== today) {
+        document.getElementById("traccarPopup").classList.remove("hidden");
+    }
+}
+
+function openTraccarApp() {
+    const today = new Date().toISOString().split("T")[0];
+
+    localStorage.setItem("traccarOpenedDate", today);
+
+    window.location.href =
+      "intent://#Intent;scheme=traccar;package=org.traccar.client;end";
+
+    document.getElementById("traccarPopup").classList.add("hidden");
+}
+
 </script>
+/* ===== Traccar Popup مرة واحدة يومياً ===== */
+
+function checkTraccarPopup() {
+    const today = new Date().toISOString().split("T")[0];
+    const lastOpen = localStorage.getItem("traccarOpenedDate");
+
+    // إذا لم يتم فتح التطبيق اليوم → أظهر النافذة
+    if (lastOpen !== today) {
+        document.getElementById("traccarPopup").classList.remove("hidden");
+    }
+}
+
+function openTraccarApp() {
+    const today = new Date().toISOString().split("T")[0];
+
+    // حفظ أن التطبيق فتح اليوم
+    localStorage.setItem("traccarOpenedDate", today);
+
+    // فتح تطبيق Traccar Client (Android)
+    window.location.href =
+      "intent://#Intent;scheme=traccar;package=org.traccar.client;end";
+
+    // إخفاء النافذة بعد الضغط
+    document.getElementById("traccarPopup").classList.add("hidden");
+}
+
 </body>
 </html>
