@@ -11,19 +11,22 @@
     /* تصميم النافذة المنبثقة الإجبارية */
     #appModal {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.85); display: flex; align-items: center;
+        background: rgba(0,0,0,0.9); display: flex; align-items: center;
         justify-content: center; z-index: 9999;
     }
     .modal-content {
         background: #fff; padding: 30px; border-radius: 15px;
-        text-align: center; width: 80%; max-width: 300px;
+        text-align: center; width: 85%; max-width: 320px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
     }
-    .modal-content h3 { margin-top: 0; color: #333; }
-    .modal-content p { font-size: 14px; color: #666; margin-bottom: 20px; }
+    .modal-content h3 { margin-top: 0; color: #333; font-size: 18px; }
+    .modal-content p { font-size: 14px; color: #666; margin-bottom: 25px; line-height: 1.6; }
     #openAppBtn {
-        background: #28a745; color: #fff; border: 0; padding: 12px 20px;
-        border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+        background: #28a745; color: #fff; border: 0; padding: 15px 25px;
+        border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px;
+        width: 100%; transition: background 0.3s;
     }
+    #openAppBtn:active { background: #1e7e34; }
 
     .lang-switcher { margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
     .lang-switcher select { width: auto; padding: 8px 15px; font-size: 14px; cursor: pointer; border-radius: 20px; background: #f8f9fa; border: 1px solid #ddd; }
@@ -49,9 +52,9 @@
 
 <div id="appModal" class="hidden">
     <div class="modal-content">
-        <h3 id="modalTitle">تنبيه اليوم</h3>
-        <p id="modalBody">يجب فتح تطبيق Traccar لضمان تسجيل الموقع بشكل صحيح.</p>
-        <button id="openAppBtn" onclick="triggerAppOpening()">فتح التطبيق الآن</button>
+        <h3 id="modalTitle">تفعيل الموقع</h3>
+        <p id="modalBody">يرجى الضغط على الزر أدناه لتشغيل تطبيق التتبع لضمان دقة البيانات.</p>
+        <button id="openAppBtn" onclick="triggerAppOpening()">تشغيل التطبيق والدخول</button>
     </div>
 </div>
 
@@ -179,7 +182,7 @@ let isSending = false;
 
 const translations = {
     ar: {
-        modal_title: "تنبيه اليوم", modal_body: "يجب فتح تطبيق Traccar لضمان تسجيل الموقع بشكل صحيح.", modal_btn: "فتح التطبيق الآن",
+        modal_title: "تفعيل الموقع", modal_body: "يرجى تشغيل تطبيق التتبع لضمان دقة البيانات قبل البدء بالعمل اليوم.", modal_btn: "تشغيل التطبيق والدخول",
         login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
         tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
         cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "هل يمتلك زيت ريماكس؟ *", choose: "اختر", yes: "نعم", no: "لا",
@@ -194,7 +197,7 @@ const translations = {
         alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع..."
     },
     ku: {
-        modal_title: "ئاگاداری ڕۆژ", modal_body: "دەبێت ئەپی Traccar بکەیتەوە بۆ دڵنیابوون لە تۆمارکردنی شوێن.", modal_btn: "ئێستا ئەپەکە بکەرەوە",
+        modal_title: "چالاککردنی شوێن", modal_body: "تکایە ئەپی شوێنکەوتن چالاک بکە بۆ دڵنیابوون لە وردی زانیارییەکان پێش دەستپێکردنی کار.", modal_btn: "ئەپەکە بکەرەوە و بچۆ ژوورەوە",
         login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
         tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
         cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا زەیتی ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
@@ -210,41 +213,37 @@ const translations = {
     }
 };
 
-// وظيفة التحقق من الحاجة لفتح التطبيق
 function checkDailyAppModal() {
     const today = new Date().toLocaleDateString();
     const lastOpen = localStorage.getItem('lastTraccarOpenDate');
     const lang = localStorage.getItem('appLang') || 'ar';
 
     if (lastOpen !== today) {
-        // إظهار النافذة المنبثقة
         const modal = document.getElementById('appModal');
         modal.classList.remove('hidden');
-        
-        // تحديث نصوص النافذة حسب اللغة
         document.getElementById('modalTitle').innerText = translations[lang].modal_title;
         document.getElementById('modalBody').innerText = translations[lang].modal_body;
         document.getElementById('openAppBtn').innerText = translations[lang].modal_btn;
     }
 }
 
-// وظيفة يتم استدعاؤها عند الضغط على زر "فتح" داخل النافذة
 function triggerAppOpening() {
     const today = new Date().toLocaleDateString();
     const appPackage = "org.traccar.client";
     
-    // محاولة فتح التطبيق
+    // 1. محاولة فتح التطبيق
     window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
     
-    // إخفاء النافذة وتسجيل الفتح في الذاكرة
-    document.getElementById('appModal').classList.add('hidden');
-    localStorage.setItem('lastTraccarOpenDate', today);
+    // 2. "خدعة الخلفية": بعد ثانية واحدة، نقوم بإخفاء النافذة في المتصفح
+    // هذا يعني أن المستخدم حتى لو انتقل للتطبيق، بمجرد عودته للمتصفح سيجد النافذة قد اختفت.
+    setTimeout(() => {
+        document.getElementById('appModal').classList.add('hidden');
+        localStorage.setItem('lastTraccarOpenDate', today);
+    }, 1500); 
 }
 
 window.onload = () => {
-    // تشغيل التحقق اليومي
     checkDailyAppModal();
-
     const savedLang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('langSelect').value = savedLang;
     changeLanguage(savedLang);
@@ -254,8 +253,6 @@ window.onload = () => {
         if(visitStartTime) resumeVisit();
     }
 };
-
-// ... بقية وظائف الكود الخاصة بك (changeLanguage, saveLogin, toggleVisit, إلخ) ...
 
 function changeLanguage(lang) {
     localStorage.setItem('appLang', lang);
@@ -293,11 +290,9 @@ function switchForm(mode) {
 function toggleVisit() {
     const lang = localStorage.getItem('appLang') || 'ar';
     const btn = document.getElementById('startVisitBtn');
-    
     if(!visitStartTime) {
         btn.disabled = true;
         btn.innerHTML = translations[lang].loading;
-        
         navigator.geolocation.getCurrentPosition(pos => {
             visitStartTime = Date.now();
             startCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -320,7 +315,6 @@ function resumeVisit() {
     btn.classList.add('active');
     btn.innerHTML = translations[lang].active_visit;
     btn.disabled = true;
-
     if(timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         const diff = Date.now() - visitStartTime;
@@ -337,8 +331,7 @@ function cancelVisit() {
         clearInterval(timerInterval);
         localStorage.removeItem('visitStartTime');
         localStorage.removeItem('startCoords');
-        visitStartTime = null;
-        startCoords = null;
+        visitStartTime = null; startCoords = null;
         const btn = document.getElementById('startVisitBtn');
         btn.classList.remove('active');
         btn.disabled = false;
@@ -374,26 +367,21 @@ async function handleSend() {
     if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
-    isSending = true;
-    btn.disabled = true;
+    isSending = true; btn.disabled = true;
     btn.innerText = translations[lang].loading;
-
     navigator.geolocation.getCurrentPosition(async pos => {
         const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
         if(dist > 2000) { 
             alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
-            isSending = false;
-            btn.disabled = false;
+            isSending = false; btn.disabled = false;
             btn.innerText = translations[lang].send_data_btn;
             return; 
         }
-
         btn.innerText = translations[lang].sending;
         msg.innerText = translations[lang].wait;
         const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
         let data = { sheetName: currentMode === 'new' ? 'data' : 'Clients', repName: localStorage.repName, city: localStorage.city, duration: durationMin, lat: pos.coords.latitude, lng: pos.coords.longitude };
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        
         if(fileInput.files.length > 0) {
             const reader = new FileReader();
             reader.readAsDataURL(fileInput.files[0]);
@@ -427,15 +415,13 @@ async function handleSend() {
             };
         } else {
             alert(translations[lang].take_photo_label);
-            isSending = false;
-            btn.disabled = false;
+            isSending = false; btn.disabled = false;
             btn.innerText = translations[lang].send_data_btn;
             msg.innerText = "";
         }
     }, () => {
         alert(translations[lang].alert_geo);
-        isSending = false;
-        btn.disabled = false;
+        isSending = false; btn.disabled = false;
         btn.innerText = translations[lang].send_data_btn;
     });
 }
