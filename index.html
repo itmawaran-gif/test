@@ -8,7 +8,19 @@
     body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
     .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
     
-    /* تصميم النافذة المنبثقة الإجبارية */
+    /* نافذة الرمز السري الإجبارية */
+    #securityModal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #f2f4f7; display: flex; align-items: center;
+        justify-content: center; z-index: 10000;
+    }
+    .security-content {
+        background: #fff; padding: 30px; border-radius: 15px;
+        text-align: center; width: 85%; max-width: 320px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    /* تصميم النافذة المنبثقة اليومية الأصلية */
     #appModal {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.85); display: flex; align-items: center;
@@ -46,6 +58,16 @@
 </style>
 </head>
 <body>
+
+<div id="securityModal">
+    <div class="security-content">
+        <h3>نظام MAWARAN</h3>
+        <p style="font-size: 13px; color: #666;">يرجى إدخال رمز الوصول للمتابعة</p>
+        <input type="password" id="accessCode" placeholder="الرمز السري" style="text-align: center;">
+        <button onclick="verifyAccessCode()">تحقق من الرمز</button>
+        <p id="errorCode" style="color: red; font-size: 12px; margin-top: 10px; display: none;">الرمز غير صحيح!</p>
+    </div>
+</div>
 
 <div id="appModal" class="hidden">
     <div class="modal-content">
@@ -200,7 +222,7 @@ const translations = {
         cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا زەیتی ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
         trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
         category_label: "پۆلێن *", garage: "گەراج", wholesale: "کۆمەڵ", retail: "تاک", note_label: "تێبینی",
-        rate_label: "هەڵسەنگاندن *", visit_days_label: "چەند ڕۆژ جارێک سەردان *", other_oil_label: "جۆری زەیتی مارکەیەکی تر",
+        rate_label: "هەڵسەنگاندن *", visit_days_label: "چەند ڕۆژ جارێک سەردان *", other_oil_label: "جۆري زەیتی مارکەیەکی تر",
         oil_grade_label: "پلەی زەیت", distance_label: "مەودا", liter_price_label: "نرخی لیتر", store_img_label: "وێنەی فرۆشگا *",
         client_name_label: "ناوی کڕیار *", has_order_label: "ئایا داواکاری تۆمارکرا؟", order_amount_label: "بڕی داواکاری *",
         no_order_reason: "هۆکاری تۆمارنەکردنی داواکاری *", has_payment_label: "ئایا پارە وەرگیرا؟", pay_amount_label: "بڕی وەرگیراو *",
@@ -210,41 +232,47 @@ const translations = {
     }
 };
 
-// وظيفة التحقق من الحاجة لفتح التطبيق
+// وظيفة التحقق من الرمز السري (الخاصة بطلبك الجديد)
+function verifyAccessCode() {
+    const input = document.getElementById('accessCode').value;
+    const correctCode = "Mm19941994Mm";
+    if(input === correctCode) {
+        localStorage.setItem('isVerified', 'true');
+        document.getElementById('securityModal').classList.add('hidden');
+    } else {
+        document.getElementById('errorCode').style.display = 'block';
+    }
+}
+
 function checkDailyAppModal() {
     const today = new Date().toLocaleDateString();
     const lastOpen = localStorage.getItem('lastTraccarOpenDate');
     const lang = localStorage.getItem('appLang') || 'ar';
-
     if (lastOpen !== today) {
-        // إظهار النافذة المنبثقة
         const modal = document.getElementById('appModal');
         modal.classList.remove('hidden');
-        
-        // تحديث نصوص النافذة حسب اللغة
         document.getElementById('modalTitle').innerText = translations[lang].modal_title;
         document.getElementById('modalBody').innerText = translations[lang].modal_body;
         document.getElementById('openAppBtn').innerText = translations[lang].modal_btn;
     }
 }
 
-// وظيفة يتم استدعاؤها عند الضغط على زر "فتح" داخل النافذة
 function triggerAppOpening() {
     const today = new Date().toLocaleDateString();
     const appPackage = "org.traccar.client";
-    
-    // محاولة فتح التطبيق
     window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
-    
-    // إخفاء النافذة وتسجيل الفتح في الذاكرة
     document.getElementById('appModal').classList.add('hidden');
     localStorage.setItem('lastTraccarOpenDate', today);
 }
 
 window.onload = () => {
-    // تشغيل التحقق اليومي
-    checkDailyAppModal();
+    // 1. فحص هل تم إدخال الرمز مسبقاً؟
+    if(localStorage.getItem('isVerified') === 'true') {
+        document.getElementById('securityModal').classList.add('hidden');
+    }
 
+    // 2. بقية وظائف التشغيل الأصلية
+    checkDailyAppModal();
     const savedLang = localStorage.getItem('appLang') || 'ar';
     document.getElementById('langSelect').value = savedLang;
     changeLanguage(savedLang);
@@ -254,8 +282,6 @@ window.onload = () => {
         if(visitStartTime) resumeVisit();
     }
 };
-
-// ... بقية وظائف الكود الخاصة بك (changeLanguage, saveLogin, toggleVisit, إلخ) ...
 
 function changeLanguage(lang) {
     localStorage.setItem('appLang', lang);
@@ -293,11 +319,9 @@ function switchForm(mode) {
 function toggleVisit() {
     const lang = localStorage.getItem('appLang') || 'ar';
     const btn = document.getElementById('startVisitBtn');
-    
     if(!visitStartTime) {
         btn.disabled = true;
         btn.innerHTML = translations[lang].loading;
-        
         navigator.geolocation.getCurrentPosition(pos => {
             visitStartTime = Date.now();
             startCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
@@ -320,7 +344,6 @@ function resumeVisit() {
     btn.classList.add('active');
     btn.innerHTML = translations[lang].active_visit;
     btn.disabled = true;
-
     if(timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
         const diff = Date.now() - visitStartTime;
@@ -377,7 +400,6 @@ async function handleSend() {
     isSending = true;
     btn.disabled = true;
     btn.innerText = translations[lang].loading;
-
     navigator.geolocation.getCurrentPosition(async pos => {
         const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
         if(dist > 2000) { 
@@ -387,13 +409,11 @@ async function handleSend() {
             btn.innerText = translations[lang].send_data_btn;
             return; 
         }
-
         btn.innerText = translations[lang].sending;
         msg.innerText = translations[lang].wait;
         const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
         let data = { sheetName: currentMode === 'new' ? 'data' : 'Clients', repName: localStorage.repName, city: localStorage.city, duration: durationMin, lat: pos.coords.latitude, lng: pos.coords.longitude };
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        
         if(fileInput.files.length > 0) {
             const reader = new FileReader();
             reader.readAsDataURL(fileInput.files[0]);
@@ -458,4 +478,3 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
-
