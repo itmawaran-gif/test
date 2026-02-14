@@ -1,479 +1,406 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MAWARAN CO</title>
-<style>
-    body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
-    .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
-    
-    /* نافذة الرمز السري الإجبارية */
-    #securityModal {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #f2f4f7; display: flex; align-items: center;
-        justify-content: center; z-index: 10000;
-    }
-    .security-content {
-        background: #fff; padding: 30px; border-radius: 15px;
-        text-align: center; width: 85%; max-width: 320px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAWARAN Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background: #f0f9ff; margin: 0; transition: all 0.3s; }
+        
+        #splashScreen {
+            position: fixed; inset: 0; background: #e0f2fe; z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
 
-    /* تصميم النافذة المنبثقة اليومية الأصلية */
-    #appModal {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.85); display: flex; align-items: center;
-        justify-content: center; z-index: 9999;
-    }
-    .modal-content {
-        background: #fff; padding: 30px; border-radius: 15px;
-        text-align: center; width: 80%; max-width: 300px;
-    }
-    .modal-content h3 { margin-top: 0; color: #333; }
-    .modal-content p { font-size: 14px; color: #666; margin-bottom: 20px; }
-    #openAppBtn {
-        background: #28a745; color: #fff; border: 0; padding: 12px 20px;
-        border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
-    }
+        #loginPage, #dashboard { display: none; }
+        
+        .custom-card { 
+            background: linear-gradient(135deg, #b9f3f7, #ffffff); 
+            border: 2px solid #ffffff; 
+            border-radius: 2rem; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
 
-    .lang-switcher { margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
-    .lang-switcher select { width: auto; padding: 8px 15px; font-size: 14px; cursor: pointer; border-radius: 20px; background: #f8f9fa; border: 1px solid #ddd; }
-    h2 { text-align:center; color: #333; margin-bottom: 20px; }
-    label { display:block; margin-top:10px; font-weight:bold; font-size: 14px; color: #444; }
-    input, select, textarea, button { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:1px solid #ccc; font-size:16px; box-sizing: border-box; }
-    button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:pointer; font-weight: bold; }
-    button:disabled { background:#999 !important; cursor:not-allowed; opacity: 0.6; }
-    #msg { text-align:center; margin-top:10px; font-weight:bold; font-size: 14px; }
-    .hidden { display:none !important; }
-    .visit-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; flex-direction: column; }
-    #startVisitBtn { width: 90px; height: 90px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s; }
-    #startVisitBtn.active { background: #dc3545; animation: pulse 1.5s infinite; }
-    #cancelVisitBtn { width: auto; padding: 6px 12px; background: #6c757d; font-size: 11px; margin-top: 5px; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    .nav-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-    .nav-tabs button { margin-top: 0; background: #eee; color: #333; flex: 1; font-size: 14px; border: 1px solid #ddd; }
-    .nav-tabs button.active { background: #0a7cff; color: white; border-color: #0a7cff; }
-    #timerDisplay { text-align: center; font-size: 22px; font-weight: bold; color: #dc3545; font-family: monospace; margin-bottom: 10px; }
-</style>
+        .gauge-svg { width: 100%; height: auto; }
+        .needle {
+            transform-origin: 50px 50px;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: rotate(0deg); 
+        }
+
+        .slider-track {
+            height: 10px; background: #e2e8f0; border-radius: 999px; position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); margin-top: 4px;
+        }
+        .slider-fill {
+            height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); border-radius: 999px;
+            position: absolute; left: 0; top: 0;
+        }
+        .slider-thumb {
+            position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px; background: #ffffff; border: 2px solid #cbd5e1;
+            border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .slider-label {
+            position: absolute; top: -22px; right: -12px; background: white;
+            padding: 1px 6px; border-radius: 8px; font-size: 9px; font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); white-space: nowrap;
+        }
+
+        .input-soft { background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 9999px; padding: 0.8rem; text-align: center; width: 100%; outline: none; }
+        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+    </style>
 </head>
-<body>
+<body class="p-4">
 
-<div id="securityModal">
-    <div class="security-content">
-        <h3>نظام MAWARAN</h3>
-        <p style="font-size: 13px; color: #666;">يرجى إدخال رمز الوصول للمتابعة</p>
-        <input type="password" id="accessCode" placeholder="الرمز السري" style="text-align: center;">
-        <button onclick="verifyAccessCode()">تحقق من الرمز</button>
-        <p id="errorCode" style="color: red; font-size: 12px; margin-top: 10px; display: none;">الرمز غير صحيح!</p>
+<div id="splashScreen">
+    <div class="custom-card p-10 mb-4">
+        <h1 class="text-3xl font-bold text-sky-900 tracking-widest">MAWARAN</h1>
+    </div>
+    <div class="text-sky-900 font-bold animate-pulse" data-i18n="loading">جاري التحديث...</div>
+</div>
+
+<div class="max-w-md mx-auto space-y-4">
+    
+    <div id="loginPage" class="mt-10 space-y-6">
+        <div class="custom-card p-4 text-center text-3xl font-bold text-sky-900 tracking-tighter">MAWARAN CO .</div>
+        <div class="px-6 space-y-4 text-center">
+            <p class="font-bold text-sky-900 text-xl" data-i18n="agent">المندوب</p>
+            <input type="text" id="user" class="input-soft shadow-inner">
+            <p class="font-bold text-sky-900 text-xl" data-i18n="password">الرقم السري</p>
+            <input type="password" id="pass" class="input-soft shadow-inner">
+            <button onclick="login()" id="loginBtn" class="w-full bg-sky-600 text-white py-4 rounded-full font-bold shadow-lg mt-4" data-i18n="loginBtn">دخول</button>
+        </div>
+    </div>
+
+    <div id="dashboard" class="space-y-4">
+        <div class="custom-card py-4 text-center text-3xl font-bold text-sky-900 tracking-tighter">MAWARAN CO .</div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="custom-card p-4 flex flex-col items-center justify-center">
+                <svg viewBox="0 0 100 55" class="gauge-svg">
+                    <defs>
+                        <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#ef4444" />
+                            <stop offset="50%" style="stop-color:#facc15" />
+                            <stop offset="100%" style="stop-color:#22c55e" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gaugeGrad)" stroke-width="6" stroke-linecap="round"/>
+                    <line id="needle" x1="50" y1="50" x2="15" y2="50" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" class="needle"/>
+                    <circle cx="50" cy="50" r="3" fill="#ffffff" stroke="#38bdf8" stroke-width="1.5"/>
+                </svg>
+                <div class="text-2xl font-bold text-sky-900 mt-2"><span id="perfVal">0</span> %</div>
+            </div>
+
+            <div class="custom-card p-4 space-y-3">
+                <div class="flex justify-between items-center mb-1">
+                    <span class="font-bold text-sky-900 text-sm" data-i18n="salary">الراتب</span>
+                    <span class="bg-sky-200/50 px-2 py-0.5 rounded-full text-[10px] font-bold shadow-inner" id="salary">0 IQD</span>
+                </div>
+                
+                <div class="flex flex-col">
+                    <span class="font-bold text-[11px] text-sky-900" data-i18n="sales">مبيعات</span>
+                    <span class="opacity-50 text-[9px] font-bold leading-none" id="sGoalMax">Goal: 10000$</span>
+                    <div class="slider-track">
+                        <div id="salesBar" class="slider-fill" style="width: 0%">
+                            <div class="slider-label" id="salesVal">0$</div>
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col pt-1">
+                    <span class="font-bold text-[11px] text-sky-900" data-i18n="collection">تحصيل</span>
+                    <span class="opacity-50 text-[9px] font-bold leading-none" id="cGoalMax">Goal: 10000$</span>
+                    <div class="slider-track">
+                        <div id="collBar" class="slider-fill" style="width: 0%">
+                            <div class="slider-label" id="collVal">0$</div>
+                            <div class="slider-thumb"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="custom-card p-4 flex items-center">
+            <div class="text-md font-bold text-sky-900 w-24 leading-tight" data-i18n="monthGoal">هدف الشهر</div>
+            <div class="flex-1 px-4">
+                <div class="slider-track">
+                    <div id="mGoalBar" class="slider-fill" style="width: 0%">
+                        <div class="slider-label" id="mGoalVal">0$</div>
+                        <div class="slider-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative custom-card">
+            <select id="custSelect" onchange="handleSelectChange(this)" class="w-full p-4 bg-transparent text-2xl font-bold text-sky-900 outline-none cursor-pointer text-center">
+                <option value="" data-i18n="selectCust">اختر العميل المطلوب</option>
+            </select>
+            <div class="absolute left-10 top-1/2 -translate-y-1/2 pointer-events-none text-sky-900">▼</div>
+        </div>
+
+        <div class="custom-card p-5">
+            <h3 class="text-center text-2xl font-bold border-b-2 border-sky-100 pb-2 mb-4 text-sky-900 tracking-widest" data-i18n="todayColl">تحصيل اليوم</h3>
+            <div id="todayList" class="space-y-2 max-h-48 overflow-y-auto"></div>
+            <div class="flex justify-between items-center mt-6 pt-2 border-t-2 border-sky-100">
+                <div class="bg-white/50 px-8 py-1 rounded-full border border-sky-100 font-bold text-2xl text-sky-900" id="dayTotal">$ 0</div>
+                <div class="bg-white/50 px-6 py-1 rounded-full border border-sky-100 font-bold text-xl text-sky-900" data-i18n="total">المجموع</div>
+            </div>
+        </div>
+
+        <button onclick="toggleLanguage()" class="w-full py-3 bg-white/50 rounded-full font-bold text-sky-900 shadow-sm border border-white flex justify-center items-center gap-2">
+            🌐 <span id="langBtnText">کوردی</span>
+        </button>
     </div>
 </div>
 
-<div id="appModal" class="hidden">
-    <div class="modal-content">
-        <h3 id="modalTitle">بەیانی باش - صباح الخير</h3>
-        <p id="modalBody">هل انت مستعد ليوم جديد - ئامادەی بۆ ڕۆژێکی نوێ</p>
-        <button id="openAppBtn" onclick="triggerAppOpening()">OK</button>
-    </div>
-</div>
-
-<div class="container">
-    <div id="login">
-        <h2 data-key="login_title">تسجيل الدخول</h2>
-        <label data-key="rep_name_label">اسم المندوب *</label>
-        <input id="repName">
-        <label data-key="city_label">المدينة *</label>
-        <input id="city">
-        <button onclick="saveLogin()" data-key="login_btn">دخول للنظام</button>
-    </div>
-
-    <div id="formBox" class="hidden">
-        <div class="nav-tabs">
-            <button id="tabNew" class="active" onclick="switchForm('new')" data-key="tab_new">عميل جديد</button>
-            <button id="tabRegular" onclick="switchForm('regular')" data-key="tab_regular">عميل دائمي</button>
+<div id="modal" class="fixed inset-0 bg-sky-900/20 backdrop-blur-sm hidden flex items-center justify-center p-6 z-50">
+    <div class="custom-card w-full max-w-sm p-6 space-y-4">
+        <h2 id="modalTitle" class="text-center text-2xl font-bold text-sky-900 border-b pb-2">اسم العميل</h2>
+        <div class="space-y-3">
+            <p class="text-center font-bold text-sky-800" data-i18n="amtD">المبلغ دولار $</p>
+            <input type="number" id="amtD" class="input-soft text-lg font-bold">
+            <p class="text-center font-bold text-sky-800" data-i18n="amtIQ">المبلغ دينار</p>
+            <input type="number" id="amtIQ" oninput="calcExchange()" class="input-soft text-lg font-bold">
+            <p class="text-center font-bold text-sky-800" data-i18n="rate">سعر الصرف</p>
+            <input type="number" id="rate" value="1500" class="input-soft text-sm font-bold">
+            <p class="text-center font-bold text-sky-800" data-i18n="note">ملاحظة</p>
+            <input type="text" id="note" class="input-soft">
+            <button onclick="sendData()" id="sendBtn" class="w-full py-4 bg-sky-400/80 text-sky-900 text-3xl font-bold rounded-full shadow-lg mt-4" data-i18n="sendBtn">ارسال</button>
+            <button onclick="closeModal()" class="w-full text-xs text-gray-400 mt-2" data-i18n="cancel">إلغاء</button>
         </div>
-
-        <div id="timerDisplay" class="hidden">00:00:00</div>
-        <div class="visit-controls">
-            <button id="startVisitBtn" onclick="toggleVisit()" data-key="start_visit">بدء<br>الزيارة</button>
-            <button id="cancelVisitBtn" class="hidden" onclick="cancelVisit()" data-key="cancel_visit">إلغاء الزيارة ✖</button>
-        </div>
-
-        <div id="newClientForm">
-            <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
-            <select id="useOil">
-                <option value="" data-key="choose">اختر</option>
-                <option value="نعم" data-key="yes">نعم</option>
-                <option value="لا" data-key="no">لا</option>
-            </select>
-            <label data-key="trade_name_label">الاسم التجاري *</label>
-            <input id="tradeName">
-            <label data-key="owner_name_label">اسم المالك *</label>
-            <input id="ownerName">
-            <label data-key="address_label">العنوان *</label>
-            <input id="address">
-            <label data-key="phone_label">رقم الهاتف *</label>
-            <input id="phone" inputmode="numeric">
-            <label data-key="category_label">الفئة *</label>
-            <select id="category">
-                <option value="" data-key="choose">اختر</option>
-                <option value="كراج" data-key="garage">كراج</option>
-                <option value="جملة" data-key="wholesale">جملة</option>
-                <option value="مفرد" data-key="retail">مفرد</option>
-            </select>
-            <label data-key="note_label">ملاحظة</label>
-            <textarea id="note"></textarea>
-            <label data-key="rate_label">التقييم *</label>
-            <select id="rate">
-                <option value="" data-key="choose">اختر</option>
-                <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
-            </select>
-            <label data-key="visit_days_label">كل كم يوم زيارة *</label>
-            <input id="visitDays" inputmode="numeric">
-            <hr style="opacity: 0.2; margin: 20px 0;">
-            <label data-key="other_oil_label">نوع الزيت ماركة أخرى</label>
-            <input id="oilType">
-            <label data-key="oil_grade_label">درجة الزيت</label>
-            <input id="oilGrade">
-            <label data-key="distance_label">المسافة</label>
-            <select id="oilDistance">
-                <option value="" data-key="choose">اختر</option>
-                <option>3K كم</option><option>5K كم</option><option>10K كم</option><option>15K كم</option>
-            </select>
-            <label data-key="liter_price_label">سعر اللتر</label>
-            <input id="oilPrice" inputmode="numeric">
-            <label data-key="store_img_label">صورة المتجر *</label>
-            <input type="file" id="imageInputNew" accept="image/*" capture="environment">
-        </div>
-
-        <div id="regularClientForm" class="hidden">
-            <label data-key="client_name_label">اسم العميل *</label>
-            <input id="reg_clientName">
-            <label data-key="has_order_label">هل تم عمل طلبية؟</label>
-            <select id="reg_hasOrder" onchange="toggleOrderFields()">
-                <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
-            </select>
-            <div id="orderAmountBox" class="hidden">
-                <label data-key="order_amount_label">مبلغ الطلبية *</label>
-                <input id="reg_orderAmount" type="number">
-            </div>
-            <div id="orderReasonBox">
-                <label data-key="no_order_reason">سبب عدم إنشاء طلبية *</label>
-                <input id="reg_orderReason">
-            </div>
-            <label data-key="has_payment_label">هل تم قبض مبلغ؟</label>
-            <select id="reg_hasPayment" onchange="togglePaymentFields()">
-                <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
-            </select>
-            <div id="payAmountBox" class="hidden">
-                <label data-key="pay_amount_label">مبلغ القبض *</label>
-                <input id="reg_payAmount" type="number">
-            </div>
-            <div id="payReasonBox">
-                <label data-key="no_pay_reason">سبب عدم القبض *</label>
-                <input id="reg_payReason">
-            </div>
-            <label data-key="note_label">الملاحظة</label>
-            <textarea id="reg_note"></textarea>
-            <label data-key="take_photo_label">التقاط صورة *</label>
-            <input type="file" id="imageInputReg" accept="image/*" capture="environment">
-        </div>
-
-        <button id="sendBtn" onclick="handleSend()" data-key="send_data_btn">إرسال البيانات</button>
-        <div id="msg"></div>
-    </div>
-
-    <div class="lang-switcher">
-        <select id="langSelect" onchange="changeLanguage(this.value)">
-            <option value="ar">العربية (Arabic)</option>
-            <option value="ku">کوردی (Soranî)</option>
-        </select>
     </div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBWsE8YvQcYkdUbWHaLJSAfqsEZmSCENN6jtuUKF_1t8zR-JwBpo-dZVVVivpigav5/exec";
-let currentMode = 'new';
-let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
-let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.getItem('startCoords')) : null;
-let timerInterval;
-let isSending = false;
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoGS4m-KUQhHKxpjvZEO78uQaRtXPvnwf0XXR0teHCA3wLDOgSdSiM3OS1cUKpLZ4t/exec";
+let agent = null;
 
-const translations = {
+// نصوص الترجمة
+const i18n = {
     ar: {
-        modal_title: "صباح الخير", modal_body: "هل انت مستعد ليوم جديد", modal_btn: "OK",
-        login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
-        tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
-        cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "هل يمتلك زيت ريماكس؟ *", choose: "اختر", yes: "نعم", no: "لا",
-        trade_name_label: "الاسم التجاري *", owner_name_label: "اسم المالك *", address_label: "العنوان *", phone_label: "رقم الهاتف *",
-        category_label: "الفئة *", garage: "كراج", wholesale: "جملة", retail: "مفرد", note_label: "ملاحظة",
-        rate_label: "التقييم *", visit_days_label: "كل كم يوم زيارة *", other_oil_label: "نوع الزيت ماركة أخرى",
-        oil_grade_label: "درجة الزيت", distance_label: "المسافة", liter_price_label: "سعر اللتر", store_img_label: "صورة المتجر *",
-        client_name_label: "اسم العميل *", has_order_label: "هل تم عمل طلبية؟", order_amount_label: "مبلغ الطلبية *",
-        no_order_reason: "سبب عدم إنشاء طلبية *", has_payment_label: "هل تم قبض مبلغ؟", pay_amount_label: "مبلغ القبض *",
-        no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
-        alert_fill: "يرجى إدخال البيانات", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
-        alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع..."
+        loading: "جاري التحديث...",
+        agent: "المندوب",
+        password: "الرقم السري",
+        loginBtn: "دخول",
+        salary: "الراتب",
+        sales: "مبيعات",
+        collection: "تحصيل",
+        monthGoal: "هدف الشهر",
+        selectCust: "اختر العميل المطلوب",
+        todayColl: "تحصيل اليوم",
+        total: "المجموع",
+        amtD: "المبلغ دولار $",
+        amtIQ: "المبلغ دينار",
+        rate: "سعر الصرف",
+        note: "ملاحظة",
+        sendBtn: "ارسال",
+        cancel: "إلغاء",
+        langName: "کوردی"
     },
     ku: {
-        modal_title: "بەیانی باش", modal_body: "ئایا ئامادەی بۆ ڕۆژێکی نوێ؟", modal_btn: "OK",
-        login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
-        tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
-        cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا زەیتی ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
-        trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
-        category_label: "پۆلێن *", garage: "گەراج", wholesale: "کۆمەڵ", retail: "تاک", note_label: "تێبینی",
-        rate_label: "هەڵسەنگاندن *", visit_days_label: "چەند ڕۆژ جارێک سەردان *", other_oil_label: "جۆري زەیتی مارکەیەکی تر",
-        oil_grade_label: "پلەی زەیت", distance_label: "مەودا", liter_price_label: "نرخی لیتر", store_img_label: "وێنەی فرۆشگا *",
-        client_name_label: "ناوی کڕیار *", has_order_label: "ئایا داواکاری تۆمارکرا؟", order_amount_label: "بڕی داواکاری *",
-        no_order_reason: "هۆکاری تۆمارنەکردنی داواکاری *", has_payment_label: "ئایا پارە وەرگیرا؟", pay_amount_label: "بڕی وەرگیراو *",
-        no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
-        alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
-        alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن..."
+        loading: "نوێ دەکرێتەوە...",
+        agent: "نوێنەر",
+        password: "تێپەڕەوشە",
+        loginBtn: "چوونەژوورەوە",
+        salary: "مووچە",
+        sales: "فرۆشتن",
+        collection: "کۆکردنەوە",
+        monthGoal: "ئامانجی مانگ",
+        selectCust: "کڕیار هەڵبژێرە",
+        todayColl: "کۆکراوەی ئەمڕۆ",
+        total: "کۆی گشتی",
+        amtD: "بڕ بە دۆلار $",
+        amtIQ: "بڕ بە دینار",
+        rate: "نرخی ئاڵوگۆڕ",
+        note: "تێبینی",
+        sendBtn: "ناردن",
+        cancel: "پاشگەزبوونەوە",
+        langName: "العربية"
     }
 };
 
-// وظيفة التحقق من الرمز السري (الخاصة بطلبك الجديد)
-function verifyAccessCode() {
-    const input = document.getElementById('accessCode').value;
-    const correctCode = "Mm19941994Mm";
-    if(input === correctCode) {
-        localStorage.setItem('isVerified', 'true');
-        document.getElementById('securityModal').classList.add('hidden');
-    } else {
-        document.getElementById('errorCode').style.display = 'block';
-    }
+let currentLang = localStorage.getItem('mawar_lang') || 'ar';
+
+function applyLanguage() {
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = (currentLang === 'ar' || currentLang === 'ku') ? 'rtl' : 'ltr';
+    
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.innerText = i18n[currentLang][key];
+    });
+    
+    document.getElementById('langBtnText').innerText = i18n[currentLang].langName;
 }
 
-function checkDailyAppModal() {
-    const today = new Date().toLocaleDateString();
-    const lastOpen = localStorage.getItem('lastTraccarOpenDate');
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if (lastOpen !== today) {
-        const modal = document.getElementById('appModal');
-        modal.classList.remove('hidden');
-        document.getElementById('modalTitle').innerText = translations[lang].modal_title;
-        document.getElementById('modalBody').innerText = translations[lang].modal_body;
-        document.getElementById('openAppBtn').innerText = translations[lang].modal_btn;
-    }
-}
-
-function triggerAppOpening() {
-    const today = new Date().toLocaleDateString();
-    const appPackage = "org.traccar.client";
-    window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
-    document.getElementById('appModal').classList.add('hidden');
-    localStorage.setItem('lastTraccarOpenDate', today);
+function toggleLanguage() {
+    currentLang = currentLang === 'ar' ? 'ku' : 'ar';
+    localStorage.setItem('mawar_lang', currentLang);
+    applyLanguage();
 }
 
 window.onload = () => {
-    // 1. فحص هل تم إدخال الرمز مسبقاً؟
-    if(localStorage.getItem('isVerified') === 'true') {
-        document.getElementById('securityModal').classList.add('hidden');
-    }
-
-    // 2. بقية وظائف التشغيل الأصلية
-    checkDailyAppModal();
-    const savedLang = localStorage.getItem('appLang') || 'ar';
-    document.getElementById('langSelect').value = savedLang;
-    changeLanguage(savedLang);
-    if(localStorage.repName) {
-        document.getElementById('login').classList.add('hidden');
-        document.getElementById('formBox').classList.remove('hidden');
-        if(visitStartTime) resumeVisit();
+    applyLanguage(); // تطبيق اللغة عند الفتح
+    const saved = localStorage.getItem('mawar_session');
+    if(saved) {
+        const d = JSON.parse(saved);
+        performLogin(d.u, d.p, true);
+    } else {
+        setTimeout(() => {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
+        }, 1000);
     }
 };
 
-function changeLanguage(lang) {
-    localStorage.setItem('appLang', lang);
-    document.documentElement.lang = lang;
-    document.documentElement.dir = "rtl"; 
-    document.querySelectorAll('[data-key]').forEach(el => {
-        const key = el.getAttribute('data-key');
-        if (translations[lang][key]) {
-            if (el.tagName === 'BUTTON' && key === 'start_visit' && visitStartTime) {
-                el.innerHTML = translations[lang]['active_visit'];
-            } else {
-                el.innerHTML = translations[lang][key];
-            }
-        }
-    });
-}
-
-function saveLogin() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    const r = document.getElementById('repName').value;
-    const c = document.getElementById('city').value;
-    if(!r || !c) return alert(translations[lang].alert_fill);
-    localStorage.repName = r; localStorage.city = c;
-    location.reload();
-}
-
-function switchForm(mode) {
-    currentMode = mode;
-    document.getElementById('newClientForm').classList.toggle('hidden', mode !== 'new');
-    document.getElementById('regularClientForm').classList.toggle('hidden', mode !== 'regular');
-    document.getElementById('tabNew').classList.toggle('active', mode === 'new');
-    document.getElementById('tabRegular').classList.toggle('active', mode === 'regular');
-}
-
-function toggleVisit() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    const btn = document.getElementById('startVisitBtn');
-    if(!visitStartTime) {
-        btn.disabled = true;
-        btn.innerHTML = translations[lang].loading;
-        navigator.geolocation.getCurrentPosition(pos => {
-            visitStartTime = Date.now();
-            startCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            localStorage.setItem('visitStartTime', visitStartTime);
-            localStorage.setItem('startCoords', JSON.stringify(startCoords));
-            resumeVisit();
-        }, () => {
-            alert(translations[lang].alert_geo);
-            btn.disabled = false;
-            btn.innerHTML = translations[lang].start_visit;
-        }, { enableHighAccuracy: true });
-    }
-}
-
-function resumeVisit() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    document.getElementById('timerDisplay').classList.remove('hidden');
-    document.getElementById('cancelVisitBtn').classList.remove('hidden');
-    const btn = document.getElementById('startVisitBtn');
-    btn.classList.add('active');
-    btn.innerHTML = translations[lang].active_visit;
-    btn.disabled = true;
-    if(timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        const diff = Date.now() - visitStartTime;
-        const h = Math.floor(diff/3600000).toString().padStart(2,'0');
-        const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
-        const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
-        document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
-    }, 1000);
-}
-
-function cancelVisit() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if(confirm(translations[lang].alert_cancel)) {
-        clearInterval(timerInterval);
-        localStorage.removeItem('visitStartTime');
-        localStorage.removeItem('startCoords');
-        visitStartTime = null;
-        startCoords = null;
-        const btn = document.getElementById('startVisitBtn');
-        btn.classList.remove('active');
-        btn.disabled = false;
-        btn.innerHTML = translations[lang].start_visit;
-        document.getElementById('timerDisplay').classList.add('hidden');
-        document.getElementById('cancelVisitBtn').classList.add('hidden');
-    }
-}
-
-function toggleOrderFields() {
-    const val = document.getElementById('reg_hasOrder').value;
-    document.getElementById('orderAmountBox').classList.toggle('hidden', val === 'لا');
-    document.getElementById('orderReasonBox').classList.toggle('hidden', val === 'نعم');
-}
-
-function togglePaymentFields() {
-    const val = document.getElementById('reg_hasPayment').value;
-    document.getElementById('payAmountBox').classList.toggle('hidden', val === 'لا');
-    document.getElementById('payReasonBox').classList.toggle('hidden', val === 'نعم');
-}
-
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
-    const φ1 = lat1 * Math.PI/180; const φ2 = lat2 * Math.PI/180;
-    const Δφ = (lat2-lat1) * Math.PI/180; const Δλ = (lon2-lon1) * Math.PI/180;
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-async function handleSend() {
-    if(isSending) return;
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
-    const btn = document.getElementById('sendBtn');
-    const msg = document.getElementById('msg');
-    isSending = true;
-    btn.disabled = true;
-    btn.innerText = translations[lang].loading;
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
-        if(dist > 2000) { 
-            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
-            isSending = false;
-            btn.disabled = false;
-            btn.innerText = translations[lang].send_data_btn;
-            return; 
-        }
-        btn.innerText = translations[lang].sending;
-        msg.innerText = translations[lang].wait;
-        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
-        let data = { sheetName: currentMode === 'new' ? 'data' : 'Clients', repName: localStorage.repName, city: localStorage.city, duration: durationMin, lat: pos.coords.latitude, lng: pos.coords.longitude };
-        const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        if(fileInput.files.length > 0) {
-            const reader = new FileReader();
-            reader.readAsDataURL(fileInput.files[0]);
-            reader.onload = () => {
-                if(currentMode === 'new') {
-                    data.tradeName = document.getElementById('tradeName').value;
-                    data.ownerName = document.getElementById('ownerName').value;
-                    data.useOil = document.getElementById('useOil').value;
-                    data.address = document.getElementById('address').value;
-                    data.phone = document.getElementById('phone').value;
-                    data.category = document.getElementById('category').value;
-                    data.note = document.getElementById('note').value;
-                    data.rate = document.getElementById('rate').value;
-                    data.visitDays = document.getElementById('visitDays').value;
-                    data.oilType = document.getElementById('oilType').value;
-                    data.oilGrade = document.getElementById('oilGrade').value;
-                    data.oilDistance = document.getElementById('oilDistance').value;
-                    data.oilPrice = document.getElementById('oilPrice').value;
-                } else {
-                    data.clientName = document.getElementById('reg_clientName').value;
-                    data.hasOrder = document.getElementById('reg_hasOrder').value;
-                    data.orderAmount = document.getElementById('reg_orderAmount').value;
-                    data.orderReason = document.getElementById('reg_orderReason').value;
-                    data.hasPayment = document.getElementById('reg_hasPayment').value;
-                    data.payAmount = document.getElementById('reg_payAmount').value;
-                    data.payReason = document.getElementById('reg_payReason').value;
-                    data.note = document.getElementById('reg_note').value;
-                }
-                data.image = reader.result;
-                sendToGoogle(data);
-            };
+// (بقية الدوال تبقى كما هي)
+async function performLogin(u, p, isAuto) {
+    try {
+        const r = await fetch(`${SCRIPT_URL}?action=login&user=${u}&pass=${p}`);
+        const res = await r.json();
+        if(res.success) {
+            agent = res.data;
+            localStorage.setItem('mawar_session', JSON.stringify({u, p}));
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            updateUI();
+            loadCustomers();
         } else {
-            alert(translations[lang].take_photo_label);
-            isSending = false;
-            btn.disabled = false;
-            btn.innerText = translations[lang].send_data_btn;
-            msg.innerText = "";
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'block';
         }
-    }, () => {
-        alert(translations[lang].alert_geo);
-        isSending = false;
-        btn.disabled = false;
-        btn.innerText = translations[lang].send_data_btn;
+    } catch(e) { document.getElementById('splashScreen').style.display = 'none'; }
+}
+
+function updateUI() {
+    const needle = document.getElementById('needle');
+    const perfDisplay = document.getElementById('perfVal');
+    const targetPerf = Math.round(agent.perf * 100); 
+
+    // ضبط العقرب والرقم على الصفر تماماً قبل البدء
+    needle.style.transition = "none"; 
+    needle.style.transform = "rotate(0deg)";
+    perfDisplay.innerText = "0";
+
+    // طلب إطار رسم لضمان تنفيذ التصفير قبل الحركة
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            // إعادة الترانزيشن للحركة الانسيابية
+            needle.style.transition = "transform 1.5s cubic-bezier(0.4, 0, 0.2, 1)";
+            
+            // 1. الحركة إلى 100 (180 درجة)
+            needle.style.transform = "rotate(180deg)";
+            
+            // عداد رقمي وهمي يصعد إلى 100
+            let tempVal = 0;
+            let upInterval = setInterval(() => {
+                if(tempVal >= 100) {
+                    clearInterval(upInterval);
+                } else {
+                    tempVal += 2;
+                    perfDisplay.innerText = tempVal;
+                }
+            }, 10);
+
+            // 2. العودة للقيمة الحقيقية بعد انتهاء الصعود
+            setTimeout(() => {
+                const targetRotation = targetPerf * 1.8;
+                needle.style.transform = `rotate(${targetRotation}deg)`;
+                
+                // عداد رقمي ينزل أو يستقر عند القيمة الحقيقية
+                perfDisplay.innerText = targetPerf;
+            }, 1500); 
+        }, 100);
+    });
+
+    // تحديث بقية البيانات
+    document.getElementById('salary').innerText = agent.salary.toLocaleString() + " DQ";
+    setSlider('salesBar', 'salesVal', agent.sales, agent.sGoal || 10000);
+    setSlider('collBar', 'collVal', agent.coll, agent.cGoal || 10000);
+    setSlider('mGoalBar', 'mGoalVal', agent.mGoal, agent.tGoal || 10000);
+    
+    document.getElementById('sGoalMax').innerText = "Goal: " + (agent.sGoal || 10000) + "$";
+    document.getElementById('cGoalMax').innerText = "Goal: " + (agent.cGoal || 10000) + "$";
+    loadToday();
+}
+function setSlider(barId, valId, val, max) {
+    const pct = Math.min((val / max) * 100, 100);
+    document.getElementById(barId).style.width = pct + "%";
+    document.getElementById(valId).innerText = val + "$";
+}
+
+async function loadCustomers() {
+    const r = await fetch(`${SCRIPT_URL}?action=getCustomers&agent=${agent.name}`);
+    const data = await r.json();
+    const sel = document.getElementById('custSelect');
+    sel.innerHTML = `<option value="">${i18n[currentLang].selectCust}</option>`;
+    data.forEach(c => {
+        let opt = document.createElement('option');
+        opt.value = c; opt.textContent = c;
+        sel.appendChild(opt);
     });
 }
 
-function sendToGoogle(data) {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
-    .then(() => {
-        alert(translations[lang].success);
-        localStorage.removeItem('visitStartTime');
-        localStorage.removeItem('startCoords');
-        location.reload();
-    })
-    .catch(() => {
-        alert("Error");
-        isSending = false;
-        document.getElementById('sendBtn').disabled = false;
+function handleSelectChange(select) {
+    if(select.value) {
+        document.getElementById('modalTitle').innerText = select.value;
+        document.getElementById('modal').classList.remove('hidden');
+    }
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');
+    document.getElementById('custSelect').value = "";
+}
+
+function calcExchange() {
+    const iq = document.getElementById('amtIQ').value;
+    const rate = document.getElementById('rate').value || 1500;
+    if(iq) document.getElementById('amtD').value = (iq / rate).toFixed(2);
+}
+
+async function loadToday() {
+    const r = await fetch(`${SCRIPT_URL}?action=getToday&agent=${agent.name}`);
+    const data = await r.json();
+    const list = document.getElementById('todayList');
+    let total = 0; list.innerHTML = "";
+    data.forEach(i => {
+        total += parseFloat(i.amt);
+        list.innerHTML += `
+            <div class="flex justify-between items-center bg-white/60 p-2 rounded-2xl border border-sky-900/10 mb-2 shadow-sm">
+                <div class="w-24 text-center font-bold border-r-2 border-sky-100 text-lg">$ ${i.amt}</div>
+                <div class="flex-1 text-center font-bold text-sky-900 text-sm">${i.cust}</div>
+            </div>`;
     });
+    document.getElementById('dayTotal').innerText = "$ " + total;
+}
+
+async function login() { performLogin(document.getElementById('user').value, document.getElementById('pass').value, false); }
+
+async function sendData() {
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true; btn.innerText = "...";
+    const payload = {
+        agent: agent.name,
+        customer: document.getElementById('modalTitle').innerText,
+        amount: document.getElementById('amtD').value,
+        note: document.getElementById('note').value
+    };
+    try {
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+        alert(currentLang === 'ar' ? "تم الإرسال" : "نێردرا");
+        closeModal();
+        loadToday();
+    } catch(e) { alert("Error"); }
+    btn.disabled = false; btn.innerText = i18n[currentLang].sendBtn;
 }
 </script>
 </body>
