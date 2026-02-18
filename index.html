@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBBQPc2pQsMX04B3mtEzs7knASHz9-PhWJE8BM28jLKy6UFvHx9067WMWypozDtloQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRS4CbjX6FmU89-qtHfj317muNRWXtjFYGK50T0WS3z57WV3QFEmCfjYRbakilp7sZ/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -441,16 +441,15 @@ function showVisitDetails(index) {
 
     // 4. زر الخريطة في الأسفل
     if (item.locationUrl) {
-        detailsDiv.innerHTML += `
-            <div style="margin-top:25px;">
-                <a href="${item.locationUrl}" target="_blank" 
-                   style="display:flex; align-items:center; justify-content:center; background:#28a745; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:16px; gap:10px;">
-                   📍 افتح الموقع في خرائط Google
-                </a>
-            </div>
-        `;
-    }
-
+    detailsDiv.innerHTML += `
+        <div style="margin-top:20px;">
+            <a href="${item.locationUrl}" target="_blank" 
+               style="display:block; background:#28a745; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold;">
+               📍 فتح الموقع على الخريطة
+            </a>
+        </div>
+    `;
+}
     document.getElementById('detailsModal').style.display = 'block';
 }
 // ---------------------------------------------------
@@ -618,5 +617,6 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
