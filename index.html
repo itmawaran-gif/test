@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUQ4iJdWJez8kTmrfc9Y12eGcxrXxx6AYeF-WZapDjMQpqihgv60guEUM9SwYaljNP/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcKIT99rHZ5IJRPt769vHVthP85Yw8jkEaa5vFDWIrudNFl_cNypEXlUQmsJth5nzz/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -415,7 +415,7 @@ function showVisitDetails(index) {
             <img src="${item.photoUrl}" 
                  referrerpolicy="no-referrer" 
                  style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
-                 onerror="this.parentElement.innerHTML='<p style="color:red;">تعذر تحميل الصورة - تأكد من صلاحيات المشاركة في Drive</p>'">
+                 onerror="this.parentElement.innerHTML='<p style="color:red;"> </p>'">
         </div>
     `;
 }
@@ -617,6 +617,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
