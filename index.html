@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby96GdhpxWjx5RZizpv2XSgYlYQ2vn1RyflWqKrjiXW5-2tlwcNVhOtyLR2cboAL3w/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxBBQPc2pQsMX04B3mtEzs7knASHz9-PhWJE8BM28jLKy6UFvHx9067WMWypozDtloQ/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -409,29 +409,46 @@ function showVisitDetails(index) {
     const detailsDiv = document.getElementById('detailsContent');
     detailsDiv.innerHTML = '';
 
-    // تنسيق التاريخ والوقت
-    const dateObj = new Date(item.date);
-    const dateString = isNaN(dateObj) ? item.date : dateObj.toLocaleString('ar-EG');
+    // 1. عرض صورة العميل إذا وجدت
+    if (item.photoUrl) {
+        detailsDiv.innerHTML += `
+            <div style="text-align:center; margin-bottom:20px;">
+                <img src="${item.photoUrl}" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; border:1px solid #eee; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <p style="font-size:12px; color:#666; margin-top:5px;">صورة العميل الجديد</p>
+            </div>
+        `;
+    }
 
-    // إضافة التاريخ والنوع كأول عنصر في التفاصيل
+    // 2. عرض التاريخ
+    const dateStr = new Date(item.date).toLocaleString('ar-EG');
     detailsDiv.innerHTML += `
-        <div class="detail-row" style="background:#f8f9fa; border-radius:5px; padding:10px; margin-bottom:15px; border:none;">
-            <span class="detail-label" style="color:#0a7cff;">التاريخ والوقت:</span>
-            <span class="detail-value" style="font-weight:bold;">${dateString}</span>
+        <div style="background:#eef6ff; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; color:#007bff;">
+            تاريخ الزيارة: ${dateStr}
         </div>
     `;
 
-    // إنشاء صفوف باقي التفاصيل
+    // 3. عرض كافة البيانات التقنية
     for (const [key, value] of Object.entries(item.details)) {
-        // تجاهل القيم الفارغة حتى لا تظهر بشكل غير لائق
-        if(value !== undefined && value !== null && value !== "" && value !== " نجوم") {
+        if(value && value !== " نجوم" && value !== "") {
             detailsDiv.innerHTML += `
-                <div class="detail-row">
-                    <span class="detail-label">${key}:</span>
-                    <span class="detail-value">${value}</span>
+                <div class="detail-row" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                    <span style="color:#555; font-weight:bold;">${key}:</span>
+                    <span style="color:#222; text-align:left; direction:ltr;">${value}</span>
                 </div>
             `;
         }
+    }
+
+    // 4. زر الخريطة في الأسفل
+    if (item.locationUrl) {
+        detailsDiv.innerHTML += `
+            <div style="margin-top:25px;">
+                <a href="${item.locationUrl}" target="_blank" 
+                   style="display:flex; align-items:center; justify-content:center; background:#28a745; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold; font-size:16px; gap:10px;">
+                   📍 افتح الموقع في خرائط Google
+                </a>
+            </div>
+        `;
     }
 
     document.getElementById('detailsModal').style.display = 'block';
@@ -601,4 +618,5 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
