@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1TD1B_QbI4d7WRkYgqdQRjzcTkuol3rbSezwpnzZEhmkoUNOj15Oapd5O0LkSpe95/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwUQ4iJdWJez8kTmrfc9Y12eGcxrXxx6AYeF-WZapDjMQpqihgv60guEUM9SwYaljNP/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -409,16 +409,16 @@ function showVisitDetails(index) {
     const detailsDiv = document.getElementById('detailsContent');
     detailsDiv.innerHTML = '';
 
-    // 1. عرض صورة العميل إذا وجدت
-    if (item.photoUrl) {
-        detailsDiv.innerHTML += `
-            <div style="text-align:center; margin-bottom:20px;">
-                <img src="${item.photoUrl}" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; border:1px solid #eee; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                <p style="font-size:12px; color:#666; margin-top:5px;">صورة العميل الجديد</p>
-            </div>
-        `;
-    }
-
+   if (item.photoUrl) {
+    detailsDiv.innerHTML += `
+        <div style="text-align:center; margin-bottom:20px;">
+            <img src="${item.photoUrl}" 
+                 referrerpolicy="no-referrer" 
+                 style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+                 onerror="this.parentElement.innerHTML='<p style="color:red;">تعذر تحميل الصورة - تأكد من صلاحيات المشاركة في Drive</p>'">
+        </div>
+    `;
+}
     // 2. عرض التاريخ
     const dateStr = new Date(item.date).toLocaleString('ar-EG');
     detailsDiv.innerHTML += `
@@ -617,6 +617,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
