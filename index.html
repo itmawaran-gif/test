@@ -420,12 +420,7 @@ function showVisitDetails(index) {
     `;
 }
     // 2. عرض التاريخ
-    const dateStr = new Date(item.date).toLocaleString('ar-EG');
-    detailsDiv.innerHTML += `
-        <div style="background:#eef6ff; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; color:#007bff;">
-            تاريخ الزيارة: ${dateStr}
-        </div>
-    `;
+   const d = new Date(item.date); const timeStr = d.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit', hour12:true}); const dateStr = d.toLocaleDateString('en-GB').split('/').reverse().join('-'); detailsDiv.innerHTML += `<div style="background:#eef6ff; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; color:#007bff; border:1px solid #d0e4ff; font-size:14px;">📅 ${dateStr} &nbsp; | &nbsp; 🕒 ${timeStr}</div>`;
 
     // 3. عرض كافة البيانات التقنية
     for (const [key, value] of Object.entries(item.details)) {
@@ -617,6 +612,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
