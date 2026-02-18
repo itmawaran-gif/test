@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxH0m09IMtvyF8rSqkrFqDHqcdG6bmXX5wg-OrxCIXfjH6f4BZ4Q4PtdzNq5FE55CRC/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcKIT99rHZ5IJRPt769vHVthP85Yw8jkEaa5vFDWIrudNFl_cNypEXlUQmsJth5nzz/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -353,88 +353,32 @@ function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-// 1. الدالة التي تعمل فور فتح الصفحة للتحقق من وجود تسجيل دخول مسبق
-window.onload = function() {
-    const savedName = localStorage.getItem('repName');
-    if (savedName) {
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('historyPage').style.display = 'block';
-        fetchHistory(savedName); // جلب البيانات تلقائياً
-    }
-};
-
-// 2. دالة تسجيل الدخول وحفظ البيانات
-function login() {
-    const repName = document.getElementById('repName').value.trim();
-    const password = document.getElementById('password').value.trim();
-
-    if (repName && password) {
-        // نتحقق من الرمز (Password) هنا أو نرسله للسيرفر
-        // في هذا المثال سنقوم بحفظ الاسم والمتابعة
-        localStorage.setItem('repName', repName);
-        
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('historyPage').style.display = 'block';
-        fetchHistory(repName);
-    } else {
-        alert("تأكد من إدخال البيانات / دڵنیابەرەوە لە زانیارییەکان");
-    }
-}
-
-// 3. دالة جلب البيانات المحدثة (مع دعم الوقت واللغة الكردية)
-function fetchHistory(repName) {
-    const loading = document.getElementById('loading');
-    const list = document.getElementById('visitList');
+function fetchHistory() {
+    const lang = localStorage.getItem('appLang') || 'ar';
+    const repName = localStorage.repName;
+    const loader = document.getElementById('historyLoader');
+    const listDiv = document.getElementById('historyList');
     
-    loading.style.display = 'block';
-    list.innerHTML = '';
+    loader.style.display = 'block';
+    loader.innerText = translations[lang].loading_history;
+    listDiv.innerHTML = '';
 
-    // استبدل الرابط أدناه برابط الـ Web App الخاص بك
-    const url = `https://script.google.com/macros/s/AKfycbxH0m09IMtvyF8rSqkrFqDHqcdG6bmXX5wg-OrxCIXfjH6f4BZ4Q4PtdzNq5FE55CRC/exec?action=getHistory&repName=${encodeURIComponent(repName)}`;
-
-    fetch(url)
-        .then(response => response.json())
-        .then(res => {
-            loading.style.display = 'none';
-            if (res.status === "success") {
-                visitHistoryData = res.data; // تخزين البيانات للعرض لاحقاً
-                
-                if (visitHistoryData.length === 0) {
-                    list.innerHTML = '<p style="text-align:center; padding:20px;">لا توجد زيارات مسجلة / هیچ سەردانێک تۆمار نەکراوە</p>';
-                    return;
-                }
-
-                visitHistoryData.forEach((item, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'visit-card';
-                    card.onclick = () => showVisitDetails(index);
-                    card.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <strong style="font-size:16px;">${item.clientName}</strong>
-                                <div style="font-size:12px; color:#666; margin-top:4px;">
-                                    📅 ${item.visitDate} | 🕒 ${item.visitTime}
-                                </div>
-                            </div>
-                            <span style="color:#007bff; font-weight:bold;">↗</span>
-                        </div>
-                    `;
-                    list.appendChild(card);
-                });
-            } else {
-                alert("خطأ في جلب البيانات / هەڵە لە هێنانی زانیارییەکان");
-            }
-        })
-        .catch(err => {
-            loading.style.display = 'none';
-            console.error(err);
-        });
-}
-
-// 4. دالة تسجيل الخروج (لمسح الذاكرة إذا لزم الأمر)
-function logout() {
-    localStorage.removeItem('repName');
-    location.reload();
+    // إرسال طلب GET لجلب البيانات
+    fetch(`${SCRIPT_URL}?action=getHistory&repName=${encodeURIComponent(repName)}`)
+    .then(response => response.json())
+    .then(data => {
+        loader.style.display = 'none';
+        if(data.status === 'success' && data.data.length > 0) {
+            visitHistoryData = data.data; // حفظها للوصول السريع
+            renderHistoryList(visitHistoryData);
+        } else {
+            listDiv.innerHTML = `<p style="text-align:center; color:#666;">${translations[lang].no_history}</p>`;
+        }
+    })
+    .catch(err => {
+        loader.innerText = "حدث خطأ في جلب البيانات.";
+        console.error(err);
+    });
 }
 
 function renderHistoryList(data) {
@@ -465,54 +409,48 @@ function showVisitDetails(index) {
     const detailsDiv = document.getElementById('detailsContent');
     detailsDiv.innerHTML = '';
 
-    // عرض الصورة
-    if (item.photoUrl) {
-        detailsDiv.innerHTML += `
-            <div style="text-align:center; margin-bottom:15px;">
-                <img src="${item.photoUrl}" referrerpolicy="no-referrer" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; border:1px solid #ddd;">
-            </div>
-        `;
-    }
-
-    // عرض التاريخ والوقت بشكل منفصل (تصميم كروت صغيرة)
+   if (item.photoUrl) {
     detailsDiv.innerHTML += `
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <div style="flex:1; background:#f0f7ff; padding:10px; border-radius:8px; text-align:center; border:1px solid #cce5ff;">
-                <div style="font-size:12px; color:#555;">التاريخ / بەروار</div>
-                <div style="font-weight:bold; color:#007bff;">${item.visitDate}</div>
-            </div>
-            <div style="flex:1; background:#f0f7ff; padding:10px; border-radius:8px; text-align:center; border:1px solid #cce5ff;">
-                <div style="font-size:12px; color:#555;">الوقت / کات</div>
-                <div style="font-weight:bold; color:#007bff;">${item.visitTime}</div>
-            </div>
+        <div style="text-align:center; margin-bottom:20px;">
+            <img src="${item.photoUrl}" 
+                 referrerpolicy="no-referrer" 
+                 style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+                 onerror="this.parentElement.innerHTML='<p style="color:red;"> </p>'">
+        </div>
+    `;
+}
+    // 2. عرض التاريخ
+    const dateStr = new Date(item.date).toLocaleString('ar-EG');
+    detailsDiv.innerHTML += `
+        <div style="background:#eef6ff; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; color:#007bff;">
+            تاريخ الزيارة: ${dateStr}
         </div>
     `;
 
-    // عرض باقي التفاصيل
+    // 3. عرض كافة البيانات التقنية
     for (const [key, value] of Object.entries(item.details)) {
-        if(value && value !== "" && value !== " ⭐") {
+        if(value && value !== " نجوم" && value !== "") {
             detailsDiv.innerHTML += `
-                <div class="detail-row" style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; font-size:14px;">
-                    <span style="font-weight:bold; color:#444;">${key}</span>
-                    <span style="color:#000; direction:ltr;">${value}</span>
+                <div class="detail-row" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                    <span style="color:#555; font-weight:bold;">${key}:</span>
+                    <span style="color:#222; text-align:left; direction:ltr;">${value}</span>
                 </div>
             `;
         }
     }
 
-    // زر الموقع
+    // 4. زر الخريطة في الأسفل
     if (item.locationUrl) {
-        detailsDiv.innerHTML += `
-            <div style="margin-top:20px;">
-                <a href="${item.locationUrl}" target="_blank" style="display:block; background:#28a745; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold;">
-                    📍 الموقع على الخريطة / شوێن لەسەر نەخشە
-                </a>
-            </div>
-        `;
-    }
-
-    document.getElementById('detailsModal').style.display = 'block';
+    detailsDiv.innerHTML += `
+        <div style="margin-top:20px;">
+            <a href="${item.locationUrl}" target="_blank" 
+               style="display:block; background:#28a745; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold;">
+               📍 فتح الموقع على الخريطة
+            </a>
+        </div>
+    `;
 }
+    document.getElementById('detailsModal').style.display = 'block';
 }
 // ---------------------------------------------------
 
@@ -679,9 +617,6 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
-
-
-
 
 
 
