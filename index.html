@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxH0m09IMtvyF8rSqkrFqDHqcdG6bmXX5wg-OrxCIXfjH6f4BZ4Q4PtdzNq5FE55CRC/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzSEh4oHNIwwKNPbVE8JwFJvcPfZ1HGvs_sukPKYc1NN0MkH2hf_CZqFWVi5ws8KNQo/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -409,54 +409,48 @@ function showVisitDetails(index) {
     const detailsDiv = document.getElementById('detailsContent');
     detailsDiv.innerHTML = '';
 
-    // عرض الصورة
-    if (item.photoUrl) {
-        detailsDiv.innerHTML += `
-            <div style="text-align:center; margin-bottom:15px;">
-                <img src="${item.photoUrl}" referrerpolicy="no-referrer" style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; border:1px solid #ddd;">
-            </div>
-        `;
-    }
-
-    // عرض التاريخ والوقت بشكل منفصل (تصميم كروت صغيرة)
+   if (item.photoUrl) {
     detailsDiv.innerHTML += `
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <div style="flex:1; background:#f0f7ff; padding:10px; border-radius:8px; text-align:center; border:1px solid #cce5ff;">
-                <div style="font-size:12px; color:#555;">التاريخ / بەروار</div>
-                <div style="font-weight:bold; color:#007bff;">${item.visitDate}</div>
-            </div>
-            <div style="flex:1; background:#f0f7ff; padding:10px; border-radius:8px; text-align:center; border:1px solid #cce5ff;">
-                <div style="font-size:12px; color:#555;">الوقت / کات</div>
-                <div style="font-weight:bold; color:#007bff;">${item.visitTime}</div>
-            </div>
+        <div style="text-align:center; margin-bottom:20px;">
+            <img src="${item.photoUrl}" 
+                 referrerpolicy="no-referrer" 
+                 style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
+                 onerror="this.parentElement.innerHTML='<p style="color:red;"> </p>'">
+        </div>
+    `;
+}
+    // 2. عرض التاريخ
+    const dateStr = new Date(item.date).toLocaleString('ar-EG');
+    detailsDiv.innerHTML += `
+        <div style="background:#eef6ff; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; color:#007bff;">
+            تاريخ الزيارة: ${dateStr}
         </div>
     `;
 
-    // عرض باقي التفاصيل
+    // 3. عرض كافة البيانات التقنية
     for (const [key, value] of Object.entries(item.details)) {
-        if(value && value !== "" && value !== " ⭐") {
+        if(value && value !== " نجوم" && value !== "") {
             detailsDiv.innerHTML += `
-                <div class="detail-row" style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; font-size:14px;">
-                    <span style="font-weight:bold; color:#444;">${key}</span>
-                    <span style="color:#000; direction:ltr;">${value}</span>
+                <div class="detail-row" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
+                    <span style="color:#555; font-weight:bold;">${key}:</span>
+                    <span style="color:#222; text-align:left; direction:ltr;">${value}</span>
                 </div>
             `;
         }
     }
 
-    // زر الموقع
+    // 4. زر الخريطة في الأسفل
     if (item.locationUrl) {
-        detailsDiv.innerHTML += `
-            <div style="margin-top:20px;">
-                <a href="${item.locationUrl}" target="_blank" style="display:block; background:#28a745; color:white; text-align:center; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold;">
-                    📍 الموقع على الخريطة / شوێن لەسەر نەخشە
-                </a>
-            </div>
-        `;
-    }
-
-    document.getElementById('detailsModal').style.display = 'block';
+    detailsDiv.innerHTML += `
+        <div style="margin-top:20px;">
+            <a href="${item.locationUrl}" target="_blank" 
+               style="display:block; background:#28a745; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold;">
+               📍 فتح الموقع على الخريطة
+            </a>
+        </div>
+    `;
 }
+    document.getElementById('detailsModal').style.display = 'block';
 }
 // ---------------------------------------------------
 
@@ -623,7 +617,6 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
-
 
 
 
