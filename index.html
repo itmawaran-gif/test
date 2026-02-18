@@ -218,7 +218,7 @@
 
 <script>
 // ---------- ضع رابط النشر الجديد هنا ----------
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJ3dap2K9OCxczoESc0FtkIyurkTp-838b4RzSb04K2WZffkhrGfFgHixc-SFHKzQz/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby96GdhpxWjx5RZizpv2XSgYlYQ2vn1RyflWqKrjiXW5-2tlwcNVhOtyLR2cboAL3w/exec";
 // ----------------------------------------------
 
 let currentMode = 'new';
@@ -409,9 +409,22 @@ function showVisitDetails(index) {
     const detailsDiv = document.getElementById('detailsContent');
     detailsDiv.innerHTML = '';
 
-    // إنشاء صفوف التفاصيل
+    // تنسيق التاريخ والوقت
+    const dateObj = new Date(item.date);
+    const dateString = isNaN(dateObj) ? item.date : dateObj.toLocaleString('ar-EG');
+
+    // إضافة التاريخ والنوع كأول عنصر في التفاصيل
+    detailsDiv.innerHTML += `
+        <div class="detail-row" style="background:#f8f9fa; border-radius:5px; padding:10px; margin-bottom:15px; border:none;">
+            <span class="detail-label" style="color:#0a7cff;">التاريخ والوقت:</span>
+            <span class="detail-value" style="font-weight:bold;">${dateString}</span>
+        </div>
+    `;
+
+    // إنشاء صفوف باقي التفاصيل
     for (const [key, value] of Object.entries(item.details)) {
-        if(value !== undefined && value !== "") {
+        // تجاهل القيم الفارغة حتى لا تظهر بشكل غير لائق
+        if(value !== undefined && value !== null && value !== "" && value !== " نجوم") {
             detailsDiv.innerHTML += `
                 <div class="detail-row">
                     <span class="detail-label">${key}:</span>
@@ -588,3 +601,4 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
