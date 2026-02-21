@@ -487,14 +487,20 @@ function showGaugeModal() {
     const list = document.getElementById('topAgentsList');
     list.innerHTML = "";
     if(agent.topAgents && agent.topAgents.length > 0) {
-        agent.topAgents.forEach((a, index) => {
-            let medal = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
-            list.innerHTML += `
-                <div class="flex justify-between items-center border-b border-sky-100 last:border-0 py-1">
-                    <span class="font-bold text-sky-900">${medal} ${a.name}</span>
-                    <span class="bg-sky-200 text-sky-900 px-2 rounded font-bold text-sm">${a.rating}</span>
-                </div>`;
-        });
+       agent.topAgents.forEach((a, index) => {
+    let medal = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
+
+    // تحويل 0.75 إلى 75%
+    let percent = Math.round((parseFloat(a.rating) || 0) * 100);
+
+    list.innerHTML += `
+        <div class="flex justify-between items-center border-b border-sky-100 last:border-0 py-1">
+            <span class="font-bold text-sky-900">${medal} ${a.name}</span>
+            <span class="bg-sky-200 text-sky-900 px-2 rounded font-bold text-sm">
+                ${percent}%
+            </span>
+        </div>`;
+});
     } else {
         list.innerHTML = `<div class="text-center text-sm text-gray-500">لا توجد بيانات</div>`;
     }
@@ -531,6 +537,7 @@ function closeNotification() {
 </script>
 </body>
 </html>
+
 
 
 
