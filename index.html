@@ -265,7 +265,7 @@ const translations = {
         tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
         cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا رونى ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
         trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
-        category_label: "پۆلێن *", garage: "گەراج", wholesale: "کۆمەڵ", retail: "تاک", note_label: "تێبینی",
+        category_label: "پۆلێن *", garage: "گەراج", wholesale: "كو", retail: "تاک", note_label: "تێبینی",
         rate_label: "هەڵسەنگاندن *", visit_days_label: "ڕۆژی سەردان*", other_oil_label: "جۆري زەیتی مارکەیەکی تر",
         oil_grade_label: "پلەی رون", distance_label: "مەودا", liter_price_label: "نرخی لیتر", store_img_label: "وێنەی فرۆشگا *",
         client_name_label: "ناوی کڕیار *", has_order_label: "ئایا داواکاری تۆمارکرا؟", order_amount_label: "بڕی داواکاری *",
@@ -546,12 +546,70 @@ function getDistance(lat1, lon1, lat2, lon2) {
 async function handleSend() {
     if(isSending) return;
     const lang = localStorage.getItem('appLang') || 'ar';
+    
+    // ==========================================
+    // بدايـــة كـــود التحقـــق مـــن الحقـــول الإجباريـــة
+    // ==========================================
+    if (currentMode === 'new') {
+        const useOil = document.getElementById('useOil').value;
+        const tradeName = document.getElementById('tradeName').value.trim();
+        const ownerName = document.getElementById('ownerName').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const category = document.getElementById('category').value;
+        const rate = document.getElementById('rate').value;
+        const visitDays = document.getElementById('visitDays').value;
+        const imageInput = document.getElementById('imageInputNew').files.length;
+
+        if (!useOil || !tradeName || !ownerName || !address || !phone || !category || !rate || !visitDays || imageInput === 0) {
+            alert(translations[lang].alert_fill); 
+            return; 
+        }
+    } else {
+        const clientName = document.getElementById('reg_clientName').value.trim();
+        const hasOrder = document.getElementById('reg_hasOrder').value;
+        const orderAmount = document.getElementById('reg_orderAmount').value.trim();
+        const orderReason = document.getElementById('reg_orderReason').value.trim();
+        const hasPayment = document.getElementById('reg_hasPayment').value;
+        const payAmount = document.getElementById('reg_payAmount').value.trim();
+        const payReason = document.getElementById('reg_payReason').value.trim();
+        const imageInput = document.getElementById('imageInputReg').files.length;
+
+        if (!clientName || imageInput === 0) {
+            alert(translations[lang].alert_fill); 
+            return;
+        }
+        if (hasOrder === 'نعم' && !orderAmount) {
+            alert(lang === 'ar' ? "يرجى إدخال مبلغ الطلبية!" : "تکایە بڕی داواکاری بنووسە!");
+            return;
+        }
+        if (hasOrder === 'لا' && !orderReason) {
+            alert(lang === 'ar' ? "يرجى إدخال سبب عدم إنشاء طلبية!" : "تکایە هۆکاری تۆمارنەکردنی داواکاری بنووسە!");
+            return;
+        }
+        if (hasPayment === 'نعم' && !payAmount) {
+            alert(lang === 'ar' ? "يرجى إدخال مبلغ القبض!" : "تکایە بڕی پارەی وەرگیراو بنووسە!");
+            return;
+        }
+        if (hasPayment === 'لا' && !payReason) {
+            alert(lang === 'ar' ? "يرجى إدخال سبب عدم القبض!" : "تکایە هۆکاری وەرنەگرتنی پارە بنووسە!");
+            return;
+        }
+    }
+    // ==========================================
+    // نهايـــة كـــود التحقـــق مـــن الحقـــول
+    // ==========================================
+
+    // التحقق من بدء الزيارة
     if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
+    
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
     isSending = true;
     btn.disabled = true;
     btn.innerText = translations[lang].loading;
+
+    // جلب الموقع وإرسال البيانات
     navigator.geolocation.getCurrentPosition(async pos => {
         const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
         if(dist > 2000) { 
@@ -561,15 +619,28 @@ async function handleSend() {
             btn.innerText = translations[lang].send_data_btn;
             return; 
         }
+        
         btn.innerText = translations[lang].sending;
         msg.innerText = translations[lang].wait;
         const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
-        let data = { sheetName: currentMode === 'new' ? 'data' : 'Clients', repName: localStorage.repName, city: localStorage.city, duration: durationMin, lat: pos.coords.latitude, lng: pos.coords.longitude };
+        
+        let data = { 
+            sheetName: currentMode === 'new' ? 'data' : 'Clients', 
+            repName: localStorage.repName, 
+            city: localStorage.city, 
+            duration: durationMin, 
+            lat: pos.coords.latitude, 
+            lng: pos.coords.longitude 
+        };
+        
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
+        
         if(fileInput.files.length > 0) {
             const reader = new FileReader();
             reader.readAsDataURL(fileInput.files[0]);
             reader.onload = () => {
+                data.photo = reader.result; // إرفاق الصورة كـ Base64
+                
                 if(currentMode === 'new') {
                     data.tradeName = document.getElementById('tradeName').value;
                     data.ownerName = document.getElementById('ownerName').value;
@@ -594,27 +665,20 @@ async function handleSend() {
                     data.payReason = document.getElementById('reg_payReason').value;
                     data.note = document.getElementById('reg_note').value;
                 }
-                data.image = reader.result;
-                sendToGoogle(data);
+                
+                sendToGoogle(data); // استدعاء دالة الإرسال هنا بعد تجهيز البيانات
             };
-        } else {
-            alert(translations[lang].take_photo_label);
-            isSending = false;
-            btn.disabled = false;
-            btn.innerText = translations[lang].send_data_btn;
-            msg.innerText = "";
         }
-    }, () => {
+    }, (error) => {
         alert(translations[lang].alert_geo);
         isSending = false;
         btn.disabled = false;
         btn.innerText = translations[lang].send_data_btn;
-    });
+    }, { enableHighAccuracy: true });
 }
 
 function sendToGoogle(data) {
     const lang = localStorage.getItem('appLang') || 'ar';
-    // ملاحظة: يستخدم 'no-cors' لإرسال البيانات فقط (POST)، أما الجلب في الأعلى فيستخدم fetch العادي
     fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
     .then(() => {
         alert(translations[lang].success);
@@ -623,16 +687,17 @@ function sendToGoogle(data) {
         location.reload();
     })
     .catch(() => {
-        alert("Error");
+        alert("Error in sending data!");
         isSending = false;
         document.getElementById('sendBtn').disabled = false;
+        document.getElementById('sendBtn').innerText = translations[lang].send_data_btn;
+        document.getElementById('msg').innerText = "";
     });
 }
+
 </script>
 </body>
 </html>
-
-
 
 
 
