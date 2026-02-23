@@ -544,127 +544,117 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 async function handleSend() {
-    if(isSending) return;
+    if (isSending) return;
     const lang = localStorage.getItem('appLang') || 'ar';
     
-    // 1. التحقق من بدء الزيارة أولاً
-    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
+    // 1. التحقق من بدء الزيارة
+    if (!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
 
-    // 2. تجميع الحقول والتحقق من الحقول الإلزامية
+    // 2. التحقق من الحقول الإلزامية
     let isValid = true;
+    const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
+    
+    // فحص الصورة أولاً
+    if (fileInput.files.length === 0) {
+        alert(translations[lang].alert_fill + " (الصورة مطلوبة)");
+        return;
+    }
+
     let data = { 
         sheetName: currentMode === 'new' ? 'data' : 'Clients', 
         repName: localStorage.repName, 
         city: localStorage.city 
     };
 
-    if(currentMode === 'new') {
-        // حقول العميل الجديد الإلزامية
-        const fields = {
-            useOil: document.getElementById('useOil').value,
-            tradeName: document.getElementById('tradeName').value,
-            ownerName: document.getElementById('ownerName').value,
-            address: document.getElementById('address').value,
-            phone: document.getElementById('phone').value,
-            category: document.getElementById('category').value,
-            rate: document.getElementById('rate').value,
-            visitDays: document.getElementById('visitDays').value
-        };
-
-        // فحص إذا كان أي حقل فارغ
-        if (Object.values(fields).some(val => val === "")) isValid = false;
-        
-        // التحقق من الصورة للعميل الجديد
-        if (document.getElementById('imageInputNew').files.length === 0) isValid = false;
-
-        Object.assign(data, fields);
+    if (currentMode === 'new') {
+        data.useOil = document.getElementById('useOil').value;
+        data.tradeName = document.getElementById('tradeName').value;
+        data.ownerName = document.getElementById('ownerName').value;
+        data.address = document.getElementById('address').value;
+        data.phone = document.getElementById('phone').value;
+        data.category = document.getElementById('category').value;
+        data.rate = document.getElementById('rate').value;
+        data.visitDays = document.getElementById('visitDays').value;
         data.note = document.getElementById('note').value;
         data.oilType = document.getElementById('oilType').value;
         data.oilGrade = document.getElementById('oilGrade').value;
         data.oilDistance = document.getElementById('oilDistance').value;
         data.oilPrice = document.getElementById('oilPrice').value;
 
+        if (!data.tradeName || !data.ownerName || !data.address || !data.phone || !data.category || !data.useOil || !data.rate || !data.visitDays) isValid = false;
     } else {
-        // حقول العميل الدائم الإلزامية
-        const clientName = document.getElementById('reg_clientName').value;
-        const hasOrder = document.getElementById('reg_hasOrder').value;
-        const hasPayment = document.getElementById('reg_hasPayment').value;
+        data.clientName = document.getElementById('reg_clientName').value;
+        data.hasOrder = document.getElementById('reg_hasOrder').value;
+        data.hasPayment = document.getElementById('reg_hasPayment').value;
         
-        if (!clientName) isValid = false;
+        if (!data.clientName) isValid = false;
         
-        // التحقق من حقول الطلبية والقبض بناءً على الاختيار
-        if (hasOrder === 'نعم' && !document.getElementById('reg_orderAmount').value) isValid = false;
-        if (hasOrder === 'لا' && !document.getElementById('reg_orderReason').value) isValid = false;
-        if (hasPayment === 'نعم' && !document.getElementById('reg_payAmount').value) isValid = false;
-        if (hasPayment === 'لا' && !document.getElementById('reg_payReason').value) isValid = false;
-        
-        // التحقق من الصورة للعميل الدائم
-        if (document.getElementById('imageInputReg').files.length === 0) isValid = false;
+        if (data.hasOrder === 'نعم') data.orderAmount = document.getElementById('reg_orderAmount').value;
+        else data.orderReason = document.getElementById('reg_orderReason').value;
 
-        if (isValid) {
-            data.clientName = clientName;
-            data.hasOrder = hasOrder;
-            data.orderAmount = document.getElementById('reg_orderAmount').value;
-            data.orderReason = document.getElementById('reg_orderReason').value;
-            data.hasPayment = hasPayment;
-            data.payAmount = document.getElementById('reg_payAmount').value;
-            data.payReason = document.getElementById('reg_payReason').value;
-            data.note = document.getElementById('reg_note').value;
-        }
+        if (data.hasPayment === 'نعم') data.payAmount = document.getElementById('reg_payAmount').value;
+        else data.payReason = document.getElementById('reg_payReason').value;
+
+        data.note = document.getElementById('reg_note').value;
+
+        // فحص حقول العميل الدائم الإلزامية
+        if (data.hasOrder === 'نعم' && !data.orderAmount) isValid = false;
+        if (data.hasOrder === 'لا' && !data.orderReason) isValid = false;
     }
 
-    // إذا وجد حقل ناقص، أظهر تنبيه وتوقف
     if (!isValid) {
         alert(translations[lang].alert_fill);
         return;
     }
 
-    // 3. بدء عملية الإرسال الفنية (الموقع ورفع البيانات)
+    // 3. بدء عملية المعالجة والإرسال
+    isSending = true;
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
-    isSending = true;
     btn.disabled = true;
     btn.innerText = translations[lang].loading;
+    msg.innerText = translations[lang].wait;
 
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
-        if(dist > 2000) { 
-            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
-            isSending = false;
-            btn.disabled = false;
-            btn.innerText = translations[lang].send_data_btn;
-            return; 
-        }
-        
-        btn.innerText = translations[lang].sending;
-        msg.innerText = translations[lang].wait;
-        data.duration = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
-        data.lat = pos.coords.latitude;
-        data.lng = pos.coords.longitude;
+    // تحويل الصورة أولاً
+    const reader = new FileReader();
+    reader.readAsDataURL(fileInput.files[0]);
+    reader.onload = function() {
+        data.image = reader.result.split(',')[1]; // استخراج الكود المصدري للصورة
 
-        const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        const reader = new FileReader();
-        reader.readAsDataURL(fileInput.files[0]);
-        reader.onload = () => {
-            data.image = reader.result.split(',')[1];
-            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) })
-            .then(r => r.json())
-            .then(res => {
+        // جلب الموقع بعد تجهيز الصورة
+        navigator.geolocation.getCurrentPosition(async pos => {
+            const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
+            
+            if (dist > 2000) { 
+                alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
+                isSending = false; btn.disabled = false; btn.innerText = translations[lang].send_data_btn;
+                return; 
+            }
+
+            data.duration = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
+            data.lat = pos.coords.latitude;
+            data.lng = pos.coords.longitude;
+
+            // الإرسال النهائي
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // لضمان الإرسال السريع لـ Google Apps Script
+                body: JSON.stringify(data)
+            }).then(() => {
                 alert(translations[lang].success);
                 localStorage.removeItem('visitStartTime');
+                localStorage.removeItem('startCoords');
                 location.reload();
-            })
-            .catch(e => {
-                alert("Error!");
-                isSending = false;
-                btn.disabled = false;
+            }).catch(e => {
+                alert("خطأ في الاتصال بالسيرفر");
+                isSending = false; btn.disabled = false;
             });
-        };
-    }, () => {
-        alert(translations[lang].alert_geo);
-        isSending = false;
-        btn.disabled = false;
-    }, { enableHighAccuracy: true });
+
+        }, () => {
+            alert(translations[lang].alert_geo);
+            isSending = false; btn.disabled = false;
+        }, { enableHighAccuracy: true });
+    };
 }
 
 function sendToGoogle(data) {
@@ -687,6 +677,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
