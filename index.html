@@ -547,69 +547,85 @@ async function handleSend() {
     if(isSending) return;
     const lang = localStorage.getItem('appLang') || 'ar';
     
-    // ==========================================
-    // بدايـــة كـــود التحقـــق مـــن الحقـــول الإجباريـــة
-    // ==========================================
-    if (currentMode === 'new') {
-        const useOil = document.getElementById('useOil').value;
-        const tradeName = document.getElementById('tradeName').value.trim();
-        const ownerName = document.getElementById('ownerName').value.trim();
-        const address = document.getElementById('address').value.trim();
-        const phone = document.getElementById('phone').value.trim();
-        const category = document.getElementById('category').value;
-        const rate = document.getElementById('rate').value;
-        const visitDays = document.getElementById('visitDays').value;
-        const imageInput = document.getElementById('imageInputNew').files.length;
+    // 1. التحقق من بدء الزيارة أولاً
+    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
 
-        if (!useOil || !tradeName || !ownerName || !address || !phone || !category || !rate || !visitDays || imageInput === 0) {
-            alert(translations[lang].alert_fill); 
-            return; 
-        }
+    // 2. تجميع الحقول والتحقق من الحقول الإلزامية
+    let isValid = true;
+    let data = { 
+        sheetName: currentMode === 'new' ? 'data' : 'Clients', 
+        repName: localStorage.repName, 
+        city: localStorage.city 
+    };
+
+    if(currentMode === 'new') {
+        // حقول العميل الجديد الإلزامية
+        const fields = {
+            useOil: document.getElementById('useOil').value,
+            tradeName: document.getElementById('tradeName').value,
+            ownerName: document.getElementById('ownerName').value,
+            address: document.getElementById('address').value,
+            phone: document.getElementById('phone').value,
+            category: document.getElementById('category').value,
+            rate: document.getElementById('rate').value,
+            visitDays: document.getElementById('visitDays').value
+        };
+
+        // فحص إذا كان أي حقل فارغ
+        if (Object.values(fields).some(val => val === "")) isValid = false;
+        
+        // التحقق من الصورة للعميل الجديد
+        if (document.getElementById('imageInputNew').files.length === 0) isValid = false;
+
+        Object.assign(data, fields);
+        data.note = document.getElementById('note').value;
+        data.oilType = document.getElementById('oilType').value;
+        data.oilGrade = document.getElementById('oilGrade').value;
+        data.oilDistance = document.getElementById('oilDistance').value;
+        data.oilPrice = document.getElementById('oilPrice').value;
+
     } else {
-        const clientName = document.getElementById('reg_clientName').value.trim();
+        // حقول العميل الدائم الإلزامية
+        const clientName = document.getElementById('reg_clientName').value;
         const hasOrder = document.getElementById('reg_hasOrder').value;
-        const orderAmount = document.getElementById('reg_orderAmount').value.trim();
-        const orderReason = document.getElementById('reg_orderReason').value.trim();
         const hasPayment = document.getElementById('reg_hasPayment').value;
-        const payAmount = document.getElementById('reg_payAmount').value.trim();
-        const payReason = document.getElementById('reg_payReason').value.trim();
-        const imageInput = document.getElementById('imageInputReg').files.length;
+        
+        if (!clientName) isValid = false;
+        
+        // التحقق من حقول الطلبية والقبض بناءً على الاختيار
+        if (hasOrder === 'نعم' && !document.getElementById('reg_orderAmount').value) isValid = false;
+        if (hasOrder === 'لا' && !document.getElementById('reg_orderReason').value) isValid = false;
+        if (hasPayment === 'نعم' && !document.getElementById('reg_payAmount').value) isValid = false;
+        if (hasPayment === 'لا' && !document.getElementById('reg_payReason').value) isValid = false;
+        
+        // التحقق من الصورة للعميل الدائم
+        if (document.getElementById('imageInputReg').files.length === 0) isValid = false;
 
-        if (!clientName || imageInput === 0) {
-            alert(translations[lang].alert_fill); 
-            return;
-        }
-        if (hasOrder === 'نعم' && !orderAmount) {
-            alert(lang === 'ar' ? "يرجى إدخال مبلغ الطلبية!" : "تکایە بڕی داواکاری بنووسە!");
-            return;
-        }
-        if (hasOrder === 'لا' && !orderReason) {
-            alert(lang === 'ar' ? "يرجى إدخال سبب عدم إنشاء طلبية!" : "تکایە هۆکاری تۆمارنەکردنی داواکاری بنووسە!");
-            return;
-        }
-        if (hasPayment === 'نعم' && !payAmount) {
-            alert(lang === 'ar' ? "يرجى إدخال مبلغ القبض!" : "تکایە بڕی پارەی وەرگیراو بنووسە!");
-            return;
-        }
-        if (hasPayment === 'لا' && !payReason) {
-            alert(lang === 'ar' ? "يرجى إدخال سبب عدم القبض!" : "تکایە هۆکاری وەرنەگرتنی پارە بنووسە!");
-            return;
+        if (isValid) {
+            data.clientName = clientName;
+            data.hasOrder = hasOrder;
+            data.orderAmount = document.getElementById('reg_orderAmount').value;
+            data.orderReason = document.getElementById('reg_orderReason').value;
+            data.hasPayment = hasPayment;
+            data.payAmount = document.getElementById('reg_payAmount').value;
+            data.payReason = document.getElementById('reg_payReason').value;
+            data.note = document.getElementById('reg_note').value;
         }
     }
-    // ==========================================
-    // نهايـــة كـــود التحقـــق مـــن الحقـــول
-    // ==========================================
 
-    // التحقق من بدء الزيارة
-    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
-    
+    // إذا وجد حقل ناقص، أظهر تنبيه وتوقف
+    if (!isValid) {
+        alert(translations[lang].alert_fill);
+        return;
+    }
+
+    // 3. بدء عملية الإرسال الفنية (الموقع ورفع البيانات)
     const btn = document.getElementById('sendBtn');
     const msg = document.getElementById('msg');
     isSending = true;
     btn.disabled = true;
     btn.innerText = translations[lang].loading;
 
-    // جلب الموقع وإرسال البيانات
     navigator.geolocation.getCurrentPosition(async pos => {
         const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
         if(dist > 2000) { 
@@ -622,58 +638,32 @@ async function handleSend() {
         
         btn.innerText = translations[lang].sending;
         msg.innerText = translations[lang].wait;
-        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
-        
-        let data = { 
-            sheetName: currentMode === 'new' ? 'data' : 'Clients', 
-            repName: localStorage.repName, 
-            city: localStorage.city, 
-            duration: durationMin, 
-            lat: pos.coords.latitude, 
-            lng: pos.coords.longitude 
-        };
-        
+        data.duration = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
+        data.lat = pos.coords.latitude;
+        data.lng = pos.coords.longitude;
+
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        
-        if(fileInput.files.length > 0) {
-            const reader = new FileReader();
-            reader.readAsDataURL(fileInput.files[0]);
-            reader.onload = () => {
-                data.photo = reader.result; // إرفاق الصورة كـ Base64
-                
-                if(currentMode === 'new') {
-                    data.tradeName = document.getElementById('tradeName').value;
-                    data.ownerName = document.getElementById('ownerName').value;
-                    data.useOil = document.getElementById('useOil').value;
-                    data.address = document.getElementById('address').value;
-                    data.phone = document.getElementById('phone').value;
-                    data.category = document.getElementById('category').value;
-                    data.note = document.getElementById('note').value;
-                    data.rate = document.getElementById('rate').value;
-                    data.visitDays = document.getElementById('visitDays').value;
-                    data.oilType = document.getElementById('oilType').value;
-                    data.oilGrade = document.getElementById('oilGrade').value;
-                    data.oilDistance = document.getElementById('oilDistance').value;
-                    data.oilPrice = document.getElementById('oilPrice').value;
-                } else {
-                    data.clientName = document.getElementById('reg_clientName').value;
-                    data.hasOrder = document.getElementById('reg_hasOrder').value;
-                    data.orderAmount = document.getElementById('reg_orderAmount').value;
-                    data.orderReason = document.getElementById('reg_orderReason').value;
-                    data.hasPayment = document.getElementById('reg_hasPayment').value;
-                    data.payAmount = document.getElementById('reg_payAmount').value;
-                    data.payReason = document.getElementById('reg_payReason').value;
-                    data.note = document.getElementById('reg_note').value;
-                }
-                
-                sendToGoogle(data); // استدعاء دالة الإرسال هنا بعد تجهيز البيانات
-            };
-        }
-    }, (error) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(fileInput.files[0]);
+        reader.onload = () => {
+            data.image = reader.result.split(',')[1];
+            fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(data) })
+            .then(r => r.json())
+            .then(res => {
+                alert(translations[lang].success);
+                localStorage.removeItem('visitStartTime');
+                location.reload();
+            })
+            .catch(e => {
+                alert("Error!");
+                isSending = false;
+                btn.disabled = false;
+            });
+        };
+    }, () => {
         alert(translations[lang].alert_geo);
         isSending = false;
         btn.disabled = false;
-        btn.innerText = translations[lang].send_data_btn;
     }, { enableHighAccuracy: true });
 }
 
@@ -697,6 +687,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
