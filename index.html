@@ -708,7 +708,8 @@ async function handleSend() {
                     data.oilDistance = document.getElementById('oilDistance').value;
                     data.oilPrice = document.getElementById('oilPrice').value;
                 } else {
-                    data.clientName = document.getElementById('reg_clientName').value;
+                    const select = document.getElementById('reg_clientName');
+                    data.clientName = select.options[select.selectedIndex].text;
                     data.hasOrder = document.getElementById('reg_hasOrder').value;
                     data.orderAmount = document.getElementById('reg_orderAmount').value;
                     data.orderReason = document.getElementById('reg_orderReason').value;
@@ -761,6 +762,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
