@@ -127,10 +127,10 @@
             <option value="لا">لا</option>
         </select>
 
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;">تعديل البيانات</button>
-            <button id="saveEditBtn" class="hidden" onclick="saveClientEdit()" style="background:#28a745; margin-top:0;">حفظ التعديلات</button>
-        </div>
+       <div style="display: flex; gap: 10px; margin-top: 20px;">
+    <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;" data-key="edit_data">تعديل البيانات</button>
+    <button id="saveEditBtn" class="hidden" onclick="saveClientEdit()" style="background:#28a745; margin-top:0;" data-key="save_edits">حفظ التعديلات</button>
+</div>
     </div>
 </div>
 
@@ -146,7 +146,7 @@
 
     <div id="formBox" class="hidden">
 <button id="workBtn" onclick="openWorkModal()" 
-style="background:#6f42c1;margin-bottom:10px;">
+style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
 بدء الدوام
 </button>
     
@@ -231,7 +231,7 @@ style="background:#6f42c1;margin-bottom:10px;">
                 <select id="reg_clientName" onchange="toggleDetailsBtn()">
                     <option value="">اختر العميل...</option>
                 </select>
-                <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()">تفاصيل</button>
+                <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()" data-key="details_btn">تفاصيل</button>
             </div>
             
             <label data-key="has_order_label">هل تم عمل طلبية؟</label>
@@ -277,29 +277,29 @@ style="background:#6f42c1;margin-bottom:10px;">
 </div>
   <div id="workModal" class="fullscreen-modal">
   <div class="modal-header">
-    <h3>الدوام اليومي</h3>
+    <h3 data-key="daily_work_title">الدوام اليومي</h3>
     <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
   </div>
 
   <div class="details-box">
-    <h4>بدء الدوام</h4>
-    <label>الكيلومتر الحالي *</label>
+    <h4 data-key="start_work">بدء الدوام</h4>
+    <label data-key="current_km">الكيلومتر الحالي *</label>
     <input type="number" inputmode="numeric" id="startKM">
 
-    <label>صورة العداد *</label>
+    <label data-key="meter_img">صورة العداد *</label>
     <input type="file" accept="image/*" capture="environment" id="startKMImg">
 
     <hr>
 
-    <h4>إنهاء الدوام</h4>
-    <label>الكيلومتر النهائي *</label>
+    <h4 data-key="end_work">إنهاء الدوام</h4>
+    <label data-key="final_km">الكيلومتر النهائي *</label>
     <input type="number" inputmode="numeric" id="endKM">
 
-    <label>صورة العداد *</label>
+    <label data-key="meter_img">صورة العداد *</label>
     <input type="file" accept="image/*" capture="environment" id="endKMImg">
 
     <button id="saveWorkBtn" onclick="saveWorkData()" style="background:#28a745; position: relative; overflow: hidden;">
-  <span class="btn-text">حفظ وإرسال</span>
+  <span class="btn-text" data-key="save_send">حفظ وإرسال</span>
   <div class="spinner"></div>
 </button>
 
@@ -334,7 +334,12 @@ const translations = {
         no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
         alert_fill: "يرجى إدخال البيانات المطلوبة", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
         alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع...",
-        sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس"
+        sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس",
+        // الترجمات الجديدة المضافة:
+        work_btn: "بدء الدوام", details_btn: "تفاصيل", details_title: "تفاصيل وتعديل العميل", 
+        edit_data: "تعديل البيانات", save_edits: "حفظ التعديلات", daily_work_title: "الدوام اليومي",
+        start_work: "بدء الدوام", current_km: "الكيلومتر الحالي *", meter_img: "صورة العداد *",
+        end_work: "إنهاء الدوام", final_km: "الكيلومتر النهائي *", save_send: "حفظ وإرسال"
     },
     ku: {
         modal_title: "بەیانی باش", modal_body: "ئایا ئامادەی بۆ ڕۆژێکی نوێ؟", modal_btn: "OK",
@@ -350,7 +355,12 @@ const translations = {
         no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
         alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
         alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن...",
-        sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە" 
+        sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە",
+        // الترجمات الجديدة المضافة:
+        work_btn: "دەستپێکردنی کار", details_btn: "وردەکارییەکان", details_title: "وردەکاری و دەستکاری کڕیار", 
+        edit_data: "دەستکاری زانیارییەکان", save_edits: "پاشەکەوتکردنی گۆڕانکارییەکان", daily_work_title: "دەوامی ڕۆژانە",
+        start_work: "دەستپێکی دەوام", current_km: "کیلۆمەتری ئێستا *", meter_img: "وێنەی پێوەر *",
+        end_work: "کۆتایی دەوام", final_km: "کیلۆمەتری کۆتایی *", save_send: "پاشەکەوتکردن و ناردن"
     }
 };
 
@@ -945,6 +955,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
