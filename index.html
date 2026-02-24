@@ -19,27 +19,14 @@
     .modal-content p { font-size: 14px; color: #666; margin-bottom: 20px; }
     #openAppBtn { background: #28a745; color: #fff; border: 0; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
 
-    /* نوافذ السجل (History Modals) */
+    /* النوافذ المنبثقة (Modals) */
     .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f2f4f7; z-index: 9990; overflow-y: auto; display: none; padding-bottom: 20px; }
     .modal-header { background: #0a7cff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 9991; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .modal-header h3 { margin: 0; font-size: 18px; }
     .close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
     
-    .history-list { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-    .history-item { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; border-right: 4px solid #0a7cff; transition: 0.2s; }
-    .history-item.new-client { border-right-color: #28a745; }
-    .history-item:active { transform: scale(0.98); }
-    .h-title { font-weight: bold; color: #333; font-size: 15px; margin-bottom: 5px; }
-    .h-date { font-size: 12px; color: #777; }
-    .h-type { font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 4px; float: left; color: #555; }
-
     .details-box { background: white; margin: 15px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .detail-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; font-size: 14px; }
-    .detail-row:last-child { border-bottom: none; }
-    .detail-label { font-weight: bold; color: #555; }
-    .detail-value { color: #333; text-align: left; }
 
-    #historyBtn { background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 15px; font-weight: bold; cursor: pointer; }
     .loader { text-align: center; margin-top: 50px; font-weight: bold; color: #555; }
 
     .lang-switcher { margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
@@ -47,10 +34,13 @@
     h2 { text-align:center; color: #333; margin-bottom: 20px; }
     label { display:block; margin-top:10px; font-weight:bold; font-size: 14px; color: #444; }
     input, select, textarea, button { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:1px solid #ccc; font-size:16px; box-sizing: border-box; }
+    input:disabled, select:disabled, textarea:disabled { background: #e9ecef; color: #666; cursor: not-allowed; }
+    
     button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:pointer; font-weight: bold; }
     button:disabled { background:#999 !important; cursor:not-allowed; opacity: 0.6; }
     #msg { text-align:center; margin-top:10px; font-weight:bold; font-size: 14px; }
     .hidden { display:none !important; }
+    
     .visit-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; flex-direction: column; }
     #startVisitBtn { width: 90px; height: 90px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s; }
     #startVisitBtn.active { background: #dc3545; animation: pulse 1.5s infinite; }
@@ -60,6 +50,12 @@
     .nav-tabs button { margin-top: 0; background: #eee; color: #333; flex: 1; font-size: 14px; border: 1px solid #ddd; }
     .nav-tabs button.active { background: #0a7cff; color: white; border-color: #0a7cff; }
     #timerDisplay { text-align: center; font-size: 22px; font-weight: bold; color: #dc3545; font-family: monospace; margin-bottom: 10px; }
+
+    /* تنسيق خاص لقائمة العملاء وتغيير اليوم */
+    .client-selection-group { display: flex; gap: 5px; align-items: center; margin-top: 4px; }
+    #reg_daySelect { width: 35%; padding: 10px 5px; font-size: 14px; }
+    #reg_clientName { width: 65%; }
+    #showDetailsBtn { background: #17a2b8; width: auto; padding: 10px 15px; margin-top: 0; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -82,21 +78,60 @@
     </div>
 </div>
 
-<div id="historyModal" class="fullscreen-modal">
+<div id="clientDetailsModal" class="fullscreen-modal" style="z-index: 9992;">
     <div class="modal-header">
-        <h3 data-key="history_title">سجل الزيارات</h3>
-        <button class="close-btn" onclick="closeModal('historyModal')">&times;</button>
+        <h3 data-key="details_title">تفاصيل وتعديل العميل</h3>
+        <button class="close-btn" onclick="closeModal('clientDetailsModal')">&times;</button>
     </div>
-    <div id="historyLoader" class="loader data-key='loading_history'">جاري جلب البيانات...</div>
-    <div id="historyList" class="history-list"></div>
-</div>
+    <div class="details-box">
+        <label>الاسم التجاري *</label>
+        <input id="edit_tradeName" disabled>
+        
+        <label>اسم المالك *</label>
+        <input id="edit_ownerName" disabled>
+        
+        <label>العنوان *</label>
+        <input id="edit_address" disabled>
+        
+        <label>رقم الهاتف *</label>
+        <input id="edit_phone" inputmode="numeric" disabled>
+        
+        <label>الفئة *</label>
+        <select id="edit_category" disabled>
+            <option value="كراج">كراج</option>
+            <option value="جملة">جملة</option>
+            <option value="مفرد">مفرد</option>
+        </select>
+        
+        <label>الملاحظة</label>
+        <textarea id="edit_note" disabled></textarea>
+        
+        <label>التقييم *</label>
+        <select id="edit_rate" disabled>
+            <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+        
+        <label>يوم الزيارة *</label>
+        <select id="edit_visitDays" disabled>
+            <option value="السبت">السبت</option>
+            <option value="الأحد">الأحد</option>
+            <option value="الاثنين">الاثنين</option>
+            <option value="الثلاثاء">الثلاثاء</option>
+            <option value="الأربعاء">الأربعاء</option>
+            <option value="الخميس">الخميس</option>
+        </select>
 
-<div id="detailsModal" class="fullscreen-modal" style="z-index: 9992;">
-    <div class="modal-header">
-        <h3 data-key="details_title">تفاصيل الزيارة</h3>
-        <button class="close-btn" onclick="closeModal('detailsModal')">&times;</button>
+        <label>هل يمتلك زيت ريماكس؟ *</label>
+        <select id="edit_useOil" disabled>
+            <option value="نعم">نعم</option>
+            <option value="لا">لا</option>
+        </select>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;">تعديل البيانات</button>
+            <button id="saveEditBtn" class="hidden" onclick="saveClientEdit()" style="background:#28a745; margin-top:0;">حفظ التعديلات</button>
+        </div>
     </div>
-    <div class="details-box" id="detailsContent"></div>
 </div>
 
 <div class="container">
@@ -111,8 +146,6 @@
 
     <div id="formBox" class="hidden">
         
-        <button id="historyBtn" onclick="openHistory()" data-key="history_btn">📋 عرض سجل الزيارات السابقة</button>
-
         <div class="nav-tabs">
             <button id="tabNew" class="active" onclick="switchForm('new')" data-key="tab_new">عميل جديد</button>
             <button id="tabRegular" onclick="switchForm('regular')" data-key="tab_regular">عميل دائمي</button>
@@ -154,15 +187,15 @@
                 <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
             </select>
             <label data-key="visit_days_label">يوم الزيارة *</label>
-<select id="visitDays">
-    <option value="" data-key="choose">اختر</option>
-    <option value="السبت" data-key="sat">السبت</option>
-    <option value="الأحد" data-key="sun">الأحد</option>
-    <option value="الاثنين" data-key="mon">الاثنين</option>
-    <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
-    <option value="الأربعاء" data-key="wed">الأربعاء</option>
-    <option value="الخميس" data-key="thu">الخميس</option>
-</select>
+            <select id="visitDays">
+                <option value="" data-key="choose">اختر</option>
+                <option value="السبت" data-key="sat">السبت</option>
+                <option value="الأحد" data-key="sun">الأحد</option>
+                <option value="الاثنين" data-key="mon">الاثنين</option>
+                <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
+                <option value="الأربعاء" data-key="wed">الأربعاء</option>
+                <option value="الخميس" data-key="thu">الخميس</option>
+            </select>
             <hr style="opacity: 0.2; margin: 20px 0;">
             <label data-key="other_oil_label">نوع الزيت ماركة أخرى</label>
             <input id="oilType">
@@ -181,7 +214,22 @@
 
         <div id="regularClientForm" class="hidden">
             <label data-key="client_name_label">اسم العميل *</label>
-            <input id="reg_clientName">
+            
+            <div class="client-selection-group">
+                <select id="reg_daySelect" onchange="filterClientsByDay()">
+                    <option value="السبت">السبت</option>
+                    <option value="الأحد">الأحد</option>
+                    <option value="الاثنين">الاثنين</option>
+                    <option value="الثلاثاء">الثلاثاء</option>
+                    <option value="الأربعاء">الأربعاء</option>
+                    <option value="الخميس">الخميس</option>
+                </select>
+                <select id="reg_clientName" onchange="toggleDetailsBtn()">
+                    <option value="">اختر العميل...</option>
+                </select>
+                <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()">تفاصيل</button>
+            </div>
+            
             <label data-key="has_order_label">هل تم عمل طلبية؟</label>
             <select id="reg_hasOrder" onchange="toggleOrderFields()">
                 <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
@@ -225,16 +273,16 @@
 </div>
 
 <script>
-// ---------- ضع رابط النشر الجديد هنا ----------
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFFI33sgVXm-qEdnwpi76bDVnGUBCrqpzl7uRrW_xjOcQHwNVumwxWWJbPh0SOPstT/exec";
-// ----------------------------------------------
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
 let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.getItem('startCoords')) : null;
 let timerInterval;
 let isSending = false;
-let visitHistoryData = []; // لحفظ البيانات المحملة
+
+// لتخزين قائمة العملاء القادمة من جوجل شيت
+let allClients = [];
 
 const translations = {
     ar: {
@@ -251,13 +299,7 @@ const translations = {
         no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
         alert_fill: "يرجى إدخال البيانات المطلوبة", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
         alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع...",
-        history_btn: "📋 عرض سجل الزيارات السابقة", history_title: "سجل الزيارات", details_title: "تفاصيل الزيارة", loading_history: "جاري جلب البيانات...", no_history: "لا توجد زيارات سابقة.", 
-        sat: "السبت",
-        sun: "الأحد",
-        mon: "الاثنين",
-        tue: "الثلاثاء",
-        wed: "الأربعاء",
-        thu: "الخميس",
+        sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس"
     },
     ku: {
         modal_title: "بەیانی باش", modal_body: "ئایا ئامادەی بۆ ڕۆژێکی نوێ؟", modal_btn: "OK",
@@ -273,13 +315,7 @@ const translations = {
         no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
         alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
         alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن...",
-        history_btn: "📋 بینینی تۆماری سەردانەکانی پێشوو", history_title: "تۆماری سەردانەکان", details_title: "وردەکاری سەردان", loading_history: "هێنانی زانیارییەکان...", no_history: "هیچ سەردانێکی پێشوو نییە.", 
-          sat: "شەممە",
-          sun: "یەکشەممە",
-          mon: "دووشەممە",
-          tue: "سێشەممە",
-         wed: "چوارشەممە",
-         thu: "پێنجشەممە", 
+        sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە" 
     }
 };
 
@@ -327,6 +363,10 @@ window.onload = () => {
         document.getElementById('login').classList.add('hidden');
         document.getElementById('formBox').classList.remove('hidden');
         if(visitStartTime) resumeVisit();
+        
+        // جلب قائمة العملاء
+        fetchClientsData();
+        setCurrentDay();
     }
 };
 
@@ -363,109 +403,140 @@ function switchForm(mode) {
     document.getElementById('tabRegular').classList.toggle('active', mode === 'regular');
 }
 
-// --------- وظائف السجل (History Functions) ---------
-function openHistory() {
-    document.getElementById('historyModal').style.display = 'block';
-    fetchHistory();
+// --------- وظائف جلب وتصفية العملاء (Clients Fetch & Filter) ---------
+
+function setCurrentDay() {
+    const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    const today = days[new Date().getDay()];
+    // في حال كان الجمعة، نختار السبت كبديل حيث لا يوجد خيار جمعة في القائمة
+    document.getElementById('reg_daySelect').value = (today === "الجمعة") ? "السبت" : today;
+}
+
+function fetchClientsData() {
+    const repName = localStorage.repName;
+    document.getElementById('reg_clientName').innerHTML = '<option value="">جاري جلب العملاء...</option>';
+    
+    // ملاحظة للمبرمج: يجب أن تدعم Google Script الاستعلام action=getClients وتقوم بإرجاع بيانات العملاء
+    fetch(`${SCRIPT_URL}?action=getClients&repName=${encodeURIComponent(repName)}`)
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === 'success') {
+            allClients = data.data; // مصفوفة العملاء
+            filterClientsByDay();
+        } else {
+            document.getElementById('reg_clientName').innerHTML = '<option value="">لم يتم العثور على عملاء</option>';
+        }
+    }).catch(err => {
+        console.error("Error Fetching Clients:", err);
+        document.getElementById('reg_clientName').innerHTML = '<option value="">خطأ في الاتصال</option>';
+    });
+}
+
+function filterClientsByDay() {
+    const selectedDay = document.getElementById('reg_daySelect').value;
+    const selectElem = document.getElementById('reg_clientName');
+    selectElem.innerHTML = '<option value="">اختر العميل...</option>';
+    
+    // تصفية العملاء بناءً على اليوم
+    const filtered = allClients.filter(c => c.visitDays === selectedDay);
+    
+    filtered.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.id || client.tradeName; 
+        option.text = client.tradeName;
+        selectElem.appendChild(option);
+    });
+    
+    toggleDetailsBtn();
+}
+
+function toggleDetailsBtn() {
+    const val = document.getElementById('reg_clientName').value;
+    document.getElementById('showDetailsBtn').classList.toggle('hidden', !val);
+}
+
+// --------- وظائف تفاصيل العميل وتعديله ---------
+
+function showClientDetails() {
+    const selectedValue = document.getElementById('reg_clientName').value;
+    const client = allClients.find(c => (c.id == selectedValue || c.tradeName === selectedValue));
+    
+    if(!client) return;
+
+    // تعبئة البيانات في النافذة (مع افتراض أسماء مفاتيح البيانات من قاعدة البيانات)
+    document.getElementById('edit_tradeName').value = client.tradeName || '';
+    document.getElementById('edit_ownerName').value = client.ownerName || '';
+    document.getElementById('edit_address').value = client.address || '';
+    document.getElementById('edit_phone').value = client.phone || '';
+    document.getElementById('edit_category').value = client.category || '';
+    document.getElementById('edit_note').value = client.note || '';
+    document.getElementById('edit_rate').value = client.rate || '';
+    document.getElementById('edit_visitDays').value = client.visitDays || '';
+    document.getElementById('edit_useOil').value = client.useOil || '';
+
+    // إرجاع الحقول لحالة الإغلاق (disabled) في حال تم تعديلها سابقاً
+    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil'];
+    fields.forEach(id => document.getElementById(id).disabled = true);
+    
+    document.getElementById('enableEditBtn').classList.remove('hidden');
+    document.getElementById('saveEditBtn').classList.add('hidden');
+
+    document.getElementById('clientDetailsModal').style.display = 'block';
 }
 
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-function fetchHistory() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    const repName = localStorage.repName;
-    const loader = document.getElementById('historyLoader');
-    const listDiv = document.getElementById('historyList');
+function enableClientEdit() {
+    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil'];
+    fields.forEach(id => document.getElementById(id).disabled = false);
     
-    loader.style.display = 'block';
-    loader.innerText = translations[lang].loading_history;
-    listDiv.innerHTML = '';
+    document.getElementById('enableEditBtn').classList.add('hidden');
+    document.getElementById('saveEditBtn').classList.remove('hidden');
+}
 
-    // إرسال طلب GET لجلب البيانات
-    fetch(`${SCRIPT_URL}?action=getHistory&repName=${encodeURIComponent(repName)}`)
-    .then(response => response.json())
+function saveClientEdit() {
+    const clientId = document.getElementById('reg_clientName').value;
+    const btn = document.getElementById('saveEditBtn');
+    
+    btn.disabled = true;
+    btn.innerText = "جاري الحفظ...";
+
+    // تجهيز البيانات المعدلة للإرسال لجوجل شيت (تتطلب وجود action=updateClient في الباك اند)
+    const updatedData = {
+        action: 'updateClient',
+        id: clientId,
+        tradeName: document.getElementById('edit_tradeName').value,
+        ownerName: document.getElementById('edit_ownerName').value,
+        address: document.getElementById('edit_address').value,
+        phone: document.getElementById('edit_phone').value,
+        category: document.getElementById('edit_category').value,
+        note: document.getElementById('edit_note').value,
+        rate: document.getElementById('edit_rate').value,
+        visitDays: document.getElementById('edit_visitDays').value,
+        useOil: document.getElementById('edit_useOil').value,
+    };
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(updatedData)
+    })
+    .then(res => res.json())
     .then(data => {
-        loader.style.display = 'none';
-        if(data.status === 'success' && data.data.length > 0) {
-            visitHistoryData = data.data; // حفظها للوصول السريع
-            renderHistoryList(visitHistoryData);
-        } else {
-            listDiv.innerHTML = `<p style="text-align:center; color:#666;">${translations[lang].no_history}</p>`;
-        }
+        btn.innerText = "تم الحفظ بنجاح ✓";
+        setTimeout(() => {
+            closeModal('clientDetailsModal');
+            fetchClientsData(); // تحديث القائمة بعد التعديل
+        }, 1500);
     })
     .catch(err => {
-        loader.innerText = "حدث خطأ في جلب البيانات.";
-        console.error(err);
+        alert("حدث خطأ أثناء الحفظ");
+        btn.disabled = false;
+        btn.innerText = "حفظ التعديلات";
     });
 }
 
-function renderHistoryList(data) {
-    const listDiv = document.getElementById('historyList');
-    listDiv.innerHTML = '';
-    
-    data.forEach((item, index) => {
-        const dateObj = new Date(item.date);
-        const dateString = isNaN(dateObj) ? item.date : dateObj.toLocaleString('ar-EG');
-        const typeClass = item.type === 'جديد' ? 'new-client' : '';
-
-        const itemDiv = document.createElement('div');
-        itemDiv.className = `history-item ${typeClass}`;
-        itemDiv.onclick = () => showVisitDetails(index);
-        itemDiv.innerHTML = `
-            <div class="h-title">${item.clientName}</div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="h-date">${dateString}</span>
-                <span class="h-type">${item.type}</span>
-            </div>
-        `;
-        listDiv.appendChild(itemDiv);
-    });
-}
-
-function showVisitDetails(index) {
-    const item = visitHistoryData[index];
-    const detailsDiv = document.getElementById('detailsContent');
-    detailsDiv.innerHTML = '';
-
-   if (item.photoUrl) {
-    detailsDiv.innerHTML += `
-        <div style="text-align:center; margin-bottom:20px;">
-            <img src="${item.photoUrl}" 
-                 referrerpolicy="no-referrer" 
-                 style="width:100%; max-height:250px; object-fit:contain; border-radius:12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"
-        </div>
-    `;
-}
-    // 2. عرض التاريخ
-   const d = new Date(item.date); const timeStr = d.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit', hour12:true}); const dateStr = d.toLocaleDateString('en-GB').split('/').reverse().join('-'); detailsDiv.innerHTML += `<div style="background:#eef6ff; padding:10px; border-radius:8px; margin-bottom:15px; text-align:center; font-weight:bold; color:#007bff; border:1px solid #d0e4ff; font-size:14px;">📅 ${dateStr} &nbsp; | &nbsp; 🕒 ${timeStr}</div>`;
-
-    // 3. عرض كافة البيانات التقنية
-    for (const [key, value] of Object.entries(item.details)) {
-        if(value && value !== " نجوم" && value !== "") {
-            detailsDiv.innerHTML += `
-                <div class="detail-row" style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0;">
-                    <span style="color:#555; font-weight:bold;">${key}:</span>
-                    <span style="color:#222; text-align:left; direction:ltr;">${value}</span>
-                </div>
-            `;
-        }
-    }
-
-    // 4. زر الخريطة في الأسفل
-    if (item.locationUrl) {
-    detailsDiv.innerHTML += `
-        <div style="margin-top:20px;">
-            <a href="${item.locationUrl}" target="_blank" 
-               style="display:block; background:#28a745; color:white; text-align:center; padding:15px; border-radius:10px; text-decoration:none; font-weight:bold;">
-               📍 فتح الموقع على الخريطة
-            </a>
-        </div>
-    `;
-}
-    document.getElementById('detailsModal').style.display = 'block';
-}
 // ---------------------------------------------------
 
 function toggleVisit() {
@@ -590,8 +661,8 @@ async function handleSend() {
             repName: localStorage.repName, 
             city: localStorage.city, 
             duration: durationMin, 
-            lat: pos.coords.latitude, 
-            lng: pos.coords.longitude 
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
         };
 
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
@@ -690,7 +761,6 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
-
 
 
 
