@@ -298,9 +298,10 @@ style="background:#6f42c1;margin-bottom:10px;">
     <label>صورة العداد *</label>
     <input type="file" accept="image/*" capture="environment" id="endKMImg">
 
-    <button onclick="saveWorkData()" style="background:#28a745">
-      حفظ وإرسال
-    </button>
+    <button id="saveWorkBtn" onclick="saveWorkData()" style="background:#28a745; position: relative; overflow: hidden;">
+  <span class="btn-text">حفظ وإرسال</span>
+  <div class="spinner"></div>
+</button>
 
     <div id="kmMsg"></div>
   </div>
@@ -679,6 +680,15 @@ checkOldKM();
 }
 
     async function saveWorkData() {
+        const btn = document.getElementById('saveWorkBtn');
+const btnText = btn.querySelector('.btn-text');
+const spinner = btn.querySelector('.spinner');
+
+if(btn.classList.contains('sending')) return; // منع الضغط المتكرر
+
+btn.classList.add('sending');
+btn.disabled = true;
+btnText.innerText = "جاري الإرسال...";
 
   const repName = localStorage.repName;
   const startKM = document.getElementById("startKM").value;
@@ -935,6 +945,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
