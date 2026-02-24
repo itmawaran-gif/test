@@ -84,53 +84,53 @@
         <button class="close-btn" onclick="closeModal('clientDetailsModal')">&times;</button>
     </div>
     <div class="details-box">
-        <label>الاسم التجاري *</label>
+        <label data-key="trade_name_label">الاسم التجاري *</label>
         <input id="edit_tradeName" disabled>
         
-        <label>اسم المالك *</label>
+        <label data-key="owner_name_label">اسم المالك *</label>
         <input id="edit_ownerName" disabled>
         
-        <label>العنوان *</label>
+        <label data-key="address_label">العنوان *</label>
         <input id="edit_address" disabled>
         
-        <label>رقم الهاتف *</label>
+        <label data-key="phone_label">رقم الهاتف *</label>
         <input id="edit_phone" inputmode="numeric" disabled>
         
-        <label>الفئة *</label>
+        <label data-key="category_label">الفئة *</label>
         <select id="edit_category" disabled>
-            <option value="كراج">كراج</option>
-            <option value="جملة">جملة</option>
-            <option value="مفرد">مفرد</option>
+            <option value="كراج" data-key="garage">كراج</option>
+            <option value="جملة" data-key="wholesale">جملة</option>
+            <option value="مفرد" data-key="retail">مفرد</option>
         </select>
         
-        <label>الملاحظة</label>
+        <label data-key="note_label">الملاحظة</label>
         <textarea id="edit_note" disabled></textarea>
         
-        <label>التقييم *</label>
+        <label data-key="rate_label">التقييم *</label>
         <select id="edit_rate" disabled>
             <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
         </select>
         
-        <label>يوم الزيارة *</label>
+        <label data-key="visit_days_label">يوم الزيارة *</label>
         <select id="edit_visitDays" disabled>
-            <option value="السبت">السبت</option>
-            <option value="الأحد">الأحد</option>
-            <option value="الاثنين">الاثنين</option>
-            <option value="الثلاثاء">الثلاثاء</option>
-            <option value="الأربعاء">الأربعاء</option>
-            <option value="الخميس">الخميس</option>
+            <option value="السبت" data-key="sat">السبت</option>
+            <option value="الأحد" data-key="sun">الأحد</option>
+            <option value="الاثنين" data-key="mon">الاثنين</option>
+            <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
+            <option value="الأربعاء" data-key="wed">الأربعاء</option>
+            <option value="الخميس" data-key="thu">الخميس</option>
         </select>
 
-        <label>هل يمتلك زيت ريماكس؟ *</label>
+        <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
         <select id="edit_useOil" disabled>
-            <option value="نعم">نعم</option>
-            <option value="لا">لا</option>
+            <option value="نعم" data-key="yes">نعم</option>
+            <option value="لا" data-key="no">لا</option>
         </select>
 
-       <div style="display: flex; gap: 10px; margin-top: 20px;">
-    <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;" data-key="edit_data">تعديل البيانات</button>
-    <button id="saveEditBtn" class="hidden" onclick="saveClientEdit()" style="background:#28a745; margin-top:0;" data-key="save_edits">حفظ التعديلات</button>
-</div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;" data-key="edit_data">تعديل البيانات</button>
+            <button id="saveEditBtn" class="hidden" onclick="saveClientEdit()" style="background:#28a745; margin-top:0;" data-key="save_edits">حفظ التعديلات</button>
+        </div>
     </div>
 </div>
 
@@ -221,15 +221,15 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
             
             <div class="client-selection-group">
                 <select id="reg_daySelect" onchange="filterClientsByDay()">
-                    <option value="السبت">السبت</option>
-                    <option value="الأحد">الأحد</option>
-                    <option value="الاثنين">الاثنين</option>
-                    <option value="الثلاثاء">الثلاثاء</option>
-                    <option value="الأربعاء">الأربعاء</option>
-                    <option value="الخميس">الخميس</option>
-                </select>
+    <option value="السبت" data-key="sat">السبت</option>
+    <option value="الأحد" data-key="sun">الأحد</option>
+    <option value="الاثنين" data-key="mon">الاثنين</option>
+    <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
+    <option value="الأربعاء" data-key="wed">الأربعاء</option>
+    <option value="الخميس" data-key="thu">الخميس</option>
+</select>
                 <select id="reg_clientName" onchange="toggleDetailsBtn()">
-                    <option value="">اختر العميل...</option>
+                    <option value="">اختر العميل-کڕیار هەڵبژێرە</option>
                 </select>
                 <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()" data-key="details_btn">تفاصيل</button>
             </div>
@@ -419,16 +419,24 @@ function changeLanguage(lang) {
     localStorage.setItem('appLang', lang);
     document.documentElement.lang = lang;
     document.documentElement.dir = "rtl"; 
+    
     document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         if (translations[lang][key]) {
-            if (el.tagName === 'BUTTON' && key === 'start_visit' && visitStartTime) {
+            // إذا كان العنصر هو زر بدء الزيارة وكان نشطاً
+            if (el.id === 'startVisitBtn' && visitStartTime) {
                 el.innerHTML = translations[lang]['active_visit'];
             } else {
                 el.innerHTML = translations[lang][key];
             }
         }
     });
+
+    // تحديث خيار "اختر العميل" يدوياً لأنه قد لا يحتوي على data-key
+    const clientSelect = document.getElementById('reg_clientName');
+    if (clientSelect && clientSelect.options[0] && clientSelect.options[0].value === "") {
+        clientSelect.options[0].text = (lang === 'ku') ? "کڕیار هەڵبژێرە..." : "اختر العميل...";
+    }
 }
 
 function saveLogin() {
@@ -955,6 +963,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
