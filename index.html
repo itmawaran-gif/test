@@ -275,7 +275,37 @@ style="background:#6f42c1;margin-bottom:10px;">
         </select>
     </div>
 </div>
+  <div id="workModal" class="fullscreen-modal">
+  <div class="modal-header">
+    <h3>الدوام اليومي</h3>
+    <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
+  </div>
 
+  <div class="details-box">
+    <h4>بدء الدوام</h4>
+    <label>الكيلومتر الحالي *</label>
+    <input type="number" inputmode="numeric" id="startKM">
+
+    <label>صورة العداد *</label>
+    <input type="file" accept="image/*" capture="environment" id="startKMImg">
+
+    <hr>
+
+    <h4>إنهاء الدوام</h4>
+    <label>الكيلومتر النهائي *</label>
+    <input type="number" inputmode="numeric" id="endKM">
+
+    <label>صورة العداد *</label>
+    <input type="file" accept="image/*" capture="environment" id="endKMImg">
+
+    <button onclick="saveWorkData()" style="background:#28a745">
+      حفظ وإرسال
+    </button>
+
+    <div id="kmMsg"></div>
+  </div>
+</div>
+    
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0cDBygUOBQwdm1HwewdrONBgJmG6wk_KxJ8ii1mEvXAYHcp7BuoVxopx3VSv3NzYA/exec";
 
@@ -866,39 +896,11 @@ function sendToGoogle(data) {
         document.getElementById('sendBtn').disabled = false;
     });
 }
-    <div id="workModal" class="fullscreen-modal">
-  <div class="modal-header">
-    <h3>الدوام اليومي</h3>
-    <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
-  </div>
-
-  <div class="details-box">
-    <h4>بدء الدوام</h4>
-    <label>الكيلومتر الحالي *</label>
-    <input type="number" inputmode="numeric" id="startKM">
-
-    <label>صورة العداد *</label>
-    <input type="file" accept="image/*" capture="environment" id="startKMImg">
-
-    <hr>
-
-    <h4>إنهاء الدوام</h4>
-    <label>الكيلومتر النهائي *</label>
-    <input type="number" inputmode="numeric" id="endKM">
-
-    <label>صورة العداد *</label>
-    <input type="file" accept="image/*" capture="environment" id="endKMImg">
-
-    <button onclick="saveWorkData()" style="background:#28a745">
-      حفظ وإرسال
-    </button>
-
-    <div id="kmMsg"></div>
-  </div>
-</div>
+  
 </script>
 </body>
 </html>
+
 
 
 
