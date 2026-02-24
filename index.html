@@ -648,8 +648,16 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 // حذف بيانات اليوم السابق إذا لم تُرسل
+function getTodayKey(){
+  const d = new Date();
+  return d.getFullYear() + "-" + 
+         String(d.getMonth()+1).padStart(2,'0') + "-" +
+         String(d.getDate()).padStart(2,'0');
+}
+
 function checkOldKM() {
-  const today = new Date().toLocaleDateString();
+
+  const today = getTodayKey();
   const savedDate = localStorage.getItem("kmDate");
 
   if (savedDate && savedDate !== today) {
@@ -657,6 +665,7 @@ function checkOldKM() {
     localStorage.removeItem("kmDate");
   }
 }
+
 checkOldKM();
     
     function openWorkModal() {
@@ -697,7 +706,7 @@ checkOldKM();
       };
 
       localStorage.setItem("kmStart", JSON.stringify(data));
-      localStorage.setItem("kmDate", today);
+      localStorage.setItem("kmDate", getTodayKey());
 
       kmMsg.innerHTML = "✅ تم حفظ بدء الدوام";
     };
@@ -900,6 +909,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
