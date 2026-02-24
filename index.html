@@ -145,7 +145,11 @@
     </div>
 
     <div id="formBox" class="hidden">
-        
+<button id="workBtn" onclick="openWorkModal()" 
+style="background:#6f42c1;margin-bottom:10px;">
+بدء الدوام
+</button>
+    
         <div class="nav-tabs">
             <button id="tabNew" class="active" onclick="switchForm('new')" data-key="tab_new">عميل جديد</button>
             <button id="tabRegular" onclick="switchForm('regular')" data-key="tab_regular">عميل دائمي</button>
@@ -273,7 +277,7 @@
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIY1CJ_2ru-0RwkmrZSwxl2LCO0664F8jh3vKk-48LhyoGPT0ZoNE-SnbUYGH8HFjN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0cDBygUOBQwdm1HwewdrONBgJmG6wk_KxJ8ii1mEvXAYHcp7BuoVxopx3VSv3NzYA/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -613,7 +617,110 @@ function getDistance(lat1, lon1, lat2, lon2) {
     const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
+// حذف بيانات اليوم السابق إذا لم تُرسل
+function checkOldKM() {
+  const today = new Date().toLocaleDateString();
+  const savedDate = localStorage.getItem("kmDate");
 
+  if (savedDate && savedDate !== today) {
+    localStorage.removeItem("kmStart");
+    localStorage.removeItem("kmDate");
+  }
+}
+checkOldKM();
+    
+    function openWorkModal() {
+  document.getElementById("workModal").style.display = "block";
+
+  const saved = localStorage.getItem("kmStart");
+  if (saved) {
+    const data = JSON.parse(saved);
+    document.getElementById("startKM").value = data.km;
+  }
+}
+
+    async function saveWorkData() {
+
+  const repName = localStorage.repName;
+  const today = new Date().toLocaleDateString();
+
+  const startKM = document.getElementById("startKM").value;
+  const endKM = document.getElementById("endKM").value;
+
+  const startImgFile = document.getElementById("startKMImg").files[0];
+  const endImgFile = document.getElementById("endKMImg").files[0];
+
+  const kmMsg = document.getElementById("kmMsg");
+
+  // ====== بدء الدوام فقط ======
+  if (startKM && startImgFile && !endKM) {
+
+    const reader = new FileReader();
+    reader.readAsDataURL(startImgFile);
+
+    reader.onload = function(e) {
+
+      const data = {
+        km: startKM,
+        image: e.target.result,
+        startTime: new Date().toISOString()
+      };
+
+      localStorage.setItem("kmStart", JSON.stringify(data));
+      localStorage.setItem("kmDate", today);
+
+      kmMsg.innerHTML = "✅ تم حفظ بدء الدوام";
+    };
+
+    return;
+  }
+
+  // ====== إنهاء الدوام ======
+  if (!localStorage.getItem("kmStart")) {
+    alert("يجب تسجيل بدء الدوام أولاً");
+    return;
+  }
+
+  if (!endKM || !endImgFile) {
+    alert("أدخل بيانات الإنهاء");
+    return;
+  }
+
+  const startData = JSON.parse(localStorage.getItem("kmStart"));
+
+  const distance = endKM - startData.km;
+
+  const reader = new FileReader();
+  reader.readAsDataURL(endImgFile);
+
+  reader.onload = function(e) {
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "saveKM",
+        sheetName: "KM",
+        repName: repName,
+        startKM: startData.km,
+        startTime: startData.startTime,
+        startImage: startData.image,
+        endKM: endKM,
+        endTime: new Date().toISOString(),
+        endImage: e.target.result,
+        distance: distance
+      })
+    }).then(() => {
+
+      localStorage.removeItem("kmStart");
+      localStorage.removeItem("kmDate");
+
+      kmMsg.innerHTML = "✅ تم إرسال الدوام بنجاح";
+      setTimeout(()=>location.reload(),1500);
+    });
+  };
+}
+    
 async function handleSend() {
     if(isSending) return;
     const lang = localStorage.getItem('appLang') || 'ar';
@@ -759,9 +866,40 @@ function sendToGoogle(data) {
         document.getElementById('sendBtn').disabled = false;
     });
 }
+    <div id="workModal" class="fullscreen-modal">
+  <div class="modal-header">
+    <h3>الدوام اليومي</h3>
+    <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
+  </div>
+
+  <div class="details-box">
+    <h4>بدء الدوام</h4>
+    <label>الكيلومتر الحالي *</label>
+    <input type="number" inputmode="numeric" id="startKM">
+
+    <label>صورة العداد *</label>
+    <input type="file" accept="image/*" capture="environment" id="startKMImg">
+
+    <hr>
+
+    <h4>إنهاء الدوام</h4>
+    <label>الكيلومتر النهائي *</label>
+    <input type="number" inputmode="numeric" id="endKM">
+
+    <label>صورة العداد *</label>
+    <input type="file" accept="image/*" capture="environment" id="endKMImg">
+
+    <button onclick="saveWorkData()" style="background:#28a745">
+      حفظ وإرسال
+    </button>
+
+    <div id="kmMsg"></div>
+  </div>
+</div>
 </script>
 </body>
 </html>
+
 
 
 
