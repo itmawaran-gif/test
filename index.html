@@ -488,7 +488,7 @@ function fetchClientsData() {
 function filterClientsByDay() {
     const selectedDay = document.getElementById('reg_daySelect').value;
     const selectElem = document.getElementById('reg_clientName');
-    selectElem.innerHTML = '<option value="">اختر العميل...</option>';
+    selectElem.innerHTML = '<option value="">اختر العميل-کڕیار هەڵبژێرە</option>';
     
     // تصفية العملاء بناءً على اليوم
     const filtered = allClients.filter(c => c.visitDays === selectedDay);
@@ -730,7 +730,7 @@ btnText.innerText = "جاري الإرسال...";
       localStorage.setItem("kmStart", JSON.stringify(data));
       localStorage.setItem("kmDate", getTodayKey());
 
-      kmMsg.innerHTML = "✅ تم حفظ بدء الدوام";
+      kmMsg.innerHTML = "دەستپێکردنی  کارکردن پاشەکەوت کراوە✅ تم حفظ بدء الدوام";
     });
 
     return;
@@ -963,6 +963,7 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
 
 
 
