@@ -847,29 +847,35 @@ async function handleSend() {
     btn.innerText = translations[lang].loading;
 
     navigator.geolocation.getCurrentPosition(async pos => {
-        const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
-        if(dist > 2000) { 
-            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
-            isSending = false; btn.disabled = false; btn.innerText = translations[lang].send_data_btn;
-            return; 
-        }
+    const clientName = currentMode === 'regular' ? document.getElementById('reg_clientName').value : '';
+    const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
 
-        btn.innerText = translations[lang].sending;
-        msg.innerText = translations[lang].wait;
-        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
-        
-        // تجهيز البيانات الأساسية
-        let data = { 
-            sheetName: currentMode === 'new' ? 'data' : 'Clients', 
-            repName: localStorage.repName, 
-            city: localStorage.city, 
-            duration: durationMin, 
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-        };
+    // السماح بالمسافة الكبيرة فقط إذا كان العميل هو "AعامA"
+    if(dist > 2000 && clientName !== "AعامA") { 
+        alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
+        isSending = false; 
+        btn.disabled = false; 
+        btn.innerText = translations[lang].send_data_btn;
+        return; 
+    }
 
-        const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        const file = fileInput.files[0];
+    // استمرار عملية الإرسال
+    btn.innerText = translations[lang].sending;
+    msg.innerText = translations[lang].wait;
+    const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
+    
+    let data = { 
+        sheetName: currentMode === 'new' ? 'data' : 'Clients', 
+        repName: localStorage.repName, 
+        city: localStorage.city, 
+        duration: durationMin, 
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+    };
+
+    const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
+    const file = fileInput.files[0];
+
 
         // --- وظيفة ضغط الصورة قبل الإرسال ---
         const reader = new FileReader();
