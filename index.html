@@ -119,6 +119,7 @@
             <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
             <option value="الأربعاء" data-key="wed">الأربعاء</option>
             <option value="الخميس" data-key="thu">الخميس</option>
+            <option value="الجمعه" data-key="fri">الجمعه</option>            
         </select>
 
         <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
@@ -199,6 +200,7 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
                 <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
                 <option value="الأربعاء" data-key="wed">الأربعاء</option>
                 <option value="الخميس" data-key="thu">الخميس</option>
+                <option value="الجمعه" data-key="fri">الجمعه</option>
             </select>
             <hr style="opacity: 0.2; margin: 20px 0;">
             <label data-key="other_oil_label">نوع الزيت ماركة أخرى</label>
@@ -227,6 +229,7 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
     <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
     <option value="الأربعاء" data-key="wed">الأربعاء</option>
     <option value="الخميس" data-key="thu">الخميس</option>
+    <option value="الجمعه" data-key="fri">الجمعه</option>
 </select>
                 <select id="reg_clientName" onchange="toggleDetailsBtn()">
                     <option value="">اختر العميل-کڕیار هەڵبژێرە</option>
@@ -334,7 +337,7 @@ const translations = {
         no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
         alert_fill: "يرجى إدخال البيانات المطلوبة", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
         alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع...",
-        sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس",
+        sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس", fri: "الجمعه",
         // الترجمات الجديدة المضافة:
         work_btn: "بدء الدوام", details_btn: "تفاصيل", details_title: "تفاصيل وتعديل العميل", 
         edit_data: "تعديل البيانات", save_edits: "حفظ التعديلات", daily_work_title: "الدوام اليومي",
@@ -355,7 +358,7 @@ const translations = {
         no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
         alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
         alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن...",
-        sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە",
+        sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە", fri: "هەینی",
         // الترجمات الجديدة المضافة:
         work_btn: "دەستپێکردنی کار", details_btn: "وردەکارییەکان", details_title: "وردەکاری و دەستکاری کڕیار", 
         edit_data: "دەستکاری زانیارییەکان", save_edits: "پاشەکەوتکردنی گۆڕانکارییەکان", daily_work_title: "دەوامی ڕۆژانە",
@@ -963,34 +966,3 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
