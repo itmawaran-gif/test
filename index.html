@@ -851,7 +851,7 @@ async function handleSend() {
     const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
 
     // السماح بالمسافة الكبيرة فقط إذا كان العميل هو "AعامA"
-    if(dist > 2000 && clientName !== "AعامA") { 
+    if(dist > 2000000 && clientName !== "AعامA") { 
         alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
         isSending = false; 
         btn.disabled = false; 
