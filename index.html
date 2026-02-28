@@ -127,13 +127,15 @@
             <option value="نعم" data-key="yes">نعم</option>
             <option value="لا" data-key="no">لا</option>
         </select>
-        <div style="display:flex; gap:10px; margin-top:10px;">
+       <div style="display:flex; gap:10px; margin-top:10px;">
   <div style="flex:1;">
     <label data-key="has_ufi_label">هل يمتلك فلتر UFI؟ *</label>
     <select id="edit_useUFI" disabled>
         <option value="نعم" data-key="yes">نعم</option>
         <option value="لا" data-key="no">لا</option>
     </select>
+  </div>
+</div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;" data-key="edit_data">تعديل البيانات</button>
@@ -189,10 +191,7 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
     </select>
   </div>
 </div>
-                <option value="" data-key="choose">اختر</option>
-                <option value="نعم" data-key="yes">نعم</option>
-                <option value="لا" data-key="no">لا</option>
-            </select>
+
             <label data-key="trade_name_label">الاسم التجاري *</label>
             <input id="tradeName">
             <label data-key="owner_name_label">اسم المالك *</label>
@@ -366,7 +365,7 @@ const translations = {
         work_btn: "بدء الدوام", details_btn: "تفاصيل", details_title: "تفاصيل وتعديل العميل", 
         edit_data: "تعديل البيانات", save_edits: "حفظ التعديلات", daily_work_title: "الدوام اليومي",
         start_work: "بدء الدوام", current_km: "الكيلومتر الحالي *", meter_img: "صورة العداد *",
-        end_work: "إنهاء الدوام", final_km: "الكيلومتر النهائي *", save_send: "حفظ وإرسال"
+        end_work: "إنهاء الدوام", final_km: "الكيلومتر النهائي *", save_send: "حفظ وإرسال",
         has_ufi_label: "هل يمتلك فلتر UFI؟ *",
     },
     ku: {
@@ -388,7 +387,7 @@ const translations = {
         work_btn: "دەستپێکردنی کار", details_btn: "وردەکارییەکان", details_title: "وردەکاری و دەستکاری کڕیار", 
         edit_data: "دەستکاری زانیارییەکان", save_edits: "پاشەکەوتکردنی گۆڕانکارییەکان", daily_work_title: "دەوامی ڕۆژانە",
         start_work: "دەستپێکی دەوام", current_km: "کیلۆمەتری ئێستا *", meter_img: "وێنەی پێوەر *",
-        end_work: "کۆتایی دەوام", final_km: "کیلۆمەتری کۆتایی *", save_send: "پاشەکەوتکردن و ناردن"
+        end_work: "کۆتایی دەوام", final_km: "کیلۆمەتری کۆتایی *", save_send: "پاشەکەوتکردن و ناردن",
         has_ufi_label: "ئایا فلتەری UFI هەیە؟ *",
     }
 };
@@ -576,7 +575,18 @@ function closeModal(modalId) {
 }
 
 function enableClientEdit() {
-    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil'];
+    const fields = [
+'edit_tradeName',
+'edit_ownerName',
+'edit_address',
+'edit_phone',
+'edit_category',
+'edit_note',
+'edit_rate',
+'edit_visitDays',
+'edit_useOil',
+'edit_useUFI'
+];
     fields.forEach(id => document.getElementById(id).disabled = false);
     
     document.getElementById('enableEditBtn').classList.add('hidden');
@@ -999,3 +1009,4 @@ function sendToGoogle(data) {
 </script>
 </body>
 </html>
+
