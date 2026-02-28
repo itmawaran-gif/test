@@ -56,6 +56,12 @@
     #reg_daySelect { width: 35%; padding: 10px 5px; font-size: 14px; }
     #reg_clientName { width: 65%; }
     #showDetailsBtn { background: #17a2b8; width: auto; padding: 10px 15px; margin-top: 0; font-size: 14px; }
+
+    /* صف الدهن والفلتر جنباً إلى جنب */
+    .oil-filter-row { display: flex; gap: 10px; align-items: flex-end; margin-top: 10px; }
+    .oil-filter-row .oil-filter-item { flex: 1; }
+    .oil-filter-row .oil-filter-item label { margin-top: 0; }
+    .oil-filter-row .oil-filter-item select { margin-top: 4px; width: 100%; font-size: 14px; padding: 9px 6px; }
 </style>
 </head>
 <body>
@@ -122,20 +128,23 @@
             <option value="الجمعه" data-key="fri">الجمعه</option>            
         </select>
 
-        <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
-        <select id="edit_useOil" disabled>
-            <option value="نعم" data-key="yes">نعم</option>
-            <option value="لا" data-key="no">لا</option>
-        </select>
-       <div style="display:flex; gap:10px; margin-top:10px;">
-  <div style="flex:1;">
-    <label data-key="has_ufi_label">هل يمتلك فلتر UFI؟ *</label>
-    <select id="edit_useUFI" disabled>
-        <option value="نعم" data-key="yes">نعم</option>
-        <option value="لا" data-key="no">لا</option>
-    </select>
-  </div>
-</div>
+        <!-- صف الدهن والفلتر في تفاصيل العميل -->
+        <div class="oil-filter-row">
+            <div class="oil-filter-item">
+                <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
+                <select id="edit_useOil" disabled>
+                    <option value="نعم" data-key="yes">نعم</option>
+                    <option value="لا" data-key="no">لا</option>
+                </select>
+            </div>
+            <div class="oil-filter-item">
+                <label data-key="ufi_label">هل يمتلك فلتر UFI؟ *</label>
+                <select id="edit_hasUFI" disabled>
+                    <option value="نعم" data-key="yes">نعم</option>
+                    <option value="لا" data-key="no">لا</option>
+                </select>
+            </div>
+        </div>
 
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;" data-key="edit_data">تعديل البيانات</button>
@@ -155,11 +164,11 @@
     </div>
 
     <div id="formBox" class="hidden">
-<button id="workBtn" onclick="openWorkModal()" 
-style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
-بدء الدوام
-</button>
-    
+        <button id="workBtn" onclick="openWorkModal()" 
+        style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
+        بدء الدوام
+        </button>
+        
         <div class="nav-tabs">
             <button id="tabNew" class="active" onclick="switchForm('new')" data-key="tab_new">عميل جديد</button>
             <button id="tabRegular" onclick="switchForm('regular')" data-key="tab_regular">عميل دائمي</button>
@@ -172,25 +181,25 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
         </div>
 
         <div id="newClientForm">
-            <div style="display:flex; gap:10px;">
-  <div style="flex:1;">
-    <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
-    <select id="useOil">
-        <option value="" data-key="choose">اختر</option>
-        <option value="نعم" data-key="yes">نعم</option>
-        <option value="لا" data-key="no">لا</option>
-    </select>
-  </div>
-
-  <div style="flex:1;">
-    <label data-key="has_ufi_label">هل يمتلك فلتر UFI؟ *</label>
-    <select id="useUFI">
-        <option value="" data-key="choose">اختر</option>
-        <option value="نعم" data-key="yes">نعم</option>
-        <option value="لا" data-key="no">لا</option>
-    </select>
-  </div>
-</div>
+            <!-- صف الدهن والفلتر جنباً إلى جنب -->
+            <div class="oil-filter-row">
+                <div class="oil-filter-item">
+                    <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
+                    <select id="useOil">
+                        <option value="" data-key="choose">اختر</option>
+                        <option value="نعم" data-key="yes">نعم</option>
+                        <option value="لا" data-key="no">لا</option>
+                    </select>
+                </div>
+                <div class="oil-filter-item">
+                    <label data-key="ufi_label">هل يمتلك فلتر UFI؟ *</label>
+                    <select id="hasUFI">
+                        <option value="" data-key="choose">اختر</option>
+                        <option value="نعم" data-key="yes">نعم</option>
+                        <option value="لا" data-key="no">لا</option>
+                    </select>
+                </div>
+            </div>
 
             <label data-key="trade_name_label">الاسم التجاري *</label>
             <input id="tradeName">
@@ -246,14 +255,14 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
             
             <div class="client-selection-group">
                 <select id="reg_daySelect" onchange="filterClientsByDay()">
-    <option value="السبت" data-key="sat">السبت</option>
-    <option value="الأحد" data-key="sun">الأحد</option>
-    <option value="الاثنين" data-key="mon">الاثنين</option>
-    <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
-    <option value="الأربعاء" data-key="wed">الأربعاء</option>
-    <option value="الخميس" data-key="thu">الخميس</option>
-    <option value="الجمعه" data-key="fri">الجمعه</option>
-</select>
+                    <option value="السبت" data-key="sat">السبت</option>
+                    <option value="الأحد" data-key="sun">الأحد</option>
+                    <option value="الاثنين" data-key="mon">الاثنين</option>
+                    <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
+                    <option value="الأربعاء" data-key="wed">الأربعاء</option>
+                    <option value="الخميس" data-key="thu">الخميس</option>
+                    <option value="الجمعه" data-key="fri">الجمعه</option>
+                </select>
                 <select id="reg_clientName" onchange="toggleDetailsBtn()">
                     <option value="">اختر العميل-کڕیار هەڵبژێرە</option>
                 </select>
@@ -301,40 +310,34 @@ style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
         </select>
     </div>
 </div>
-  <div id="workModal" class="fullscreen-modal">
-  <div class="modal-header">
-    <h3 data-key="daily_work_title">الدوام اليومي</h3>
-    <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
-  </div>
 
-  <div class="details-box">
-    <h4 data-key="start_work">بدء الدوام</h4>
-    <label data-key="current_km">الكيلومتر الحالي *</label>
-    <input type="number" inputmode="numeric" id="startKM">
-
-    <label data-key="meter_img">صورة العداد *</label>
-    <input type="file" accept="image/*" capture="environment" id="startKMImg">
-
-    <hr>
-
-    <h4 data-key="end_work">إنهاء الدوام</h4>
-    <label data-key="final_km">الكيلومتر النهائي *</label>
-    <input type="number" inputmode="numeric" id="endKM">
-
-    <label data-key="meter_img">صورة العداد *</label>
-    <input type="file" accept="image/*" capture="environment" id="endKMImg">
-
-    <button id="saveWorkBtn" onclick="saveWorkData()" style="background:#28a745; position: relative; overflow: hidden;">
-  <span class="btn-text" data-key="save_send">حفظ وإرسال</span>
-  <div class="spinner"></div>
-</button>
-
-    <div id="kmMsg"></div>
-  </div>
+<div id="workModal" class="fullscreen-modal">
+    <div class="modal-header">
+        <h3 data-key="daily_work_title">الدوام اليومي</h3>
+        <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
+    </div>
+    <div class="details-box">
+        <h4 data-key="start_work">بدء الدوام</h4>
+        <label data-key="current_km">الكيلومتر الحالي *</label>
+        <input type="number" inputmode="numeric" id="startKM">
+        <label data-key="meter_img">صورة العداد *</label>
+        <input type="file" accept="image/*" capture="environment" id="startKMImg">
+        <hr>
+        <h4 data-key="end_work">إنهاء الدوام</h4>
+        <label data-key="final_km">الكيلومتر النهائي *</label>
+        <input type="number" inputmode="numeric" id="endKM">
+        <label data-key="meter_img">صورة العداد *</label>
+        <input type="file" accept="image/*" capture="environment" id="endKMImg">
+        <button id="saveWorkBtn" onclick="saveWorkData()" style="background:#28a745; position: relative; overflow: hidden;">
+            <span class="btn-text" data-key="save_send">حفظ وإرسال</span>
+            <div class="spinner"></div>
+        </button>
+        <div id="kmMsg"></div>
+    </div>
 </div>
     
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBiyqkrXZGXMf4qOvICwYPDAW8hn7XHOcL7WHQm_8C5EOb6imC-kh2CGKEVYPvYd9o/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyKAp9Cg5IVtZjbSFHhHUROqEyijbgxfkBhtPvfsSstX-yXvAQeqsfzeQ8GfmVqFdUH/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -351,6 +354,7 @@ const translations = {
         login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
         tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
         cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "هل يمتلك زيت ريماكس؟ *", choose: "اختر", yes: "نعم", no: "لا",
+        ufi_label: "هل يمتلك فلتر UFI؟ *",
         trade_name_label: "الاسم التجاري *", owner_name_label: "اسم المالك *", address_label: "العنوان *", phone_label: "رقم الهاتف *",
         category_label: "الفئة *", garage: "كراج", wholesale: "جملة", retail: "مفرد", note_label: "ملاحظة",
         rate_label: "التقييم *", visit_days_label: "ايام الزيارة*", other_oil_label: "نوع الزيت ماركة أخرى",
@@ -361,18 +365,17 @@ const translations = {
         alert_fill: "يرجى إدخال البيانات المطلوبة", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
         alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع...",
         sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس", fri: "الجمعه",
-        // الترجمات الجديدة المضافة:
         work_btn: "بدء الدوام", details_btn: "تفاصيل", details_title: "تفاصيل وتعديل العميل", 
         edit_data: "تعديل البيانات", save_edits: "حفظ التعديلات", daily_work_title: "الدوام اليومي",
         start_work: "بدء الدوام", current_km: "الكيلومتر الحالي *", meter_img: "صورة العداد *",
-        end_work: "إنهاء الدوام", final_km: "الكيلومتر النهائي *", save_send: "حفظ وإرسال",
-        has_ufi_label: "هل يمتلك فلتر UFI؟ *",
+        end_work: "إنهاء الدوام", final_km: "الكيلومتر النهائي *", save_send: "حفظ وإرسال"
     },
     ku: {
         modal_title: "بەیانی باش", modal_body: "ئایا ئامادەی بۆ ڕۆژێکی نوێ؟", modal_btn: "OK",
         login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
         tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
         cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "ئایا رونى ڕیماکسی هەیە؟ *", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
+        ufi_label: "ئایا فلتری UFI هەیە؟ *",
         trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
         category_label: "پۆلێن *", garage: "گەراج", wholesale: "كو", retail: "تاک", note_label: "تێبینی",
         rate_label: "هەڵسەنگاندن *", visit_days_label: "ڕۆژی سەردان*", other_oil_label: "جۆري زەیتی مارکەیەکی تر",
@@ -383,12 +386,10 @@ const translations = {
         alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
         alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن...",
         sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە", fri: "هەینی",
-        // الترجمات الجديدة المضافة:
         work_btn: "دەستپێکردنی کار", details_btn: "وردەکارییەکان", details_title: "وردەکاری و دەستکاری کڕیار", 
         edit_data: "دەستکاری زانیارییەکان", save_edits: "پاشەکەوتکردنی گۆڕانکارییەکان", daily_work_title: "دەوامی ڕۆژانە",
         start_work: "دەستپێکی دەوام", current_km: "کیلۆمەتری ئێستا *", meter_img: "وێنەی پێوەر *",
-        end_work: "کۆتایی دەوام", final_km: "کیلۆمەتری کۆتایی *", save_send: "پاشەکەوتکردن و ناردن",
-        has_ufi_label: "ئایا فلتەری UFI هەیە؟ *",
+        end_work: "کۆتایی دەوام", final_km: "کیلۆمەتری کۆتایی *", save_send: "پاشەکەوتکردن و ناردن"
     }
 };
 
@@ -451,7 +452,6 @@ function changeLanguage(lang) {
     document.querySelectorAll('[data-key]').forEach(el => {
         const key = el.getAttribute('data-key');
         if (translations[lang][key]) {
-            // إذا كان العنصر هو زر بدء الزيارة وكان نشطاً
             if (el.id === 'startVisitBtn' && visitStartTime) {
                 el.innerHTML = translations[lang]['active_visit'];
             } else {
@@ -460,7 +460,6 @@ function changeLanguage(lang) {
         }
     });
 
-    // تحديث خيار "اختر العميل" يدوياً لأنه قد لا يحتوي على data-key
     const clientSelect = document.getElementById('reg_clientName');
     if (clientSelect && clientSelect.options[0] && clientSelect.options[0].value === "") {
         clientSelect.options[0].text = (lang === 'ku') ? "کڕیار هەڵبژێرە..." : "اختر العميل...";
@@ -484,12 +483,11 @@ function switchForm(mode) {
     document.getElementById('tabRegular').classList.toggle('active', mode === 'regular');
 }
 
-// --------- وظائف جلب وتصفية العملاء (Clients Fetch & Filter) ---------
+// --------- وظائف جلب وتصفية العملاء ---------
 
 function setCurrentDay() {
     const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
     const today = days[new Date().getDay()];
-    // في حال كان الجمعة، نختار السبت كبديل حيث لا يوجد خيار جمعة في القائمة
     document.getElementById('reg_daySelect').value = (today === "الجمعة") ? "السبت" : today;
 }
 
@@ -497,12 +495,11 @@ function fetchClientsData() {
     const repName = localStorage.repName;
     document.getElementById('reg_clientName').innerHTML = '<option value="">جاري جلب العملاء...</option>';
     
-    // ملاحظة للمبرمج: يجب أن تدعم Google Script الاستعلام action=getClients وتقوم بإرجاع بيانات العملاء
     fetch(`${SCRIPT_URL}?action=getClients&repName=${encodeURIComponent(repName)}`)
     .then(res => res.json())
     .then(data => {
         if(data.status === 'success') {
-            allClients = data.data; // مصفوفة العملاء
+            allClients = data.data;
             filterClientsByDay();
         } else {
             document.getElementById('reg_clientName').innerHTML = '<option value="">لم يتم العثور على عملاء</option>';
@@ -518,7 +515,6 @@ function filterClientsByDay() {
     const selectElem = document.getElementById('reg_clientName');
     selectElem.innerHTML = '<option value="">اختر العميل-کڕیار هەڵبژێرە</option>';
     
-    // تصفية العملاء بناءً على اليوم
     const filtered = allClients.filter(c => c.visitDays === selectedDay);
     
     filtered.forEach(client => {
@@ -544,7 +540,6 @@ function showClientDetails() {
     
     if(!client) return;
 
-    // تعبئة البيانات في النافذة (مع افتراض أسماء مفاتيح البيانات من قاعدة البيانات)
     document.getElementById('edit_tradeName').value = client.tradeName || '';
     document.getElementById('edit_ownerName').value = client.ownerName || '';
     document.getElementById('edit_address').value = client.address || '';
@@ -554,14 +549,9 @@ function showClientDetails() {
     document.getElementById('edit_rate').value = client.rate || '';
     document.getElementById('edit_visitDays').value = client.visitDays || '';
     document.getElementById('edit_useOil').value = client.useOil || '';
-    document.getElementById('edit_useUFI').value = client.useUFI || '';
+    document.getElementById('edit_hasUFI').value = client.hasUFI || '';
 
-    // إرجاع الحقول لحالة الإغلاق (disabled) في حال تم تعديلها سابقاً
-    const fields = [
-      'edit_tradeName','edit_ownerName','edit_address','edit_phone',
-       'edit_category','edit_note','edit_rate','edit_visitDays',
-         'edit_useOil','edit_useUFI'
-     ];
+    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil', 'edit_hasUFI'];
     fields.forEach(id => document.getElementById(id).disabled = true);
     
     document.getElementById('enableEditBtn').classList.remove('hidden');
@@ -575,18 +565,7 @@ function closeModal(modalId) {
 }
 
 function enableClientEdit() {
-    const fields = [
-'edit_tradeName',
-'edit_ownerName',
-'edit_address',
-'edit_phone',
-'edit_category',
-'edit_note',
-'edit_rate',
-'edit_visitDays',
-'edit_useOil',
-'edit_useUFI'
-];
+    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil', 'edit_hasUFI'];
     fields.forEach(id => document.getElementById(id).disabled = false);
     
     document.getElementById('enableEditBtn').classList.add('hidden');
@@ -600,7 +579,6 @@ function saveClientEdit() {
     btn.disabled = true;
     btn.innerText = "جاري الحفظ...";
 
-    // تجهيز البيانات المعدلة للإرسال لجوجل شيت (تتطلب وجود action=updateClient في الباك اند)
     const updatedData = {
         action: 'updateClient',
         id: clientId,
@@ -613,7 +591,7 @@ function saveClientEdit() {
         rate: document.getElementById('edit_rate').value,
         visitDays: document.getElementById('edit_visitDays').value,
         useOil: document.getElementById('edit_useOil').value,
-        useUFI: document.getElementById('edit_useUFI').value,
+        hasUFI: document.getElementById('edit_hasUFI').value,
     };
 
     fetch(SCRIPT_URL, {
@@ -625,7 +603,7 @@ function saveClientEdit() {
         btn.innerText = "تم الحفظ بنجاح ✓";
         setTimeout(() => {
             closeModal('clientDetailsModal');
-            fetchClientsData(); // تحديث القائمة بعد التعديل
+            fetchClientsData();
         }, 1500);
     })
     .catch(err => {
@@ -711,162 +689,136 @@ function getDistance(lat1, lon1, lat2, lon2) {
     const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
-// حذف بيانات اليوم السابق إذا لم تُرسل
+
 function getTodayKey(){
-  const d = new Date();
-  return d.getFullYear() + "-" + 
-         String(d.getMonth()+1).padStart(2,'0') + "-" +
-         String(d.getDate()).padStart(2,'0');
+    const d = new Date();
+    return d.getFullYear() + "-" + 
+           String(d.getMonth()+1).padStart(2,'0') + "-" +
+           String(d.getDate()).padStart(2,'0');
 }
 
 function checkOldKM() {
-
-  const today = getTodayKey();
-  const savedDate = localStorage.getItem("kmDate");
-
-  if (savedDate && savedDate !== today) {
-    localStorage.removeItem("kmStart");
-    localStorage.removeItem("kmDate");
-  }
+    const today = getTodayKey();
+    const savedDate = localStorage.getItem("kmDate");
+    if (savedDate && savedDate !== today) {
+        localStorage.removeItem("kmStart");
+        localStorage.removeItem("kmDate");
+    }
 }
 
 checkOldKM();
     
-    function openWorkModal() {
-  document.getElementById("workModal").style.display = "block";
-
-  const saved = localStorage.getItem("kmStart");
-  if (saved) {
-    const data = JSON.parse(saved);
-    document.getElementById("startKM").value = data.km;
-  }
+function openWorkModal() {
+    document.getElementById("workModal").style.display = "block";
+    const saved = localStorage.getItem("kmStart");
+    if (saved) {
+        const data = JSON.parse(saved);
+        document.getElementById("startKM").value = data.km;
+    }
 }
 
-    async function saveWorkData() {
-        const btn = document.getElementById('saveWorkBtn');
-const btnText = btn.querySelector('.btn-text');
-const spinner = btn.querySelector('.spinner');
+async function saveWorkData() {
+    const btn = document.getElementById('saveWorkBtn');
+    const btnText = btn.querySelector('.btn-text');
+    const spinner = btn.querySelector('.spinner');
 
-if(btn.classList.contains('sending')) return; // منع الضغط المتكرر
+    if(btn.classList.contains('sending')) return;
 
-btn.classList.add('sending');
-btn.disabled = true;
-btnText.innerText = "جاري الإرسال...";
+    btn.classList.add('sending');
+    btn.disabled = true;
+    btnText.innerText = "جاري الإرسال...";
 
-  const repName = localStorage.repName;
-  const startKM = document.getElementById("startKM").value;
-  const endKM = document.getElementById("endKM").value;
+    const repName = localStorage.repName;
+    const startKM = document.getElementById("startKM").value;
+    const endKM = document.getElementById("endKM").value;
+    const startImgFile = document.getElementById("startKMImg").files[0];
+    const endImgFile = document.getElementById("endKMImg").files[0];
+    const kmMsg = document.getElementById("kmMsg");
 
-  const startImgFile = document.getElementById("startKMImg").files[0];
-  const endImgFile = document.getElementById("endKMImg").files[0];
+    if (startKM && startImgFile && !endKM) {
+        compressImage(startImgFile, function(base64){
+            const data = {
+                km: startKM,
+                image: base64,
+                startTime: new Date().toISOString()
+            };
+            localStorage.setItem("kmStart", JSON.stringify(data));
+            localStorage.setItem("kmDate", getTodayKey());
+            kmMsg.innerHTML = "دەستپێکردنی کارکردن پاشەکەوت کراوە✅ تم حفظ بدء الدوام";
+        });
+        return;
+    }
 
-  const kmMsg = document.getElementById("kmMsg");
+    if (!localStorage.getItem("kmStart")) {
+        alert("يجب تسجيل بدء الدوام أولاً");
+        return;
+    }
 
-  // ===== بدء الدوام فقط =====
-  if (startKM && startImgFile && !endKM) {
+    if (!endKM || !endImgFile) {
+        alert("أدخل بيانات الإنهاء");
+        return;
+    }
 
-    compressImage(startImgFile, function(base64){
-      const data = {
-        km: startKM,
-        image: base64,
-        startTime: new Date().toISOString()
-      };
+    const startData = JSON.parse(localStorage.getItem("kmStart"));
+    const distance = endKM - startData.km;
 
-      localStorage.setItem("kmStart", JSON.stringify(data));
-      localStorage.setItem("kmDate", getTodayKey());
-
-      kmMsg.innerHTML = "دەستپێکردنی  کارکردن پاشەکەوت کراوە✅ تم حفظ بدء الدوام";
+    compressImage(endImgFile, function(endBase64){
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "saveKM",
+                repName: repName,
+                startKM: startData.km,
+                startTime: startData.startTime,
+                startImage: startData.image,
+                endKM: endKM,
+                endTime: new Date().toISOString(),
+                endImage: endBase64,
+                distance: distance
+            })
+        }).then(() => {
+            localStorage.removeItem("kmStart");
+            localStorage.removeItem("kmDate");
+            kmMsg.innerHTML = "✅ تم إرسال الدوام بنجاح";
+            setTimeout(()=>location.reload(),1500);
+        });
     });
-
-    return;
-  }
-
-  // ===== إنهاء الدوام =====
-  if (!localStorage.getItem("kmStart")) {
-    alert("يجب تسجيل بدء الدوام أولاً");
-    return;
-  }
-
-  if (!endKM || !endImgFile) {
-    alert("أدخل بيانات الإنهاء");
-    return;
-  }
-
-  const startData = JSON.parse(localStorage.getItem("kmStart"));
-  const distance = endKM - startData.km;
-
-  compressImage(endImgFile, function(endBase64){
-
-    fetch(SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "saveKM",
-        repName: repName,
-        startKM: startData.km,
-        startTime: startData.startTime,
-        startImage: startData.image,
-        endKM: endKM,
-        endTime: new Date().toISOString(),
-        endImage: endBase64,
-        distance: distance
-      })
-    }).then(() => {
-
-      localStorage.removeItem("kmStart");
-      localStorage.removeItem("kmDate");
-
-      kmMsg.innerHTML = "✅ تم إرسال الدوام بنجاح";
-      setTimeout(()=>location.reload(),1500);
-    });
-
-  });
 }
     
-    function compressImage(file, callback) {
-
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-
-  reader.onload = function(event) {
-
-    const img = new Image();
-    img.src = event.target.result;
-
-    img.onload = function() {
-
-      const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 800;
-
-      let width = img.width;
-      let height = img.height;
-
-      if (width > MAX_WIDTH) {
-        height *= MAX_WIDTH / width;
-        width = MAX_WIDTH;
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const compressed = canvas.toDataURL('image/jpeg', 0.7);
-
-      callback(compressed);
+function compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function(event) {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            let width = img.width;
+            let height = img.height;
+            if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.7);
+            callback(compressed);
+        };
     };
-  };
 }
+
 async function handleSend() {
     if(isSending) return;
     const lang = localStorage.getItem('appLang') || 'ar';
     if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
 
-    // 1. التحقق من الحقول الإلزامية
     if (currentMode === 'new') {
-        const reqNew = ['useOil','useUFI','tradeName','ownerName','address','phone','category','rate','visitDays'];
+        const reqNew = ['useOil', 'hasUFI', 'tradeName', 'ownerName', 'address', 'phone', 'category', 'rate', 'visitDays'];
         for (let id of reqNew) {
             if (!document.getElementById(id).value.trim()) return alert(translations[lang].alert_fill);
         }
@@ -900,7 +852,6 @@ async function handleSend() {
         msg.innerText = translations[lang].wait;
         const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
         
-        // تجهيز البيانات الأساسية
         let data = { 
             sheetName: currentMode === 'new' ? 'data' : 'Clients', 
             repName: localStorage.repName, 
@@ -913,7 +864,6 @@ async function handleSend() {
         const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
         const file = fileInput.files[0];
 
-        // --- وظيفة ضغط الصورة قبل الإرسال ---
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {
@@ -921,10 +871,9 @@ async function handleSend() {
             img.src = event.target.result;
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800; // تصغير العرض لسرعة الرفع
+                const MAX_WIDTH = 800;
                 let width = img.width;
                 let height = img.height;
-
                 if (width > MAX_WIDTH) {
                     height *= MAX_WIDTH / width;
                     width = MAX_WIDTH;
@@ -933,16 +882,13 @@ async function handleSend() {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
-                
-                // تحويل الصورة إلى صيغة JPEG بجودة 0.7 لتقليل الحجم جداً
                 const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
                 
-                // جمع باقي الحقول
                 if(currentMode === 'new') {
                     data.tradeName = document.getElementById('tradeName').value;
                     data.ownerName = document.getElementById('ownerName').value;
                     data.useOil = document.getElementById('useOil').value;
-                    data.useUFI = document.getElementById('useUFI').value;
+                    data.hasUFI = document.getElementById('hasUFI').value;
                     data.address = document.getElementById('address').value;
                     data.phone = document.getElementById('phone').value;
                     data.category = document.getElementById('category').value;
@@ -965,7 +911,7 @@ async function handleSend() {
                     data.note = document.getElementById('reg_note').value;
                 }
 
-                data.image = compressedBase64; // الصورة المضغوطة
+                data.image = compressedBase64;
 
                 fetch(SCRIPT_URL, {
                     method: "POST",
@@ -991,7 +937,6 @@ async function handleSend() {
 
 function sendToGoogle(data) {
     const lang = localStorage.getItem('appLang') || 'ar';
-    // ملاحظة: يستخدم 'no-cors' لإرسال البيانات فقط (POST)، أما الجلب في الأعلى فيستخدم fetch العادي
     fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
     .then(() => {
         alert(translations[lang].success);
@@ -1005,10 +950,6 @@ function sendToGoogle(data) {
         document.getElementById('sendBtn').disabled = false;
     });
 }
-  
 </script>
 </body>
 </html>
-
-
-
