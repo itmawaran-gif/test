@@ -8,18 +8,15 @@
     body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
     .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
     
-    /* نافذة الرمز السري الإجبارية */
     #securityModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f2f4f7; display: flex; align-items: center; justify-content: center; z-index: 10000; }
     .security-content { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 
-    /* تصميم النافذة المنبثقة اليومية الأصلية */
     #appModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; }
     .modal-content { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 80%; max-width: 300px; }
     .modal-content h3 { margin-top: 0; color: #333; }
     .modal-content p { font-size: 14px; color: #666; margin-bottom: 20px; }
     #openAppBtn { background: #28a745; color: #fff; border: 0; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
 
-    /* النوافذ المنبثقة (Modals) */
     .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f2f4f7; z-index: 9990; overflow-y: auto; display: none; padding-bottom: 20px; }
     .modal-header { background: #0a7cff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 9991; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .modal-header h3 { margin: 0; font-size: 18px; }
@@ -51,17 +48,16 @@
     .nav-tabs button.active { background: #0a7cff; color: white; border-color: #0a7cff; }
     #timerDisplay { text-align: center; font-size: 22px; font-weight: bold; color: #dc3545; font-family: monospace; margin-bottom: 10px; }
 
-    /* تنسيق خاص لقائمة العملاء وتغيير اليوم */
     .client-selection-group { display: flex; gap: 5px; align-items: center; margin-top: 4px; }
     #reg_daySelect { width: 35%; padding: 10px 5px; font-size: 14px; }
     #reg_clientName { width: 65%; }
     #showDetailsBtn { background: #17a2b8; width: auto; padding: 10px 15px; margin-top: 0; font-size: 14px; }
 
-    /* صف الدهن والفلتر جنباً إلى جنب */
     .oil-filter-row { display: flex; gap: 10px; align-items: flex-end; margin-top: 10px; }
     .oil-filter-row .oil-filter-item { flex: 1; }
     .oil-filter-row .oil-filter-item label { margin-top: 0; }
     .oil-filter-row .oil-filter-item select { margin-top: 4px; width: 100%; font-size: 14px; padding: 9px 6px; }
+
 </style>
 </head>
 <body>
@@ -128,7 +124,6 @@
             <option value="الجمعه" data-key="fri">الجمعه</option>            
         </select>
 
-        <!-- صف الدهن والفلتر في تفاصيل العميل -->
         <div class="oil-filter-row">
             <div class="oil-filter-item">
                 <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
@@ -181,7 +176,6 @@
         </div>
 
         <div id="newClientForm">
-            <!-- صف الدهن والفلتر جنباً إلى جنب -->
             <div class="oil-filter-row">
                 <div class="oil-filter-item">
                     <label data-key="has_oil_label">هل يمتلك زيت ريماكس؟ *</label>
@@ -268,6 +262,7 @@
                 </select>
                 <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()" data-key="details_btn">تفاصيل</button>
             </div>
+
             
             <label data-key="has_order_label">هل تم عمل طلبية؟</label>
             <select id="reg_hasOrder" onchange="toggleOrderFields()">
@@ -337,7 +332,7 @@
 </div>
     
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBdpVD3oWgPijYKxwgD-ec87RZ8r6y7sPZcKsKwfm3AyN4_jsFYPA_ejDX9NOqCRJ9/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNr3nns-e0la5iBW-GoDk6fdqDQL44t469MTyKdFgLTe07Fs515UQVhjnl7bO1XA/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -345,7 +340,6 @@ let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.
 let timerInterval;
 let isSending = false;
 
-// لتخزين قائمة العملاء القادمة من جوجل شيت
 let allClients = [];
 
 const translations = {
@@ -393,6 +387,8 @@ const translations = {
     }
 };
 
+// =============================================
+
 function verifyAccessCode() {
     const input = document.getElementById('accessCode').value;
     const correctCode = "Mm19941994Mm";
@@ -438,9 +434,9 @@ window.onload = () => {
         document.getElementById('formBox').classList.remove('hidden');
         if(visitStartTime) resumeVisit();
         
-        // جلب قائمة العملاء
-        fetchClientsData();
+        // الترتيب المهم: setCurrentDay أولاً ثم fetchClientsData
         setCurrentDay();
+        fetchClientsData();
     }
 };
 
@@ -468,8 +464,8 @@ function changeLanguage(lang) {
 
 function saveLogin() {
     const lang = localStorage.getItem('appLang') || 'ar';
-    const r = document.getElementById('repName').value;
-    const c = document.getElementById('city').value;
+    const r = document.getElementById('repName').value.trim();
+    const c = document.getElementById('city').value.trim();
     if(!r || !c) return alert(translations[lang].alert_fill);
     localStorage.repName = r; localStorage.city = c;
     location.reload();
@@ -486,26 +482,69 @@ function switchForm(mode) {
 // --------- وظائف جلب وتصفية العملاء ---------
 
 function setCurrentDay() {
-    const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+    const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعه", "السبت"];
     const today = days[new Date().getDay()];
-    document.getElementById('reg_daySelect').value = (today === "الجمعة") ? "السبت" : today;
+    document.getElementById('reg_daySelect').value = today || "السبت";
 }
 
 function fetchClientsData() {
     const repName = localStorage.repName;
+    console.log("جلب عملاء المندوب:", repName);
     document.getElementById('reg_clientName').innerHTML = '<option value="">جاري جلب العملاء...</option>';
     
     fetch(`${SCRIPT_URL}?action=getClients&repName=${encodeURIComponent(repName)}`)
     .then(res => res.json())
     .then(data => {
-        if(data.status === 'success') {
-            allClients = data.data;
-            filterClientsByDay();
-        } else {
-            document.getElementById('reg_clientName').innerHTML = '<option value="">لم يتم العثور على عملاء</option>';
+        console.log("البيانات المستلمة:", data);
+        
+        let clientList = [];
+        
+        // حالة 1: الخادم يرجع array مباشرة (النسخة القديمة من السكريبت)
+        if (Array.isArray(data)) {
+            console.log("تم استلام array - سيتم الفلترة محلياً");
+            // فلترة حسب اسم المندوب محلياً
+            clientList = data.filter(item => {
+                const itemRep = (item.Salesman || item.repName || "").toString().trim();
+                return itemRep === repName.trim();
+            }).map((item, idx) => ({
+                id: idx + 1,
+                tradeName: item["Trade Name"] || item.tradeName || "",
+                ownerName: item.Owner || item.ownerName || "",
+                address: item.Address || item.address || "",
+                phone: (item.Phone || item.phone || "").toString(),
+                category: item.Category || item.category || "",
+                note: item.Note || item.note || "",
+                rate: item.Rating || item.rate || "",
+                visitDays: (item["Visit Days"] || item.visitDays || "").toString().trim(),
+                useOil: item.Rymax || item.useOil || "",
+                hasUFI: item[""] || item.hasUFI || ""
+            }));
         }
-    }).catch(err => {
-        console.error("Error Fetching Clients:", err);
+        // حالة 2: الخادم يرجع {status, data} (النسخة الجديدة)
+        else if (data.status === 'success') {
+            clientList = data.data;
+        }
+        else {
+            console.error("استجابة غير متوقعة:", data);
+            document.getElementById('reg_clientName').innerHTML = '<option value="">لم يتم العثور على عملاء</option>';
+            return;
+        }
+        
+        // إزالة التكرارات (نفس الاسم + نفس اليوم)
+        const seen = {};
+        allClients = clientList.filter(c => {
+            if (!c.tradeName || !c.visitDays) return false;
+            const key = c.tradeName.trim() + "||" + c.visitDays.trim();
+            if (seen[key]) return false;
+            seen[key] = true;
+            return true;
+        });
+        
+        console.log("العملاء بعد الفلترة والتنظيف:", allClients.length);
+        filterClientsByDay();
+    })
+    .catch(err => {
+        console.error("خطأ في جلب العملاء:", err);
         document.getElementById('reg_clientName').innerHTML = '<option value="">خطأ في الاتصال</option>';
     });
 }
@@ -515,7 +554,17 @@ function filterClientsByDay() {
     const selectElem = document.getElementById('reg_clientName');
     selectElem.innerHTML = '<option value="">اختر العميل-کڕیار هەڵبژێرە</option>';
     
-    const filtered = allClients.filter(c => c.visitDays === selectedDay);
+    const filtered = allClients.filter(c => 
+        c.visitDays && c.visitDays.toString().trim() === selectedDay.trim()
+    );
+
+    console.log("اليوم المحدد:", selectedDay);
+    console.log("العملاء بعد الفلترة:", filtered.length);
+
+    if (filtered.length === 0) {
+        console.warn("لا يوجد عملاء لهذا اليوم:", selectedDay);
+        console.warn("كل الأيام المتاحة:", [...new Set(allClients.map(c => c.visitDays))]);
+    }
     
     filtered.forEach(client => {
         const option = document.createElement('option');
@@ -612,8 +661,6 @@ function saveClientEdit() {
         btn.innerText = "حفظ التعديلات";
     });
 }
-
-// ---------------------------------------------------
 
 function toggleVisit() {
     const lang = localStorage.getItem('appLang') || 'ar';
@@ -934,23 +981,6 @@ async function handleSend() {
         isSending = false; btn.disabled = false;
     }, { enableHighAccuracy: true });
 }
-
-function sendToGoogle(data) {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
-    .then(() => {
-        alert(translations[lang].success);
-        localStorage.removeItem('visitStartTime');
-        localStorage.removeItem('startCoords');
-        location.reload();
-    })
-    .catch(() => {
-        alert("Error");
-        isSending = false;
-        document.getElementById('sendBtn').disabled = false;
-    });
-}
 </script>
 </body>
 </html>
-
