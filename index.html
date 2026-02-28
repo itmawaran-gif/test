@@ -332,7 +332,7 @@
 </div>
     
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNr3nns-e0la5iBW-GoDk6fdqDQL44t469MTyKdFgLTe07Fs515UQVhjnl7bO1XA/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcU68DvNq33KhZymWhg22O61wYqeKkXb0ZJ-O8hYeGzsH-XiCdBsH0yHKz1sNLdAWl/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -600,12 +600,15 @@ function showClientDetails() {
     document.getElementById('edit_useOil').value = client.useOil || '';
     document.getElementById('edit_hasUFI').value = client.hasUFI || '';
 
-    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil', 'edit_hasUFI'];
+    // ← احفظ الاسم الأصلي في زر الحفظ
+    document.getElementById('saveEditBtn').setAttribute('data-original-name', client.tradeName);
+
+    const fields = ['edit_tradeName','edit_ownerName','edit_address','edit_phone',
+                    'edit_category','edit_note','edit_rate','edit_visitDays','edit_useOil','edit_hasUFI'];
     fields.forEach(id => document.getElementById(id).disabled = true);
     
     document.getElementById('enableEditBtn').classList.remove('hidden');
     document.getElementById('saveEditBtn').classList.add('hidden');
-
     document.getElementById('clientDetailsModal').style.display = 'block';
 }
 
@@ -622,16 +625,18 @@ function enableClientEdit() {
 }
 
 function saveClientEdit() {
-    const clientId = document.getElementById('reg_clientName').value;
     const btn = document.getElementById('saveEditBtn');
-    
     btn.disabled = true;
     btn.innerText = "جاري الحفظ...";
 
+    // الاسم الأصلي قبل التعديل (نحتاجه للبحث)
+    const originalTradeName = btn.getAttribute('data-original-name');
+
     const updatedData = {
         action: 'updateClient',
-        id: clientId,
-        tradeName: document.getElementById('edit_tradeName').value,
+        repName: localStorage.repName,         // ← أضفنا اسم المندوب
+        tradeName: originalTradeName,          // ← الاسم الأصلي للبحث
+        newTradeName: document.getElementById('edit_tradeName').value,
         ownerName: document.getElementById('edit_ownerName').value,
         address: document.getElementById('edit_address').value,
         phone: document.getElementById('edit_phone').value,
@@ -649,11 +654,17 @@ function saveClientEdit() {
     })
     .then(res => res.json())
     .then(data => {
-        btn.innerText = "تم الحفظ بنجاح ✓";
-        setTimeout(() => {
-            closeModal('clientDetailsModal');
-            fetchClientsData();
-        }, 1500);
+        if (data.status === 'success') {
+            btn.innerText = "تم الحفظ ✓";
+            setTimeout(() => {
+                closeModal('clientDetailsModal');
+                fetchClientsData();
+            }, 1500);
+        } else {
+            alert("خطأ: " + data.message);
+            btn.disabled = false;
+            btn.innerText = "حفظ التعديلات";
+        }
     })
     .catch(err => {
         alert("حدث خطأ أثناء الحفظ");
