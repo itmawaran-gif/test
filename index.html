@@ -263,6 +263,8 @@
                 </select>
                 <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()" data-key="details_btn">تفاصيل</button>
             </div>
+            <!-- صندوق تشخيص مشاكل جلب العملاء -->
+            <div id="clientsDebug" style="font-size:12px;margin-top:4px;padding:4px 8px;border-radius:6px;background:#f8f9fa;"></div>
             
             <label data-key="has_order_label">هل تم عمل طلبية؟</label>
             <select id="reg_hasOrder" onchange="toggleOrderFields()">
@@ -333,7 +335,7 @@
 </div>
     
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5vmegpq9_M2WsctSZgjhGx_o1bYDtY3WM3SJ5cNMAHOS02vylu68sJCyhbZF6S3S8/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSEDmq6Zx2yV39tX2CYeF49WgOTpP2YorYE7LGkrYFg-Qadyp7HjxCeSohfgtrtYIk/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -483,42 +485,74 @@ function setCurrentDay() {
     document.getElementById('reg_daySelect').value = (today === "الجمعة") ? "السبت" : today;
 }
 
-// ✅ الدالة المُصلحة: تعامل صحيح مع الأخطاء وعرض واضح لحالة التحميل
 function fetchClientsData() {
     const repName = localStorage.repName;
     if (!repName) return;
 
     const selectElem = document.getElementById('reg_clientName');
+    const debugDiv   = document.getElementById('clientsDebug');
     selectElem.innerHTML = '<option value="">⏳ جاري جلب العملاء...</option>';
     selectElem.disabled = true;
+    if (debugDiv) debugDiv.innerHTML = '';
 
-    fetch(SCRIPT_URL + '?action=getClients&repName=' + encodeURIComponent(repName))
-        .then(function(res) {
-            if (!res.ok) throw new Error('Network response was not ok');
-            return res.json();
-        })
-        .then(function(data) {
+    const url = SCRIPT_URL + '?action=getClients&repName=' + encodeURIComponent(repName);
+
+    fetch(url, { redirect: 'follow' })
+        .then(function(res) { return res.text(); })          // نقرأ النص الخام أولاً
+        .then(function(text) {
             selectElem.disabled = false;
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch(e) {
+                // إذا فشل الـ JSON فنعرض بداية الرد للتشخيص
+                if (debugDiv) debugDiv.innerHTML =
+                    '<span style="color:red">⚠️ رد غير متوقع: ' + text.substring(0,120) + '</span>';
+                selectElem.innerHTML = '<option value="">⚠️ خطأ في البيانات</option>';
+                showRetryBtn();
+                return;
+            }
+
             if (data && data.status === 'success' && Array.isArray(data.data)) {
                 allClients = data.data;
+                const total = allClients.length;
+                if (debugDiv) debugDiv.innerHTML =
+                    '<span style="color:green">✅ تم جلب ' + total + ' عميل</span>';
                 filterClientsByDay();
             } else {
+                if (debugDiv) debugDiv.innerHTML =
+                    '<span style="color:orange">⚠️ الرد: ' + JSON.stringify(data).substring(0,100) + '</span>';
                 selectElem.innerHTML = '<option value="">لا يوجد عملاء مسجلون</option>';
+                showRetryBtn();
             }
         })
         .catch(function(err) {
-            console.error("خطأ في جلب العملاء:", err);
             selectElem.disabled = false;
-            selectElem.innerHTML = '<option value="">⚠️ خطأ في الاتصال - أعد المحاولة</option>';
-            // ✅ إعادة المحاولة تلقائياً بعد 5 ثواني
-            setTimeout(fetchClientsData, 5000);
+            selectElem.innerHTML = '<option value="">⚠️ خطأ في الاتصال</option>';
+            if (debugDiv) debugDiv.innerHTML =
+                '<span style="color:red">خطأ: ' + err.message + '</span>';
+            showRetryBtn();
         });
+}
+
+function showRetryBtn() {
+    let retryBtn = document.getElementById('retryFetchBtn');
+    if (!retryBtn) {
+        retryBtn = document.createElement('button');
+        retryBtn.id = 'retryFetchBtn';
+        retryBtn.style.cssText = 'background:#dc3545;margin-top:6px;padding:6px;font-size:13px;';
+        retryBtn.innerText = '🔄 إعادة تحميل العملاء';
+        retryBtn.onclick = function() { retryBtn.remove(); fetchClientsData(); };
+        const group = document.querySelector('.client-selection-group');
+        if (group) group.parentNode.insertBefore(retryBtn, group.nextSibling);
+    }
 }
 
 function filterClientsByDay() {
     const selectedDay = document.getElementById('reg_daySelect').value;
-    const selectElem = document.getElementById('reg_clientName');
-    const lang = localStorage.getItem('appLang') || 'ar';
+    const selectElem  = document.getElementById('reg_clientName');
+    const debugDiv    = document.getElementById('clientsDebug');
+    const lang        = localStorage.getItem('appLang') || 'ar';
 
     selectElem.innerHTML = '<option value="">' + (lang === 'ku' ? 'کڕیار هەڵبژێرە' : 'اختر العميل') + '</option>';
 
@@ -527,15 +561,23 @@ function filterClientsByDay() {
         return;
     }
 
-    // ✅ مقارنة مرنة تتجاهل المسافات الزائدة
+    // مقارنة مرنة تتجاهل المسافات والاختلافات الطفيفة
     const filtered = allClients.filter(function(c) {
-        return c.visitDays && c.visitDays.trim() === selectedDay.trim();
+        return c.visitDays && c.visitDays.toString().trim() === selectedDay.trim();
     });
+
+    // تشخيص: عرض الأيام الموجودة فعلاً في البيانات
+    if (debugDiv) {
+        const uniqueDays = [...new Set(allClients.map(c => '"' + (c.visitDays || '(فارغ)') + '"'))];
+        const matchCount = filtered.length;
+        debugDiv.innerHTML = '✅ ' + allClients.length + ' عميل | يوم مختار: "' + selectedDay +
+            '" | نتيجة: ' + matchCount + ' | أيام في البيانات: ' + uniqueDays.join(', ');
+    }
 
     filtered.forEach(function(client) {
         const option = document.createElement('option');
         option.value = client.id || client.tradeName;
-        option.text = client.tradeName || '(بدون اسم)';
+        option.text  = client.tradeName || '(بدون اسم)';
         selectElem.appendChild(option);
     });
 
