@@ -180,7 +180,7 @@
                 <div class="oil-filter-item">
                     <label data-key="has_oil_label">يمتلك زيت ريماكس؟*</label>
                     <select id="useOil">
-                        <option value="" data-key="choose">اختر</option>
+                        <option value="" data-key="choose"></option>
                         <option value="نعم" data-key="yes">نعم</option>
                         <option value="لا" data-key="no">لا</option>
                     </select>
@@ -188,7 +188,7 @@
                 <div class="oil-filter-item">
                     <label data-key="ufi_label">هل يمتلك فلتر UFI؟ *</label>
                     <select id="hasUFI">
-                        <option value="" data-key="choose">اختر</option>
+                        <option value="" data-key="choose"></option>
                         <option value="نعم" data-key="yes">نعم</option>
                         <option value="لا" data-key="no">لا</option>
                     </select>
@@ -205,7 +205,7 @@
             <input id="phone" inputmode="numeric">
             <label data-key="category_label">الفئة *</label>
             <select id="category">
-                <option value="" data-key="choose">اختر</option>
+                <option value="" data-key="choose"></option>
                 <option value="كراج" data-key="garage">كراج</option>
                 <option value="جملة" data-key="wholesale">جملة</option>
                 <option value="مفرد" data-key="retail">مفرد</option>
@@ -214,12 +214,12 @@
             <textarea id="note"></textarea>
             <label data-key="rate_label">التقييم *</label>
             <select id="rate">
-                <option value="" data-key="choose">اختر</option>
+                <option value="" data-key="choose"></option>
                 <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
             </select>
             <label data-key="visit_days_label">يوم الزيارة *</label>
             <select id="visitDays">
-                <option value="" data-key="choose">اختر</option>
+                <option value="" data-key="choose"></option>
                 <option value="السبت" data-key="sat">السبت</option>
                 <option value="الأحد" data-key="sun">الأحد</option>
                 <option value="الاثنين" data-key="mon">الاثنين</option>
@@ -332,7 +332,7 @@
 </div>
     
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcU68DvNq33KhZymWhg22O61wYqeKkXb0ZJ-O8hYeGzsH-XiCdBsH0yHKz1sNLdAWl/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIkQtECEwtMz4tKNDo0nxPJLxRLR913xqvlYFNr2DuH_SwcJifOwetEP-TdAskcBw0/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -347,7 +347,7 @@ const translations = {
         modal_title: "صباح الخير", modal_body: "هل انت مستعد ليوم جديد", modal_btn: "OK",
         login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
         tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
-        cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "يمتلك زيت ريماكس؟*", choose: "اختر", yes: "نعم", no: "لا",
+        cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "يمتلك زيت ريماكس؟*", choose: "", yes: "نعم", no: "لا",
         ufi_label: "هل يمتلك فلتر UFI؟ *",
         trade_name_label: "الاسم التجاري *", owner_name_label: "اسم المالك *", address_label: "العنوان *", phone_label: "رقم الهاتف *",
         category_label: "الفئة *", garage: "كراج", wholesale: "جملة", retail: "مفرد", note_label: "ملاحظة",
@@ -368,7 +368,7 @@ const translations = {
         modal_title: "بەیانی باش", modal_body: "ئایا ئامادەی بۆ ڕۆژێکی نوێ؟", modal_btn: "OK",
         login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
         tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
-        cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "رونى ڕیماکسی هەیە؟*", choose: "هەڵبژێرە", yes: "بەڵێ", no: "نەخێر",
+        cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "رونى ڕیماکسی هەیە؟*", choose: "", yes: "بەڵێ", no: "نەخێر",
         ufi_label: "ئایا فلتری UFI هەیە؟ *",
         trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
         category_label: "پۆلێن *", garage: "گەراج", wholesale: "كو", retail: "تاک", note_label: "تێبینی",
@@ -995,4 +995,3 @@ async function handleSend() {
 </script>
 </body>
 </html>
-
