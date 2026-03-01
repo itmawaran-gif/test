@@ -57,7 +57,11 @@
     .oil-filter-row .oil-filter-item { flex: 1; }
     .oil-filter-row .oil-filter-item label { margin-top: 0; }
     .oil-filter-row .oil-filter-item select { margin-top: 4px; width: 100%; font-size: 14px; padding: 9px 6px; }
-
+    
+.error-field {
+    border: 2px solid red !important;
+    background-color: #ffe6e6;
+}
 </style>
 </head>
 <body>
@@ -869,46 +873,79 @@ function compressImage(file, callback) {
         };
     };
 }
+    
+function clearErrors() {
+    document.querySelectorAll('.error-field').forEach(el => {
+        el.classList.remove('error-field');
+    });
+}
 
+function markIfEmpty(id) {
+    const el = document.getElementById(id);
+    if (!el) return false;
+
+    if (el.type === "file") {
+        if (el.files.length === 0) {
+            el.classList.add('error-field');
+            return true;
+        }
+    } else {
+        if (!el.value.trim()) {
+            el.classList.add('error-field');
+            return true;
+        }
+    }
+    return false;
+}
+    
 async function handleSend() {
     if(isSending) return;
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
 
-    if (currentMode === 'new') {
-        const reqNew = ['useOil', 'hasUFI', 'tradeName', 'ownerName', 'address', 'phone', 'category', 'rate', 'visitDays'];
-        for (let id of reqNew) {
-            if (!document.getElementById(id).value.trim()) return alert(translations[lang].alert_fill);
-        }
-        if (document.getElementById('imageInputNew').files.length === 0) return alert(translations[lang].alert_fill + " (الصورة مطلوبة)");
-    } else {
-        if (!document.getElementById('reg_clientName').value.trim()) return alert(translations[lang].alert_fill);
-        const hasOrder = document.getElementById('reg_hasOrder').value;
-        if (hasOrder === 'نعم' && !document.getElementById('reg_orderAmount').value.trim()) return alert(translations[lang].alert_fill);
-        if (hasOrder === 'لا' && !document.getElementById('reg_orderReason').value.trim()) return alert(translations[lang].alert_fill);
-        const hasPayment = document.getElementById('reg_hasPayment').value;
-        if (hasPayment === 'نعم' && !document.getElementById('reg_payAmount').value.trim()) return alert(translations[lang].alert_fill);
-        if (hasPayment === 'لا' && !document.getElementById('reg_payReason').value.trim()) return alert(translations[lang].alert_fill);
-        if (document.getElementById('imageInputReg').files.length === 0) return alert(translations[lang].alert_fill + " (الصورة مطلوبة)");
+    clearErrors(); // حذف التحديد القديم
+
+    const lang = localStorage.getItem('appLang') || 'ar';
+
+    if(!visitStartTime) {
+        alert(translations[lang].start_visit.replace('<br>', ' '));
+        return;
     }
 
-    const btn = document.getElementById('sendBtn');
-    const msg = document.getElementById('msg');
-    isSending = true;
-    btn.disabled = true;
-    btn.innerText = translations[lang].loading;
+    let hasError = false;
 
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
-        if(dist > 2000) { 
-            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
-            isSending = false; btn.disabled = false; btn.innerText = translations[lang].send_data_btn;
-            return; 
+    if (currentMode === 'new') {
+        const reqNew = ['useOil','hasUFI','tradeName','ownerName','address','phone','category','rate','visitDays'];
+
+        reqNew.forEach(id => {
+            if (markIfEmpty(id)) hasError = true;
+        });
+
+        if (markIfEmpty('imageInputNew')) hasError = true;
+
+    } else {
+
+        if (markIfEmpty('reg_clientName')) hasError = true;
+
+        const hasOrder = document.getElementById('reg_hasOrder').value;
+        if (hasOrder === 'نعم') {
+            if (markIfEmpty('reg_orderAmount')) hasError = true;
+        } else {
+            if (markIfEmpty('reg_orderReason')) hasError = true;
         }
 
-        btn.innerText = translations[lang].sending;
-        msg.innerText = translations[lang].wait;
-        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
+        const hasPayment = document.getElementById('reg_hasPayment').value;
+        if (hasPayment === 'نعم') {
+            if (markIfEmpty('reg_payAmount')) hasError = true;
+        } else {
+            if (markIfEmpty('reg_payReason')) hasError = true;
+        }
+
+        if (markIfEmpty('imageInputReg')) hasError = true;
+    }
+
+    if (hasError) {
+        alert(translations[lang].alert_fill);
+        return;
+    }
         
         let data = { 
             sheetName: currentMode === 'new' ? 'data' : 'Clients', 
@@ -995,3 +1032,4 @@ async function handleSend() {
 </script>
 </body>
 </html>
+
