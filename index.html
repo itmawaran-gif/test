@@ -899,132 +899,155 @@ function markIfEmpty(id) {
 }
     
 async function handleSend() {
-    if(isSending) return;
 
-    clearErrors(); // حذف التحديد القديم
+    if (isSending) return;
+    isSending = true;
 
-    const lang = localStorage.getItem('appLang') || 'ar';
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.disabled = true;
 
-    if(!visitStartTime) {
-        alert(translations[lang].start_visit.replace('<br>', ' '));
+    if (!visitStartTime) {
+        alert(translations[lang].alert_start);
+        resetSendState();
         return;
     }
 
-    let hasError = false;
+    // ==========================
+    // التحقق من الحقول المطلوبة
+    // ==========================
+
+    let requiredFields = [];
 
     if (currentMode === 'new') {
-        const reqNew = ['useOil','hasUFI','tradeName','ownerName','address','phone','category','rate','visitDays'];
 
-        reqNew.forEach(id => {
-            if (markIfEmpty(id)) hasError = true;
-        });
-
-        if (markIfEmpty('imageInputNew')) hasError = true;
+        requiredFields = [
+            'useOil', 'hasUFI', 'tradeName', 'ownerName',
+            'address', 'phone', 'category', 'rate',
+            'visitDays', 'imageInputNew'
+        ];
 
     } else {
 
-        if (markIfEmpty('reg_clientName')) hasError = true;
+        requiredFields = ['reg_clientName', 'imageInputReg'];
 
         const hasOrder = document.getElementById('reg_hasOrder').value;
-        if (hasOrder === 'نعم') {
-            if (markIfEmpty('reg_orderAmount')) hasError = true;
-        } else {
-            if (markIfEmpty('reg_orderReason')) hasError = true;
-        }
+        if (hasOrder === 'نعم') requiredFields.push('reg_orderAmount');
+        if (hasOrder === 'لا') requiredFields.push('reg_orderReason');
 
         const hasPayment = document.getElementById('reg_hasPayment').value;
-        if (hasPayment === 'نعم') {
-            if (markIfEmpty('reg_payAmount')) hasError = true;
-        } else {
-            if (markIfEmpty('reg_payReason')) hasError = true;
-        }
-
-        if (markIfEmpty('imageInputReg')) hasError = true;
+        if (hasPayment === 'نعم') requiredFields.push('reg_payAmount');
+        if (hasPayment === 'لا') requiredFields.push('reg_payReason');
     }
 
-    if (hasError) {
+    if (!validateRequiredFields(requiredFields)) {
         alert(translations[lang].alert_fill);
+        resetSendState();
         return;
     }
-        
-        let data = { 
-            sheetName: currentMode === 'new' ? 'data' : 'Clients', 
-            repName: localStorage.repName, 
-            city: localStorage.city, 
-            duration: durationMin, 
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-        };
 
-        const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        const file = fileInput.files[0];
+    // ==========================
+    // تحديد الموقع
+    // ==========================
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                
-                if(currentMode === 'new') {
-                    data.tradeName = document.getElementById('tradeName').value;
-                    data.ownerName = document.getElementById('ownerName').value;
-                    data.useOil = document.getElementById('useOil').value;
-                    data.hasUFI = document.getElementById('hasUFI').value;
-                    data.address = document.getElementById('address').value;
-                    data.phone = document.getElementById('phone').value;
-                    data.category = document.getElementById('category').value;
-                    data.note = document.getElementById('note').value;
-                    data.rate = document.getElementById('rate').value;
-                    data.visitDays = document.getElementById('visitDays').value;
-                    data.oilType = document.getElementById('oilType').value;
-                    data.oilGrade = document.getElementById('oilGrade').value;
-                    data.oilDistance = document.getElementById('oilDistance').value;
-                    data.oilPrice = document.getElementById('oilPrice').value;
-                } else {
-                    const select = document.getElementById('reg_clientName');
-                    data.clientName = select.options[select.selectedIndex].text;
-                    data.hasOrder = document.getElementById('reg_hasOrder').value;
-                    data.orderAmount = document.getElementById('reg_orderAmount').value;
-                    data.orderReason = document.getElementById('reg_orderReason').value;
-                    data.hasPayment = document.getElementById('reg_hasPayment').value;
-                    data.payAmount = document.getElementById('reg_payAmount').value;
-                    data.payReason = document.getElementById('reg_payReason').value;
-                    data.note = document.getElementById('reg_note').value;
-                }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
 
-                data.image = compressedBase64;
+        try {
 
-                fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                }).then(() => {
-                    msg.innerText = translations[lang].success;
-                    localStorage.removeItem('visitStartTime');
-                    localStorage.removeItem('startCoords');
-                    setTimeout(() => location.reload(), 2000);
-                }).catch(err => {
-                    alert("خطأ في الاتصال، حاول مرة أخرى");
-                    isSending = false; btn.disabled = false;
-                });
+            const durationMin = Math.floor((Date.now() - visitStartTime) / 60000);
+
+            let data = {
+                sheetName: currentMode === 'new' ? 'data' : 'Clients',
+                repName: localStorage.repName,
+                city: localStorage.city,
+                duration: durationMin,
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude
             };
-        };
+
+            // ==========================
+            // بيانات حسب نوع الزيارة
+            // ==========================
+
+            if (currentMode === 'new') {
+
+                data.useOil = document.getElementById('useOil').value;
+                data.hasUFI = document.getElementById('hasUFI').value;
+                data.tradeName = document.getElementById('tradeName').value.trim();
+                data.ownerName = document.getElementById('ownerName').value.trim();
+                data.address = document.getElementById('address').value.trim();
+                data.phone = document.getElementById('phone').value.trim();
+                data.category = document.getElementById('category').value;
+                data.rate = document.getElementById('rate').value;
+                data.visitDays = document.getElementById('visitDays').value.trim();
+
+            } else {
+
+                data.clientName = document.getElementById('reg_clientName').value.trim();
+                data.hasOrder = document.getElementById('reg_hasOrder').value;
+                data.orderAmount = document.getElementById('reg_orderAmount').value || '';
+                data.orderReason = document.getElementById('reg_orderReason').value || '';
+                data.hasPayment = document.getElementById('reg_hasPayment').value;
+                data.payAmount = document.getElementById('reg_payAmount').value || '';
+                data.payReason = document.getElementById('reg_payReason').value || '';
+                data.rate = document.getElementById('reg_rate').value;
+            }
+
+            // ==========================
+            // ضغط الصورة
+            // ==========================
+
+            const fileInput = currentMode === 'new'
+                ? document.getElementById('imageInputNew')
+                : document.getElementById('imageInputReg');
+
+            const file = fileInput.files[0];
+
+            const compressedImage = await compressImage(file);
+            data.image = compressedImage;
+
+            // ==========================
+            // الإرسال
+            // ==========================
+
+            const response = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.text();
+
+            document.getElementById('msg').innerText = translations[lang].success;
+
+            resetVisit();
+
+        } catch (error) {
+
+            console.error(error);
+            alert(translations[lang].alert_error);
+
+        } finally {
+            resetSendState();
+        }
+
     }, () => {
+
+        alert(translations[lang].alert_geo);
+        resetSendState();
+
+    }, { enableHighAccuracy: true });
+
+}
+
+
+// ==========================
+// إعادة تفعيل زر الإرسال
+// ==========================
+
+function resetSendState() {
+    isSending = false;
+    document.getElementById('sendBtn').disabled = false;
+}
+    , () => {
         alert(translations[lang].alert_geo);
         isSending = false; btn.disabled = false;
     }, { enableHighAccuracy: true });
@@ -1032,4 +1055,5 @@ async function handleSend() {
 </script>
 </body>
 </html>
+
 
