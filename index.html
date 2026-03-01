@@ -689,13 +689,7 @@ function toggleVisit() {
             localStorage.setItem('visitStartTime', visitStartTime);
             localStorage.setItem('startCoords', JSON.stringify(startCoords));
             resumeVisit();
-        }, () => {
-            alert(translations[lang].alert_geo);
-            btn.disabled = false;
-            btn.innerHTML = translations[lang].start_visit;
-        }, { enableHighAccuracy: true });
-    }
-}
+        }
 
 function resumeVisit() {
     const lang = localStorage.getItem('appLang') || 'ar';
@@ -904,6 +898,7 @@ async function handleSend() {
     isSending = true;
 
     const sendBtn = document.getElementById('sendBtn');
+    const lang = localStorage.getItem('appLang') || 'ar';
     sendBtn.disabled = true;
 
     if (!visitStartTime) {
@@ -1002,14 +997,48 @@ async function handleSend() {
 
             const file = fileInput.files[0];
 
-            const compressedImage = await compressImage(file);
+            function compressImage(file) {
+    return new Promise((resolve) => {
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800;
+
+                let width = img.width;
+                let height = img.height;
+
+                if (width > MAX_WIDTH) {
+                    height *= MAX_WIDTH / width;
+                    width = MAX_WIDTH;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressed = canvas.toDataURL('image/jpeg', 0.7);
+                resolve(compressed);
+            };
+        };
+
+    });
+}
             data.image = compressedImage;
 
             // ==========================
             // الإرسال
             // ==========================
 
-            const response = await fetch(scriptURL, {
+            const response = await fetch(SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify(data)
             });
@@ -1055,5 +1084,6 @@ function resetSendState() {
 </script>
 </body>
 </html>
+
 
 
