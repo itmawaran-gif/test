@@ -335,7 +335,7 @@
 </div>
     
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwIkQtECEwtMz4tKNDo0nxPJLxRLR913xqvlYFNr2DuH_SwcJifOwetEP-TdAskcBw0/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzha0DESfqA2Lm4M5ZNAWw0tlwFD0qPXyf7d8QBpfmJ4Ixtsa_tgHJ8wuQmviCArfRg/exec";
 
 let currentMode = 'new';
 let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
@@ -797,18 +797,38 @@ async function saveWorkData() {
     const kmMsg = document.getElementById("kmMsg");
 
     if (startKM && startImgFile && !endKM) {
-        compressImage(startImgFile, function(base64){
-            const data = {
-                km: startKM,
-                image: base64,
-                startTime: new Date().toISOString()
-            };
-            localStorage.setItem("kmStart", JSON.stringify(data));
-            localStorage.setItem("kmDate", getTodayKey());
-            kmMsg.innerHTML = "دەستپێکردنی کارکردن پاشەکەوت کراوە✅ تم حفظ بدء الدوام";
+    compressImage(startImgFile, function(base64){
+
+        const startTime = new Date().toISOString();
+
+        const data = {
+            km: startKM,
+            image: base64,
+            startTime: startTime
+        };
+
+        // حفظ محلي
+        localStorage.setItem("kmStart", JSON.stringify(data));
+        localStorage.setItem("kmDate", getTodayKey());
+
+        // 🔵 إرسال وقت بدء الدوام إلى صفحة StartTimes
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                action: "saveStartTime",
+                sheetName: "StartTimes",
+                repName: repName,
+                startTime: startTime
+            })
         });
-        return;
-    }
+
+        kmMsg.innerHTML = "✅ تم حفظ وإرسال وقت بدء الدوام";
+    });
+
+    return;
+}
 
     if (!localStorage.getItem("kmStart")) {
         alert("يجب تسجيل بدء الدوام أولاً");
