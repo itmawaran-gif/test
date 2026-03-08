@@ -1,1058 +1,1620 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MAWARAN CO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>RC Service</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- PWA Manifest (inline blob) -->
+<script>
+(function(){
+  const manifest={
+    name:"RC Service",short_name:"RC Service",start_url:"./",display:"standalone",
+    background_color:"#0b0f1a",theme_color:"#f5a623",
+    icons:[{src:"logo.png",sizes:"192x192",type:"image/png",purpose:"any maskable"},
+           {src:"logo.png",sizes:"512x512",type:"image/png",purpose:"any maskable"}]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('link');
+  link.rel='manifest';link.href=url;
+  document.head.appendChild(link);
+})();
+</script>
+<meta name="theme-color" content="#f5a623">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RC Service">
+<link rel="apple-touch-icon" href="logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
 <style>
-    body { font-family:tahoma; background:#f2f4f7; margin:0; padding: 10px; }
-    .container { max-width:420px; margin:auto; background:#fff; padding:16px; border-radius:12px; box-shadow:0 4px 10px #0002; position: relative; }
-    
-    #securityModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f2f4f7; display: flex; align-items: center; justify-content: center; z-index: 10000; }
-    .security-content { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 85%; max-width: 320px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-
-    #appModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    .modal-content { background: #fff; padding: 30px; border-radius: 15px; text-align: center; width: 80%; max-width: 300px; }
-    .modal-content h3 { margin-top: 0; color: #333; }
-    .modal-content p { font-size: 14px; color: #666; margin-bottom: 20px; }
-    #openAppBtn { background: #28a745; color: #fff; border: 0; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-
-    .fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f2f4f7; z-index: 9990; overflow-y: auto; display: none; padding-bottom: 20px; }
-    .modal-header { background: #0a7cff; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 9991; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .modal-header h3 { margin: 0; font-size: 18px; }
-    .close-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; line-height: 1; }
-    
-    .details-box { background: white; margin: 15px; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-    .loader { text-align: center; margin-top: 50px; font-weight: bold; color: #555; }
-
-    .lang-switcher { margin-top: 25px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; }
-    .lang-switcher select { width: auto; padding: 8px 15px; font-size: 14px; cursor: pointer; border-radius: 20px; background: #f8f9fa; border: 1px solid #ddd; }
-    h2 { text-align:center; color: #333; margin-bottom: 20px; }
-    label { display:block; margin-top:10px; font-weight:bold; font-size: 14px; color: #444; }
-    input, select, textarea, button { width:100%; padding:10px; margin-top:4px; border-radius:8px; border:1px solid #ccc; font-size:16px; box-sizing: border-box; }
-    input:disabled, select:disabled, textarea:disabled { background: #e9ecef; color: #666; cursor: not-allowed; }
-    
-    button { background:#0a7cff; color:#fff; border:0; margin-top:15px; cursor:pointer; font-weight: bold; }
-    button:disabled { background:#999 !important; cursor:not-allowed; opacity: 0.6; }
-    #msg { text-align:center; margin-top:10px; font-weight:bold; font-size: 14px; }
-    .hidden { display:none !important; }
-    
-    .visit-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; flex-direction: column; }
-    #startVisitBtn { width: 90px; height: 90px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 13px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: 0.3s; }
-    #startVisitBtn.active { background: #dc3545; animation: pulse 1.5s infinite; }
-    #cancelVisitBtn { width: auto; padding: 6px 12px; background: #6c757d; font-size: 11px; margin-top: 5px; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    .nav-tabs { display: flex; gap: 5px; margin-bottom: 15px; }
-    .nav-tabs button { margin-top: 0; background: #eee; color: #333; flex: 1; font-size: 14px; border: 1px solid #ddd; }
-    .nav-tabs button.active { background: #0a7cff; color: white; border-color: #0a7cff; }
-    #timerDisplay { text-align: center; font-size: 22px; font-weight: bold; color: #dc3545; font-family: monospace; margin-bottom: 10px; }
-
-    .client-selection-group { display: flex; gap: 5px; align-items: center; margin-top: 4px; }
-    #reg_daySelect { width: 35%; padding: 10px 5px; font-size: 14px; }
-    #reg_clientName { width: 65%; }
-    #showDetailsBtn { background: #17a2b8; width: auto; padding: 10px 15px; margin-top: 0; font-size: 14px; }
-
-    .oil-filter-row { display: flex; gap: 10px; align-items: flex-end; margin-top: 10px; }
-    .oil-filter-row .oil-filter-item { flex: 1; }
-    .oil-filter-row .oil-filter-item label { margin-top: 0; }
-    .oil-filter-row .oil-filter-item select { margin-top: 4px; width: 100%; font-size: 14px; padding: 9px 6px; }
-.field-error {
-    border: 2px solid #dc3545 !important;
-    background-color: #fff5f5 !important;
+:root {
+  --bg:#0b0f1a;--surface:#131829;--card:#1a2035;--border:#252d44;
+  --gold:#f5a623;--gold-dim:#c07b10;--teal:#0fd4b0;--red:#ff4d6d;
+  --text:#e8eaf0;--muted:#6b7694;--radius:14px;
+  --shadow:0 8px 32px rgba(0,0,0,.45);
+  --font-ar:'Tajawal',sans-serif;--font-en:'Barlow Condensed',sans-serif;
+  --tr:all .28s cubic-bezier(.4,0,.2,1);
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-ar);min-height:100vh;overflow-x:hidden;position:relative;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 20% 0%,rgba(245,166,35,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 60% at 80% 100%,rgba(15,212,176,.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
+body.ltr{direction:ltr;}
+body.ltr *{font-family:var(--font-en);letter-spacing:.02em;}
+
+/* ─── LIGHT MODE ─── */
+body.light-mode{
+  --bg:#f0f3fa;--surface:#ffffff;--card:#e8ecf5;--border:#c8cedf;
+  --text:#1a2035;--muted:#7b84a0;--shadow:0 8px 32px rgba(0,0,0,.12);
+}
+body.light-mode::before{
+  background:radial-gradient(ellipse 70% 50% at 20% 0%,rgba(245,166,35,.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 60% at 80% 100%,rgba(15,212,176,.04) 0%,transparent 60%);
+}
+body.light-mode .form-control{background:#ffffff;color:var(--text);}
+body.light-mode .car-card:hover,body.light-mode .oil-header:hover{background:#d8dff0;}
+body.light-mode .modal-sheet{background:#f0f3fa;}
+body.light-mode .feedback-textarea{background:#ffffff;}
+
+.screen{display:none;flex-direction:column;align-items:center;min-height:100vh;padding:0 0 50px;position:relative;z-index:1;}
+.screen.active{display:flex;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── BRAND HEADER ─── */
+.brand-header{width:100%;padding:16px 20px 10px;display:flex;align-items:center;justify-content:center;position:relative;}
+.brand-logo-img{height:54px;width:auto;max-width:160px;object-fit:contain;filter:drop-shadow(0 4px 14px rgba(245,166,35,.35));}
+
+/* ─── HAMBURGER BUTTON ─── */
+.hamburger-btn{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  background:var(--card);border:1.5px solid var(--border);border-radius:10px;
+  width:40px;height:40px;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;cursor:pointer;transition:var(--tr);z-index:10;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+body.ltr .hamburger-btn{right:auto;left:16px;}
+.hamburger-btn span{display:block;width:20px;height:2.5px;background:var(--text);border-radius:2px;transition:var(--tr);}
+.hamburger-btn:hover{border-color:var(--gold);background:rgba(245,166,35,.08);}
+.hamburger-btn:hover span{background:var(--gold);}
+
+/* ─── SIDEBAR ─── */
+#sidebar-overlay{
+  display:none;position:fixed;inset:0;z-index:150;
+  background:rgba(0,0,0,.6);backdrop-filter:blur(5px);
+}
+#sidebar-overlay.open{display:block;animation:fadeIn .22s ease;}
+
+#sidebar{
+  position:fixed;top:0;right:-320px;width:300px;max-width:88vw;
+  height:100vh;z-index:151;background:var(--surface);
+  border-left:1px solid var(--border);
+  box-shadow:-14px 0 48px rgba(0,0,0,.45);
+  transition:right .32s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;display:flex;flex-direction:column;
+}
+#sidebar.open{right:0;}
+
+.sb-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 18px 16px;border-bottom:1px solid var(--border);
+  background:linear-gradient(135deg,rgba(245,166,35,.08),rgba(15,212,176,.04));
+  flex-shrink:0;
+}
+.sb-top-title{font-size:16px;font-weight:800;color:var(--gold);display:flex;align-items:center;gap:7px;}
+.sb-close-btn{
+  width:32px;height:32px;border-radius:50%;background:var(--card);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;color:var(--muted);transition:var(--tr);
+}
+.sb-close-btn:hover{color:var(--text);background:var(--border);}
+
+.sb-section{padding:18px 16px 0;}
+.sb-section-hdr{
+  font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:.09em;text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.sb-section-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* Profile card */
+.sb-profile-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;margin-bottom:14px;
+}
+.sb-profile-banner{
+  height:6px;background:linear-gradient(90deg,var(--gold),var(--teal));
+}
+.sb-profile-body{padding:14px;}
+.sb-info-row{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;font-size:14px;
+  border-bottom:1px solid var(--border);
+}
+.sb-info-row:last-child{border-bottom:none;padding-bottom:0;}
+.sb-info-icon{font-size:15px;width:24px;text-align:center;flex-shrink:0;color:var(--gold);}
+.sb-info-val{flex:1;font-weight:600;}
+
+/* QR code */
+.sb-qr-wrap{
+  display:flex;flex-direction:column;align-items:center;
+  padding:16px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:18px;
+}
+.sb-qr-label{font-size:12px;color:var(--muted);margin-bottom:12px;font-weight:600;display:flex;align-items:center;gap:5px;}
+#sb-qr-code{border-radius:10px;overflow:hidden;}
+#sb-qr-code img,#sb-qr-code canvas{display:block;border-radius:8px;}
+.sb-qr-phone{font-size:13px;color:var(--teal);margin-top:8px;font-family:var(--font-en);font-weight:700;letter-spacing:.04em;}
+
+/* Language buttons */
+.sb-lang-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.sb-lang-btn{
+  background:var(--card);border:1.5px solid var(--border);border-radius:10px;
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:var(--tr);color:var(--text);
+  font-size:15px;font-weight:700;font-family:inherit;
+}
+.sb-lang-btn:hover{border-color:var(--gold);background:rgba(245,166,35,.06);}
+.sb-lang-btn.active{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(245,166,35,.05));
+  color:var(--gold);
+}
+.sb-lang-btn.active .sb-lang-check{display:block;}
+.sb-lang-check{display:none;color:var(--gold);font-size:16px;}
+.sb-lang-flag{font-size:20px;}
+
+/* Theme buttons */
+.sb-theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.sb-theme-btn{
+  background:var(--card);border:1.5px solid var(--border);border-radius:10px;
+  padding:14px 10px;cursor:pointer;transition:var(--tr);
+  color:var(--muted);font-size:13px;font-weight:700;font-family:inherit;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+}
+.sb-theme-btn .th-icon{font-size:24px;display:block;}
+.sb-theme-btn:hover{border-color:var(--gold);}
+.sb-theme-btn.active{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(245,166,35,.04));
+  color:var(--gold);
+}
+
+/* ─── REST OF ORIGINAL STYLES ─── */
+#oil-alert{display:none;width:calc(100% - 32px);max-width:480px;background:linear-gradient(135deg,rgba(255,77,109,.15),rgba(255,77,109,.06));border:1px solid var(--red);border-radius:var(--radius);padding:12px 16px;margin:0 16px 12px;animation:pulseBorder 2s infinite;}
+#oil-alert.show{display:flex;align-items:center;gap:10px;}
+@keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 rgba(255,77,109,.3)}50%{box-shadow:0 0 0 6px rgba(255,77,109,0)}}
+.alert-icon{font-size:20px;flex-shrink:0;}
+.alert-text{font-size:13px;line-height:1.5;}
+.alert-text strong{color:var(--red);display:block;}
+
+#screen-lang{justify-content:center;}
+.lang-hero{text-align:center;padding:40px 24px 32px;}
+.lang-hero-img{height:80px;width:auto;max-width:200px;object-fit:contain;filter:drop-shadow(0 0 30px rgba(245,166,35,.5));}
+.rc-sub{font-size:13px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:10px;font-family:var(--font-en);}
+.lang-grid{display:flex;flex-direction:column;gap:12px;width:calc(100% - 48px);max-width:340px;}
+.lang-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:var(--tr);color:var(--text);font-size:18px;font-weight:700;}
+.lang-btn:hover{border-color:var(--gold);background:#1f2840;transform:translateY(-2px);}
+.lang-flag{font-size:26px;}
+.lang-native{font-size:13px;color:var(--muted);}
+
+.form-wrap{width:calc(100% - 32px);max-width:440px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:26px 22px;box-shadow:var(--shadow);}
+.form-title{font-size:21px;font-weight:800;margin-bottom:4px;}
+.form-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+.form-control{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:var(--tr);}
+.form-control:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,166,35,.12);}
+.form-control option{background:var(--surface);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.btn-primary{width:100%;padding:14px;border-radius:var(--radius);background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-weight:800;font-size:16px;font-family:inherit;cursor:pointer;transition:var(--tr);box-shadow:0 4px 20px rgba(245,166,35,.3);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,166,35,.45);}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+#screen-main{align-items:stretch;padding-bottom:140px;}
+.main-content{padding:0 16px;display:flex;flex-direction:column;gap:14px;width:100%;}
+
+.ad-banner{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;position:relative;min-height:100px;}
+.ad-label{position:absolute;top:7px;inset-inline-start:7px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 7px;border-radius:4px;color:var(--muted);font-family:var(--font-en);z-index:3;}
+.ad-slide{display:none;width:100%;animation:fadeIn .4s ease;}
+.ad-slide.active{display:block;}
+.ad-slide img{width:100%;max-height:200px;object-fit:cover;display:block;}
+.ad-slide video{width:100%;max-height:200px;object-fit:cover;display:block;background:#000;}
+.ad-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:3;}
+.ad-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:var(--tr);}
+.ad-dot.active{background:var(--gold);width:16px;border-radius:3px;}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.section-title{font-size:16px;font-weight:700;}
+.btn-add-car{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0;box-shadow:0 2px 12px rgba(245,166,35,.35);}
+.btn-add-car:hover{transform:scale(1.12) rotate(90deg);}
+
+.cars-list{display:flex;flex-direction:column;gap:9px;}
+.car-card{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:var(--tr);position:relative;overflow:hidden;}
+.car-card::before{content:'';position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--gold),var(--gold-dim));}
+.car-card:hover{border-color:var(--gold);background:#1f2840;}
+.car-icon{font-size:26px;flex-shrink:0;}
+.car-info{flex:1;min-width:0;}
+.car-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.car-plate{font-size:12px;color:var(--muted);font-family:var(--font-en);margin-top:2px;}
+.car-fines-badge{background:rgba(107,118,148,.12);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:4px 11px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0;transition:var(--tr);font-family:var(--font-en);}
+.car-fines-badge.has-fines{background:rgba(255,77,109,.15);border-color:rgba(255,77,109,.35);color:var(--red);}
+.car-fines-badge.no-fines{background:rgba(15,212,176,.1);border-color:rgba(15,212,176,.3);color:var(--teal);}
+.car-fines-badge.checking{animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.no-cars{text-align:center;padding:26px;color:var(--muted);font-size:14px;background:var(--surface);border-radius:var(--radius);border:1px dashed var(--border);}
+.no-cars span{font-size:32px;display:block;margin-bottom:7px;}
+
+.oil-section{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.oil-header{padding:13px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:var(--tr);}
+.oil-header:hover{background:#1f2840;}
+.oil-header-left{display:flex;align-items:center;gap:10px;}
+.oil-icon{font-size:20px;}
+.oil-title{font-size:15px;font-weight:700;}
+.oil-subtitle{font-size:12px;color:var(--muted);margin-top:1px;}
+.oil-chevron{font-size:16px;color:var(--muted);transition:var(--tr);}
+.oil-chevron.open{transform:rotate(180deg);}
+.oil-body{display:none;padding:0 16px 14px;border-top:1px solid var(--border);}
+.oil-body.open{display:block;animation:fadeIn .22s ease;}
+.oil-car-item{background:var(--surface);border-radius:10px;padding:13px;margin-top:10px;cursor:pointer;transition:var(--tr);border:1px solid var(--border);}
+.oil-car-item:hover{border-color:var(--teal);}
+.oil-car-header{display:flex;align-items:center;justify-content:space-between;}
+.oil-car-name{font-size:14px;font-weight:700;}
+.oil-km-badge{background:rgba(15,212,176,.12);border:1px solid rgba(15,212,176,.3);color:var(--teal);border-radius:20px;padding:2px 10px;font-size:12px;font-family:var(--font-en);font-weight:700;}
+.oil-date{font-size:12px;color:var(--muted);margin-top:3px;}
+
+.feedback-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.feedback-title{font-size:15px;font-weight:700;margin-bottom:10px;}
+.feedback-textarea{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px;color:var(--text);font-size:14px;font-family:inherit;resize:none;outline:none;height:78px;transition:var(--tr);}
+.feedback-textarea:focus{border-color:var(--teal);}
+.btn-sending{background:linear-gradient(135deg,#3a4a6b,#2a3558) !important;color:var(--muted) !important;box-shadow:none !important;}
+
+.company-info{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.company-title{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--gold);}
+.company-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.company-item:last-child{border-bottom:none;padding-bottom:0;}
+.company-item a{color:var(--teal);text-decoration:none;font-family:var(--font-en);}
+.company-item a:hover{color:var(--gold);}
+.ci-icon{font-size:16px;width:26px;text-align:center;flex-shrink:0;}
+.contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:var(--radius);border:none;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:var(--tr);text-decoration:none;margin-bottom:8px;}
+.contact-btn:last-of-type{margin-bottom:0;}
+.contact-btn.primary-btn{background:linear-gradient(135deg,var(--gold),var(--gold-dim));color:#000;box-shadow:0 4px 16px rgba(245,166,35,.3);}
+.contact-btn.primary-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,166,35,.4);}
+.contact-btn.outline-btn{background:transparent;border:1.5px solid var(--teal);color:var(--teal);}
+.contact-btn.outline-btn:hover{background:rgba(15,212,176,.08);transform:translateY(-2px);}
+.contact-btns-wrap{display:flex;flex-direction:column;gap:0;margin-bottom:8px;}
+
+.modal-overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.78);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;}
+.modal-overlay.open{display:flex;animation:fadeIn .18s ease;}
+.modal-sheet{background:var(--card);border-radius:22px 22px 0 0;padding:22px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 -8px 40px rgba(0,0,0,.5);animation:slideUp .3s cubic-bezier(.4,0,.2,1);position:relative;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:38px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px;}
+.modal-title{font-size:19px;font-weight:800;margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.modal-close{position:absolute;top:14px;inset-inline-end:14px;width:30px;height:30px;border-radius:50%;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--muted);transition:var(--tr);}
+.modal-close:hover{color:var(--text);background:var(--border);}
+
+.car-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.car-detail-item{background:var(--surface);border-radius:10px;padding:11px;border:1px solid var(--border);}
+.car-detail-label{font-size:11px;color:var(--muted);margin-bottom:4px;}
+.car-detail-value{font-size:15px;font-weight:700;font-family:var(--font-en);}
+
+.fines-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.fines-summary-left{display:flex;align-items:center;gap:10px;}
+.fines-summary-icon{font-size:22px;}
+.fines-summary-label{font-size:12px;color:var(--muted);}
+.fines-summary-count{font-size:26px;font-weight:900;font-family:var(--font-en);color:var(--text);}
+.fines-summary-count.red{color:var(--red);}
+.fines-summary-count.green{color:var(--teal);}
+.fines-summary-count.muted{color:var(--muted);font-size:16px;}
+.fines-status-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.fines-status-dot.checking{background:var(--gold);animation:pulse 1s infinite;}
+.fines-status-dot.done-ok{background:var(--teal);}
+.fines-status-dot.done-bad{background:var(--red);}
+
+.btn-check{width:100%;padding:13px;border-radius:var(--radius);background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-weight:800;font-size:15px;font-family:inherit;cursor:pointer;transition:var(--tr);box-shadow:0 4px 16px rgba(245,166,35,.3);margin-bottom:10px;}
+.btn-check:hover{transform:translateY(-2px);}
+.btn-del{width:100%;padding:11px;border-radius:var(--radius);background:transparent;border:1.5px solid rgba(255,77,109,.35);color:var(--red);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:var(--tr);}
+.btn-del:hover{background:rgba(255,77,109,.1);}
+
+.oil-detail-grid{display:flex;flex-direction:column;gap:9px;}
+.oil-detail-card{background:var(--surface);border-radius:11px;padding:13px;border:1px solid var(--border);}
+.oil-detail-header{display:flex;justify-content:space-between;align-items:flex-start;}
+.oil-detail-km{font-size:22px;font-weight:900;color:var(--teal);font-family:var(--font-en);}
+.oil-detail-date{font-size:12px;color:var(--muted);}
+.oil-detail-meta{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;}
+.oil-tag{background:rgba(15,212,176,.1);border:1px solid rgba(15,212,176,.3);color:var(--teal);border-radius:20px;padding:2px 9px;font-size:12px;}
+.oil-tag.no{background:rgba(107,118,148,.1);border-color:var(--border);color:var(--muted);}
+.oil-notes{font-size:13px;color:var(--muted);margin-top:7px;line-height:1.5;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.checkbox-wrap{display:flex;align-items:center;gap:10px;}
+.checkbox-wrap input[type="checkbox"]{width:17px;height:17px;accent-color:var(--gold);cursor:pointer;}
+
+.reminder-row{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.reminder-label-txt{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.reminder-num{width:90px;background:var(--surface);border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;color:var(--text);font-family:inherit;font-size:16px;font-weight:700;outline:none;transition:var(--tr);text-align:center;}
+.reminder-num:focus{border-color:var(--gold);}
+.reminder-unit{font-size:13px;color:var(--muted);}
+
+.next-oil-box{background:linear-gradient(135deg,rgba(15,212,176,.12),rgba(15,212,176,.04));border:1.5px solid rgba(15,212,176,.35);border-radius:var(--radius);padding:14px 16px;margin-top:10px;display:none;animation:fadeIn .25s ease;}
+.next-oil-box-label{font-size:11px;color:var(--teal);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.next-oil-box-km{font-size:30px;font-weight:900;color:var(--teal);font-family:var(--font-en);line-height:1;}
+.next-oil-box-km span{font-size:14px;font-weight:400;color:var(--muted);}
+.next-oil-box-diff{font-size:12px;color:var(--muted);margin-top:3px;}
+
+#pwa-banner{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:linear-gradient(135deg,#1c2340,#111627);border-top:2px solid var(--gold);padding:18px 20px 22px;box-shadow:0 -12px 40px rgba(0,0,0,.65);}
+#pwa-banner.show{display:flex;flex-direction:column;align-items:center;gap:14px;animation:slideUp .4s cubic-bezier(.4,0,.2,1);}
+.pwa-top-row{display:flex;align-items:center;gap:14px;width:100%;}
+.pwa-icon{width:56px;height:56px;border-radius:16px;overflow:hidden;flex-shrink:0;box-shadow:0 4px 18px rgba(245,166,35,.5);}
+.pwa-icon img{width:100%;height:100%;object-fit:cover;}
+.pwa-text{flex:1;min-width:0;}
+.pwa-title{font-size:17px;font-weight:900;margin-bottom:4px;color:var(--text);}
+.pwa-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+.btn-install{width:100%;padding:15px;border-radius:var(--radius);background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-weight:900;font-size:17px;font-family:inherit;cursor:pointer;transition:var(--tr);box-shadow:0 4px 20px rgba(245,166,35,.4);letter-spacing:.02em;}
+.btn-install:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(245,166,35,.55);}
+
+#toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:50px;padding:9px 20px;font-size:14px;box-shadow:var(--shadow);z-index:999;opacity:0;transition:opacity .3s ease;white-space:nowrap;pointer-events:none;}
+#toast.success{border-color:var(--teal);color:var(--teal);}
+#toast.error{border-color:var(--red);color:var(--red);}
+#toast.show{opacity:1;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 </style>
 </head>
 <body>
 
-<div id="securityModal">
-    <div class="security-content">
-        <h3>نظام MAWARAN</h3>
-        <p style="font-size: 13px; color: #666;">يرجى إدخال رمز الوصول للمتابعة</p>
-        <input type="password" id="accessCode" placeholder="الرمز السري" style="text-align: center;">
-        <button onclick="verifyAccessCode()">تحقق من الرمز</button>
-        <p id="errorCode" style="color: red; font-size: 12px; margin-top: 10px; display: none;">الرمز غير صحيح!</p>
-    </div>
+<!-- LANG -->
+<div id="screen-lang" class="screen">
+  <div class="lang-hero">
+    <img class="lang-hero-img" src="logo2.png" alt="RC Service" onerror="this.style.display='none';document.getElementById('lang-fallback').style.display='block'">
+    <div id="lang-fallback" style="display:none;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:72px;color:var(--gold);text-shadow:0 0 60px rgba(245,166,35,.5)">RC</div>
+    <div class="rc-sub">Road Care Service</div>
+  </div>
+  <div class="lang-grid">
+    <button class="lang-btn" onclick="selectLang('ar')">
+      <span>عربي</span><div style="text-align:end"><div class="lang-flag">🇮🇶</div><div class="lang-native">العربية</div></div>
+    </button>
+    <button class="lang-btn" onclick="selectLang('ku')">
+      <span>کوردی</span><div style="text-align:end"><div class="lang-flag">🏴</div><div class="lang-native">کوردی</div></div>
+    </button>
+    <button class="lang-btn" onclick="selectLang('en')">
+      <span>English</span><div style="text-align:end"><div class="lang-flag">🇬🇧</div><div class="lang-native">English</div></div>
+    </button>
+  </div>
 </div>
 
-<div id="appModal" class="hidden">
-    <div class="modal-content">
-        <h3 id="modalTitle">بەیانی باش - صباح الخير</h3>
-        <p id="modalBody">هل انت مستعد ليوم جديد - ئامادەی بۆ ڕۆژێکی نوێ</p>
-        <button id="openAppBtn" onclick="triggerAppOpening()">OK</button>
+<!-- REGISTER -->
+<div id="screen-register" class="screen">
+  <div class="brand-header">
+    <img class="brand-logo-img" src="logo2.png" alt="RC Service" onerror="this.outerHTML='<span style=\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:var(--gold)\'>RC Service</span>'">
+  </div>
+  <div class="form-wrap">
+    <div class="form-title" id="reg-title">معلومات السائق</div>
+    <div class="form-sub"   id="reg-sub">تُحفظ مرة واحدة فقط</div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-name">الاسم الكامل</label>
+      <input class="form-control" id="reg-name" type="text">
     </div>
-</div>
-
-<div id="clientDetailsModal" class="fullscreen-modal" style="z-index: 9992;">
-    <div class="modal-header">
-        <h3 data-key="details_title">تفاصيل وتعديل العميل</h3>
-        <button class="close-btn" onclick="closeModal('clientDetailsModal')">&times;</button>
+    <div class="form-group">
+      <label class="form-label" id="lbl-phone">رقم الهاتف</label>
+      <input class="form-control" id="reg-phone" type="tel">
     </div>
-    <div class="details-box">
-        <label data-key="trade_name_label">الاسم التجاري *</label>
-        <input id="edit_tradeName" disabled>
-        
-        <label data-key="owner_name_label">اسم المالك *</label>
-        <input id="edit_ownerName" disabled>
-        
-        <label data-key="address_label">العنوان *</label>
-        <input id="edit_address" disabled>
-        
-        <label data-key="phone_label">رقم الهاتف *</label>
-        <input id="edit_phone" inputmode="numeric" disabled>
-        
-        <label data-key="category_label">الفئة *</label>
-        <select id="edit_category" disabled>
-            <option value="كراج" data-key="garage">كراج</option>
-            <option value="جملة" data-key="wholesale">جملة</option>
-            <option value="مفرد" data-key="retail">مفرد</option>
+    <div class="form-group">
+      <label class="form-label" id="lbl-city">المدينة</label>
+      <select class="form-control" id="reg-city"></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" id="lbl-dob">تاريخ الميلاد</label>
+        <input class="form-control" id="reg-dob" type="date">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-gender">الجنس</label>
+        <select class="form-control" id="reg-gender">
+          <option value="male"   id="opt-male">ذكر</option>
+          <option value="female" id="opt-female">أنثى</option>
         </select>
-        
-        <label data-key="note_label">الملاحظة</label>
-        <textarea id="edit_note" disabled></textarea>
-        
-        <label data-key="rate_label">التقييم *</label>
-        <select id="edit_rate" disabled>
-            <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
-        </select>
-        
-        <label data-key="visit_days_label">يوم الزيارة *</label>
-        <select id="edit_visitDays" disabled>
-            <option value="السبت" data-key="sat">السبت</option>
-            <option value="الأحد" data-key="sun">الأحد</option>
-            <option value="الاثنين" data-key="mon">الاثنين</option>
-            <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
-            <option value="الأربعاء" data-key="wed">الأربعاء</option>
-            <option value="الخميس" data-key="thu">الخميس</option>
-            <option value="الجمعه" data-key="fri">الجمعه</option>            
-        </select>
-
-        <div class="oil-filter-row">
-            <div class="oil-filter-item">
-                <label data-key="has_oil_label">يمتلك زيت ريماكس؟*</label>
-                <select id="edit_useOil" disabled>
-                    <option value="نعم" data-key="yes">نعم</option>
-                    <option value="لا" data-key="no">لا</option>
-                </select>
-            </div>
-            <div class="oil-filter-item">
-                <label data-key="ufi_label">هل يمتلك فلتر UFI؟ *</label>
-                <select id="edit_hasUFI" disabled>
-                    <option value="نعم" data-key="yes">نعم</option>
-                    <option value="لا" data-key="no">لا</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="display: flex; gap: 10px; margin-top: 20px;">
-            <button id="enableEditBtn" onclick="enableClientEdit()" style="background:#ffc107; color:#000; margin-top:0;" data-key="edit_data">تعديل البيانات</button>
-            <button id="saveEditBtn" class="hidden" onclick="saveClientEdit()" style="background:#28a745; margin-top:0;" data-key="save_edits">حفظ التعديلات</button>
-        </div>
+      </div>
     </div>
+    <button class="btn-primary" id="reg-submit" onclick="submitRegistration()">حفظ والمتابعة</button>
+  </div>
 </div>
 
-<div class="container">
-    <div id="login">
-        <h2 data-key="login_title">تسجيل الدخول</h2>
-        <label data-key="rep_name_label">اسم المندوب *</label>
-        <input id="repName">
-        <label data-key="city_label">المدينة *</label>
-        <input id="city">
-        <button onclick="saveLogin()" data-key="login_btn">دخول للنظام</button>
+<!-- MAIN -->
+<div id="screen-main" class="screen">
+  <div class="brand-header">
+    <img class="brand-logo-img" src="logo2.png" alt="RC Service" onerror="this.outerHTML='<span style=\'font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:22px;color:var(--gold)\'>RC Service</span>'">
+    <!-- HAMBURGER BUTTON -->
+    <button class="hamburger-btn" onclick="openSidebar()" id="hamburger-btn" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+  <div id="oil-alert">
+    <span class="alert-icon">⚠️</span>
+    <div class="alert-text">
+      <strong id="oil-alert-title">تنبيه تغيير الزيت!</strong>
+      <span id="oil-alert-msg"></span>
+    </div>
+  </div>
+  <div class="main-content">
+
+    <!-- ADV BANNER -->
+    <div class="ad-banner" id="adv-banner">
+      <span class="ad-label">AD</span>
+      <div id="adv-slides"></div>
+      <div class="ad-dots" id="adv-dots"></div>
     </div>
 
-    <div id="formBox" class="hidden">
-        <button id="workBtn" onclick="openWorkModal()" 
-        style="background:#6f42c1;margin-bottom:10px;" data-key="work_btn">
-        بدء الدوام
-        </button>
-        
-        <div class="nav-tabs">
-            <button id="tabNew" class="active" onclick="switchForm('new')" data-key="tab_new">عميل جديد</button>
-            <button id="tabRegular" onclick="switchForm('regular')" data-key="tab_regular">عميل دائمي</button>
-        </div>
-
-        <div id="timerDisplay" class="hidden">00:00:00</div>
-        <div class="visit-controls">
-            <button id="startVisitBtn" onclick="toggleVisit()" data-key="start_visit">بدء<br>الزيارة</button>
-            <button id="cancelVisitBtn" class="hidden" onclick="cancelVisit()" data-key="cancel_visit">إلغاء الزيارة ✖</button>
-        </div>
-
-        <div id="newClientForm">
-            <div class="oil-filter-row">
-                <div class="oil-filter-item">
-                    <label data-key="has_oil_label">يمتلك زيت ريماكس؟*</label>
-                    <select id="useOil">
-                        <option value="" data-key="choose"></option>
-                        <option value="نعم" data-key="yes">نعم</option>
-                        <option value="لا" data-key="no">لا</option>
-                    </select>
-                </div>
-                <div class="oil-filter-item">
-                    <label data-key="ufi_label">هل يمتلك فلتر UFI؟ *</label>
-                    <select id="hasUFI">
-                        <option value="" data-key="choose"></option>
-                        <option value="نعم" data-key="yes">نعم</option>
-                        <option value="لا" data-key="no">لا</option>
-                    </select>
-                </div>
-            </div>
-
-            <label data-key="trade_name_label">الاسم التجاري *</label>
-            <input id="tradeName">
-            <label data-key="owner_name_label">اسم المالك *</label>
-            <input id="ownerName">
-            <label data-key="address_label">العنوان *</label>
-            <input id="address">
-            <label data-key="phone_label">رقم الهاتف *</label>
-            <input id="phone" inputmode="numeric">
-            <label data-key="category_label">الفئة *</label>
-            <select id="category">
-                <option value="" data-key="choose"></option>
-                <option value="كراج" data-key="garage">كراج</option>
-                <option value="جملة" data-key="wholesale">جملة</option>
-                <option value="مفرد" data-key="retail">مفرد</option>
-            </select>
-            <label data-key="note_label">ملاحظة</label>
-            <textarea id="note"></textarea>
-            <label data-key="rate_label">التقييم *</label>
-            <select id="rate">
-                <option value="" data-key="choose"></option>
-                <option value="1">⭐</option><option value="2">⭐⭐</option><option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="5">⭐⭐⭐⭐⭐</option>
-            </select>
-            <label data-key="visit_days_label">يوم الزيارة *</label>
-            <select id="visitDays">
-                <option value="" data-key="choose"></option>
-                <option value="السبت" data-key="sat">السبت</option>
-                <option value="الأحد" data-key="sun">الأحد</option>
-                <option value="الاثنين" data-key="mon">الاثنين</option>
-                <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
-                <option value="الأربعاء" data-key="wed">الأربعاء</option>
-                <option value="الخميس" data-key="thu">الخميس</option>
-                <option value="الجمعه" data-key="fri">الجمعه</option>
-            </select>
-            <hr style="opacity: 0.2; margin: 20px 0;">
-            <label data-key="other_oil_label">نوع الزيت ماركة أخرى</label>
-            <input id="oilType">
-            <label data-key="oil_grade_label">درجة الزيت</label>
-            <input id="oilGrade">
-            <label data-key="distance_label">المسافة</label>
-            <select id="oilDistance">
-                <option value="" data-key="choose">اختر</option>
-                <option>3K كم</option><option>5K كم</option><option>10K كم</option><option>15K كم</option>
-            </select>
-            <label data-key="liter_price_label">سعر اللتر</label>
-            <input id="oilPrice" inputmode="numeric">
-            <label data-key="store_img_label">صورة المتجر *</label>
-            <input type="file" id="imageInputNew" accept="image/*" capture="environment">
-        </div>
-
-        <div id="regularClientForm" class="hidden">
-            <label data-key="client_name_label">اسم العميل *</label>
-            
-            <div class="client-selection-group">
-                <select id="reg_daySelect" onchange="filterClientsByDay()">
-                    <option value="السبت" data-key="sat">السبت</option>
-                    <option value="الأحد" data-key="sun">الأحد</option>
-                    <option value="الاثنين" data-key="mon">الاثنين</option>
-                    <option value="الثلاثاء" data-key="tue">الثلاثاء</option>
-                    <option value="الأربعاء" data-key="wed">الأربعاء</option>
-                    <option value="الخميس" data-key="thu">الخميس</option>
-                    <option value="الجمعه" data-key="fri">الجمعه</option>
-                </select>
-                <select id="reg_clientName" onchange="toggleDetailsBtn()">
-                    <option value="">اختر العميل-کڕیار هەڵبژێرە</option>
-                </select>
-                <button id="showDetailsBtn" class="hidden" onclick="showClientDetails()" data-key="details_btn">تفاصيل</button>
-            </div>
-
-            
-            <label data-key="has_order_label">هل تم عمل طلبية؟</label>
-            <select id="reg_hasOrder" onchange="toggleOrderFields()">
-                <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
-            </select>
-            <div id="orderAmountBox" class="hidden">
-                <label data-key="order_amount_label">مبلغ الطلبية *</label>
-                <input id="reg_orderAmount" type="number">
-            </div>
-            <div id="orderReasonBox">
-                <label data-key="no_order_reason">سبب عدم إنشاء طلبية *</label>
-                <input id="reg_orderReason">
-            </div>
-            <label data-key="has_payment_label">هل تم قبض مبلغ؟</label>
-            <select id="reg_hasPayment" onchange="togglePaymentFields()">
-                <option value="لا" data-key="no">لا</option><option value="نعم" data-key="yes">نعم</option>
-            </select>
-            <div id="payAmountBox" class="hidden">
-                <label data-key="pay_amount_label">مبلغ القبض *</label>
-                <input id="reg_payAmount" type="number">
-            </div>
-            <div id="payReasonBox">
-                <label data-key="no_pay_reason">سبب عدم القبض *</label>
-                <input id="reg_payReason">
-            </div>
-            <label data-key="note_label">الملاحظة</label>
-            <textarea id="reg_note"></textarea>
-            <label data-key="take_photo_label">التقاط صورة *</label>
-            <input type="file" id="imageInputReg" accept="image/*" capture="environment">
-        </div>
-
-        <button id="sendBtn" onclick="handleSend()" data-key="send_data_btn">إرسال البيانات</button>
-        <div id="msg"></div>
+    <div>
+      <div class="section-header">
+        <div class="section-title" id="cars-title">سياراتي</div>
+        <button class="btn-add-car" onclick="openAddCar()">+</button>
+      </div>
+      <div class="cars-list" id="cars-list">
+        <div class="no-cars"><span>🚗</span><div id="no-cars-text">لا توجد سيارات. اضغط + لإضافة.</div></div>
+      </div>
     </div>
 
-    <div class="lang-switcher">
-        <select id="langSelect" onchange="changeLanguage(this.value)">
-            <option value="ar">العربية (Arabic)</option>
-            <option value="ku">کوردی (Soranî)</option>
+    <div class="oil-section">
+      <div class="oil-header" onclick="toggleOil()">
+        <div class="oil-header-left">
+          <span class="oil-icon">🛢️</span>
+          <div>
+            <div class="oil-title" id="oil-section-title">آخر تبديل زيت</div>
+            <div class="oil-subtitle" id="oil-section-sub">اضغط لعرض التفاصيل</div>
+          </div>
+        </div>
+        <span class="oil-chevron" id="oil-chevron">▼</span>
+      </div>
+      <div class="oil-body" id="oil-body">
+        <div id="oil-cars-list"></div>
+      </div>
+    </div>
+
+    <div class="feedback-section">
+      <div class="feedback-title" id="feedback-title">💬 أرسل ملاحظاتك</div>
+      <textarea class="feedback-textarea" id="feedback-text" placeholder="..."></textarea>
+      <button class="btn-primary" style="margin-top:9px" id="feedback-btn" onclick="submitFeedback()">إرسال</button>
+    </div>
+
+    <div class="company-info">
+      <div class="company-title" id="company-title">📍 RC Service</div>
+      <div class="contact-btns-wrap" style="margin-bottom:10px;">
+        <a class="contact-btn primary-btn" id="btn-contact-us" href="https://linktr.ee/mawaranpages" target="_blank">
+          📞 <span id="lbl-contact-us">تواصل معنا</span>
+        </a>
+        <a class="contact-btn outline-btn" id="btn-nearest-agent" href="https://maps.app.goo.gl/yskYZPRnWiCVZQTQ6" target="_blank">
+          📍 <span id="lbl-nearest-agent">أقرب وكيل معتمد</span>
+        </a>
+      </div>
+      <div class="company-item"><span class="ci-icon">💬</span><span id="lbl-cwa">واتساب:</span>&nbsp;<a href="" id="company-wa" target="_blank"></a></div>
+      <div class="company-item"><span class="ci-icon">🏢</span><span id="lbl-caddr">العنوان:</span>&nbsp;<span id="company-addr"></span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SIDEBAR OVERLAY + PANEL
+══════════════════════════════════════ -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="sidebar">
+
+  <!-- Header -->
+  <div class="sb-top">
+    <div class="sb-top-title">
+      <span>☰</span>
+      <span id="sb-menu-label">القائمة</span>
+    </div>
+    <button class="sb-close-btn" onclick="closeSidebar()">✕</button>
+  </div>
+
+  <!-- Section 1: Profile -->
+  <div class="sb-section">
+    <div class="sb-section-hdr" id="sb-profile-hdr">👤 معلوماتي</div>
+    <div class="sb-profile-card" id="sb-profile-card">
+      <div class="sb-profile-banner"></div>
+      <div class="sb-profile-body" id="sb-profile-body">
+        <div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>
+      </div>
+    </div>
+    <div class="sb-qr-wrap" id="sb-qr-wrap">
+      <div class="sb-qr-label" id="sb-qr-label">📱 باركود رقم الهاتف</div>
+      <div id="sb-qr-code"></div>
+      <div class="sb-qr-phone" id="sb-qr-phone"></div>
+    </div>
+  </div>
+
+  <!-- Section 2: Language -->
+  <div class="sb-section">
+    <div class="sb-section-hdr" id="sb-lang-hdr">🌐 تغيير اللغة</div>
+    <div class="sb-lang-grid">
+      <button class="sb-lang-btn" id="sb-lang-ar" onclick="switchLang('ar')">
+        <span>🇮🇶 عربي</span>
+        <span class="sb-lang-check">✓</span>
+      </button>
+      <button class="sb-lang-btn" id="sb-lang-ku" onclick="switchLang('ku')">
+        <span>🏴 کوردی</span>
+        <span class="sb-lang-check">✓</span>
+      </button>
+      <button class="sb-lang-btn" id="sb-lang-en" onclick="switchLang('en')">
+        <span>🇬🇧 English</span>
+        <span class="sb-lang-check">✓</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 3: Theme -->
+  <div class="sb-section" style="padding-bottom:30px;">
+    <div class="sb-section-hdr" id="sb-theme-hdr">🎨 المظهر</div>
+    <div class="sb-theme-grid">
+      <button class="sb-theme-btn active" id="btn-theme-dark" onclick="setTheme('dark')">
+        <span class="th-icon">🌙</span>
+        <span id="lbl-theme-dark">ليلي</span>
+      </button>
+      <button class="sb-theme-btn" id="btn-theme-light" onclick="setTheme('light')">
+        <span class="th-icon">☀️</span>
+        <span id="lbl-theme-light">عادي</span>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: ADD CAR -->
+<div class="modal-overlay" id="modal-add-car">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-add-car')">✕</button>
+    <div class="modal-title" id="add-car-title">إضافة سيارة</div>
+    <div class="modal-sub"   id="add-car-sub">أدخل بيانات السيارة والسنوية</div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-car-name">اسم السيارة</label>
+      <input class="form-control" id="add-car-name" type="text" placeholder="كيا سبورتاج">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-car-type">نوع السيارة</label>
+      <select class="form-control" id="add-car-type">
+        <option value="1">تایبه‌ت (خصوصي)</option>
+        <option value="2">كرئ (أجرة)</option>
+        <option value="3">بارهه‌ڵگر (حمل)</option>
+        <option value="4">كشتوكاڵ (زراعي)</option>
+        <option value="5">بیناسازى (إنشائي)</option>
+        <option value="6">ماتۆرسكیل (دراجة نارية)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" id="lbl-plate">رقم اللوحة</label>
+        <input class="form-control" id="add-plate" type="number" placeholder="12345">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-letter">الحرف</label>
+        <select class="form-control" id="add-letter">
+          <option value="0">-- بلا --</option>
+          <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+          <option value="D">D</option><option value="E">E</option><option value="F">F</option>
+          <option value="G">G</option><option value="H">H</option><option value="I">I</option>
+          <option value="J">J</option><option value="K">K</option><option value="L">L</option>
+          <option value="M">M</option><option value="N">N</option><option value="O">O</option>
+          <option value="P">P</option><option value="Q">Q</option><option value="R">R</option>
+          <option value="S">S</option><option value="T">T</option><option value="U">U</option>
+          <option value="V">V</option><option value="W">W</option><option value="X">X</option>
+          <option value="Y">Y</option><option value="Z">Z</option>
         </select>
+      </div>
     </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-salyana">رقم السنوية</label>
+      <input class="form-control" id="add-salyana" type="number">
+    </div>
+    <button class="btn-primary" id="add-car-btn" onclick="saveCar()">حفظ السيارة</button>
+  </div>
 </div>
 
-<div id="workModal" class="fullscreen-modal">
-    <div class="modal-header">
-        <h3 data-key="daily_work_title">الدوام اليومي</h3>
-        <button class="close-btn" onclick="closeModal('workModal')">&times;</button>
+<!-- MODAL: CAR DETAIL + FINES -->
+<div class="modal-overlay" id="modal-car-detail">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-car-detail')">✕</button>
+    <div class="modal-title" id="d-car-name"></div>
+    <div class="modal-sub"   id="d-car-plate"></div>
+    <div class="car-detail-grid" id="d-grid"></div>
+    <div class="fines-summary-card" id="fines-summary-card">
+      <div class="fines-summary-left">
+        <span class="fines-summary-icon">📋</span>
+        <div>
+          <div class="fines-summary-label" id="fines-summary-label">الغرامات</div>
+          <div class="fines-summary-count muted" id="fines-summary-count">—</div>
+        </div>
+      </div>
+      <div class="fines-status-dot checking" id="fines-status-dot"></div>
     </div>
-    <div class="details-box">
-        <h4 data-key="start_work">بدء الدوام</h4>
-        <label data-key="current_km">الكيلومتر الحالي *</label>
-        <input type="number" inputmode="numeric" id="startKM">
-        <label data-key="meter_img">صورة العداد *</label>
-        <input type="file" accept="image/*" capture="environment" id="startKMImg">
-        <hr>
-        <h4 data-key="end_work">إنهاء الدوام</h4>
-        <label data-key="final_km">الكيلومتر النهائي *</label>
-        <input type="number" inputmode="numeric" id="endKM">
-        <label data-key="meter_img">صورة العداد *</label>
-        <input type="file" accept="image/*" capture="environment" id="endKMImg">
-        <button id="saveWorkBtn" onclick="saveWorkData()" style="background:#28a745; position: relative; overflow: hidden;">
-            <span class="btn-text" data-key="save_send">حفظ وإرسال</span>
-            <div class="spinner"></div>
-        </button>
-        <div id="kmMsg"></div>
-    </div>
+    <button class="btn-check" id="btn-check-fines" onclick="loadFines()">🔍 <span id="fines-btn-txt">عرض تفاصيل الغرامات</span></button>
+    <button class="btn-del" onclick="deleteCar()">🗑 <span id="del-btn-txt">حذف السيارة</span></button>
+  </div>
 </div>
-    
+
+<!-- MODAL: OIL -->
+<div class="modal-overlay" id="modal-oil">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal('modal-oil')">✕</button>
+    <div class="modal-title" id="oil-modal-title">سجل تغيير الزيت</div>
+    <div class="modal-sub"   id="oil-modal-sub">آخر تغيير مسجل</div>
+    <div class="oil-detail-grid" id="oil-entries"></div>
+    <div class="divider"></div>
+    <button class="btn-primary" onclick="toggleNewOilForm()">➕ <span id="new-oil-txt">تسجيل تغيير جديد</span></button>
+
+    <div id="new-oil-form" style="display:none;margin-top:18px">
+      <div class="divider"></div>
+      <div style="font-size:15px;font-weight:800;margin-bottom:14px" id="new-oil-title">تغيير زيت جديد</div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-oil-km">الكيلومتر الحالي</label>
+        <input class="form-control" id="oil-km" type="number" placeholder="85000" oninput="updateNextOilKm()">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-oil-interval">المسافة للتغيير القادم</label>
+        <select class="form-control" id="oil-interval" onchange="updateNextOilKm()">
+          <option value="0" id="opt-interval-none">-- اختر المسافة --</option>
+          <option value="3000">3,000 km</option>
+          <option value="5000">5,000 km</option>
+          <option value="8000">8,000 km</option>
+          <option value="10000">10,000 km</option>
+          <option value="15000">15,000 km</option>
+        </select>
+      </div>
+      <div class="next-oil-box" id="next-oil-box">
+        <div class="next-oil-box-label" id="next-oil-box-label">كيلومتر التغيير القادم</div>
+        <div class="next-oil-box-km" id="next-oil-box-km">—<span> km</span></div>
+        <div class="next-oil-box-diff" id="next-oil-box-diff"></div>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label class="form-label" id="lbl-oil-date">التاريخ</label>
+        <input class="form-control" id="oil-date" type="date">
+      </div>
+      <div class="form-group">
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="oil-filter">
+          <label for="oil-filter" id="lbl-filter">تم تغيير الفلتر أيضاً</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="lbl-oil-notes">ملاحظات</label>
+        <textarea class="form-control" id="oil-notes" rows="2" placeholder="..."></textarea>
+      </div>
+      <div class="form-group">
+        <div class="reminder-label-txt" id="lbl-reminder">تذكير بتغيير الزيت بعد</div>
+        <div class="reminder-row">
+          <input type="number" class="reminder-num" id="oil-reminder" min="0" max="999" placeholder="0" value="0">
+          <span class="reminder-unit" id="reminder-unit">يوم &nbsp;(0 = بلا تذكير)</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveOil()" id="save-oil-btn">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div id="pwa-banner">
+  <div class="pwa-top-row">
+    <div class="pwa-icon"><img src="logo.png" alt="RC Service"></div>
+    <div class="pwa-text">
+      <div class="pwa-title" id="pwa-title">ثبّت التطبيق</div>
+      <div class="pwa-sub" id="pwa-sub">أضف RC Service إلى شاشتك الرئيسية للوصول السريع</div>
+    </div>
+  </div>
+  <button class="btn-install" id="pwa-install-btn" onclick="installPWA()">📲 تثبيت التطبيق</button>
+</div>
+
+<div id="toast"></div>
+
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSvBWJ1HXnq1NKIesB-pas1iM6x2vVRnB7qbhtBDOa4Yzk8YV35_r-aR8QVnDgCbte/exec";
-
-let currentMode = 'new';
-let visitStartTime = localStorage.getItem('visitStartTime') ? parseInt(localStorage.getItem('visitStartTime')) : null;
-let startCoords = localStorage.getItem('startCoords') ? JSON.parse(localStorage.getItem('startCoords')) : null;
-let timerInterval;
-let isSending = false;
-
-let allClients = [];
-
-const translations = {
-    ar: {
-        modal_title: "صباح الخير", modal_body: "هل انت مستعد ليوم جديد", modal_btn: "OK",
-        login_title: "تسجيل الدخول", rep_name_label: "اسم المندوب *", city_label: "المدينة *", login_btn: "دخول للنظام",
-        tab_new: "عميل جديد", tab_regular: "عميل دائمي", start_visit: "بدء<br>الزيارة", active_visit: "زيارة<br>جارية", 
-        cancel_visit: "إلغاء الزيارة ✖", has_oil_label: "يمتلك زيت ريماكس؟*", choose: "", yes: "نعم", no: "لا",
-        ufi_label: "هل يمتلك فلتر UFI؟ *",
-        trade_name_label: "الاسم التجاري *", owner_name_label: "اسم المالك *", address_label: "العنوان *", phone_label: "رقم الهاتف *",
-        category_label: "الفئة *", garage: "كراج", wholesale: "جملة", retail: "مفرد", note_label: "ملاحظة",
-        rate_label: "التقييم *", visit_days_label: "ايام الزيارة*", other_oil_label: "نوع الزيت ماركة أخرى",
-        oil_grade_label: "درجة الزيت", distance_label: "المسافة", liter_price_label: "سعر اللتر", store_img_label: "صورة المتجر *",
-        client_name_label: "اسم العميل *", has_order_label: "هل تم عمل طلبية؟", order_amount_label: "مبلغ الطلبية *",
-        no_order_reason: "سبب عدم إنشاء طلبية *", has_payment_label: "هل تم قبض مبلغ؟", pay_amount_label: "مبلغ القبض *",
-        no_pay_reason: "سبب عدم القبض *", take_photo_label: "التقاط صورة *", send_data_btn: "إرسال البيانات",
-        alert_fill: "يرجى إدخال البيانات المطلوبة", alert_geo: "يجب تفعيل الموقع لبدء الزيارة", alert_cancel: "سيتم حذف توقيت الزيارة الحالية، هل أنت متأكد؟",
-        alert_dist: "المسافة بعيدة جداً", sending: "جاري الإرسال...", wait: "⏳ يرجى الانتظار، يتم رفع البيانات...", success: "✅ تم بنجاح", loading: "جاري تحديد الموقع...",
-        sat: "السبت", sun: "الأحد", mon: "الاثنين", tue: "الثلاثاء", wed: "الأربعاء", thu: "الخميس", fri: "الجمعه",
-        work_btn: "بدء الدوام", details_btn: "تفاصيل", details_title: "تفاصيل وتعديل العميل", 
-        edit_data: "تعديل البيانات", save_edits: "حفظ التعديلات", daily_work_title: "الدوام اليومي",
-        start_work: "بدء الدوام", current_km: "الكيلومتر الحالي *", meter_img: "صورة العداد *",
-        end_work: "إنهاء الدوام", final_km: "الكيلومتر النهائي *", save_send: "حفظ وإرسال"
-    },
-    ku: {
-        modal_title: "بەیانی باش", modal_body: "ئایا ئامادەی بۆ ڕۆژێکی نوێ؟", modal_btn: "OK",
-        login_title: "چوونە ژوورەوە", rep_name_label: "ناوی نوێنەر *", city_label: "شار *", login_btn: "چوونە ناو سیستم",
-        tab_new: "کڕیاری نوێ", tab_regular: "کڕیاری هەمیشەیی", start_visit: "دەستپێکی<br>سەردان", active_visit: "سەردان<br>بەردەوامە",
-        cancel_visit: "سڕینەوەی سەردان ✖", has_oil_label: "رونى ڕیماکسی هەیە؟*", choose: "", yes: "بەڵێ", no: "نەخێر",
-        ufi_label: "ئایا فلتری UFI هەیە؟ *",
-        trade_name_label: "ناوی بازرگانی *", owner_name_label: "ناوی خاوەن *", address_label: "ناونیشان *", phone_label: "ژمارەی مۆبایل *",
-        category_label: "پۆلێن *", garage: "گەراج", wholesale: "كو", retail: "تاک", note_label: "تێبینی",
-        rate_label: "هەڵسەنگاندن *", visit_days_label: "ڕۆژی سەردان*", other_oil_label: "جۆري زەیتی مارکەیەکی تر",
-        oil_grade_label: "پلەی رون", distance_label: "مەودا", liter_price_label: "نرخی لیتر", store_img_label: "وێنەی فرۆشگا *",
-        client_name_label: "ناوی کڕیار *", has_order_label: "ئایا داواکاری تۆمارکرا؟", order_amount_label: "بڕی داواکاری *",
-        no_order_reason: "هۆکاری تۆمارنەکردنی داواکاری *", has_payment_label: "ئایا پارە وەرگیرا؟", pay_amount_label: "بڕی وەرگیراو *",
-        no_pay_reason: "هۆکاری وەرنەگرتنی پارە *", take_photo_label: "وێنەگرتن *", send_data_btn: "ناردنی زانیارییەکان",
-        alert_fill: "تکایە زانیارییەکان پڕ بکەرەوە", alert_geo: "دەبێت شوێنێنەکەت چالاک بکەیت", alert_cancel: "کاتی سەردانەکە دەسڕێتەوە، دڵنیایت؟",
-        alert_dist: "مەوداکە زۆر دوورە", sending: "خەریکی ناردنە...", wait: "⏳ تکایە چاوەڕێ بکە، زانیارییەکان بەرزدەکرێنەوە...", success: "✅ بە سەرکەوتوویی تەواو بوو", loading: "دیاریکردنی شوێن...",
-        sat: "شەممە", sun: "یەکشەممە", mon: "دووشەممە", tue: "سێشەممە", wed: "چوارشەممە", thu: "پێنجشەممە", fri: "هەینی",
-        work_btn: "دەستپێکردنی کار", details_btn: "وردەکارییەکان", details_title: "وردەکاری و دەستکاری کڕیار", 
-        edit_data: "دەستکاری زانیارییەکان", save_edits: "پاشەکەوتکردنی گۆڕانکارییەکان", daily_work_title: "دەوامی ڕۆژانە",
-        start_work: "دەستپێکی دەوام", current_km: "کیلۆمەتری ئێستا *", meter_img: "وێنەی پێوەر *",
-        end_work: "کۆتایی دەوام", final_km: "کیلۆمەتری کۆتایی *", save_send: "پاشەکەوتکردن و ناردن"
-    }
+/* ─── CONFIG ─── */
+const CONFIG = {
+  SHEET_URL: 'https://script.google.com/macros/s/AKfycbwCuOelFQKX6iipf2Jou7ZPGCnuSiOu0XCPCxmubxM4G_4DIjZjWw7oS8StCd9FQlgw/exec',
+  COMPANY:{ whatsapp:'9647505009006', address:'Erbil,60 Mtr street next to Zirak Fish' },
+  ADV_FILES: [
+    'ADV/ad3.mp4'
+  ]
 };
 
-// =============================================
+/* ─── TRANSLATIONS ─── */
+const T={
+ar:{
+  regTitle:'معلومات السائق',regSub:'تُحفظ مرة واحدة فقط',
+  name:'الاسم الكامل',phone:'رقم الهاتف',city:'المدينة',dob:'تاريخ الميلاد',gender:'الجنس',
+  male:'ذكر',female:'أنثى',regBtn:'حفظ والمتابعة',
+  carsTitle:'سياراتي',noCars:'لا توجد سيارات. اضغط + لإضافة.',
+  oilTitle:'آخر تبديل زيت',oilSub:'اضغط لعرض التفاصيل',adText:'مساحة إعلانية',
+  addCarTitle:'إضافة سيارة',addCarSub:'أدخل بيانات السيارة والسنوية',
+  carName:'اسم السيارة',carType:'نوع السيارة',plate:'رقم اللوحة',letter:'الحرف',salyana:'رقم السنوية',
+  saveCarBtn:'حفظ السيارة',checkFines:'عرض تفاصيل الغرامات',finesLoading:'جارٍ تحميل الغرامات...',
+  finesSummaryLabel:'الغرامات المسجلة',finesChecking:'جارٍ الفحص...',finesNone:'لا غرامات ✓',finesFound:n=>`${n} غرامة`,finesUnknown:'اضغط للفحص',
+  feedbackTitle:'💬 أرسل ملاحظاتك',feedbackBtn:'إرسال',feedbackSending:'جاري الإرسال...',
+  companyTitle:'📍 RC Service',cWa:'واتساب',cAddr:'العنوان',
+  contactUs:'تواصل معنا',nearestAgent:'أقرب وكيل معتمد',
+  oilModalSub:'آخر تغيير مسجل',newOilBtn:'تسجيل تغيير جديد',
+  oilKm:'الكيلومتر الحالي',oilDate:'التاريخ',filterLbl:'تم تغيير الفلتر أيضاً',oilNotes:'ملاحظات',
+  oilInterval:'المسافة للتغيير القادم',oilIntervalNone:'-- اختر المسافة --',
+  nextOilLabel:'كيلومتر التغيير القادم',nextOilDiff:d=>`بعد ${d.toLocaleString('ar-IQ')} كم`,
+  remLbl:'تذكير بتغيير الزيت بعد',remUnit:'يوم  (0 = بلا تذكير)',
+  saveOil:'حفظ',newOilTitle:'تغيير زيت جديد',
+  oilAlertTitle:'تنبيه تغيير الزيت!',alertMsg:c=>`حان وقت تغيير زيت ${c}`,
+  saved:'تم الحفظ ✓',sent:'تم الإرسال ✓',error:'حدث خطأ',
+  fillAll:'يرجى تعبئة جميع الحقول',noFeedback:'اكتب ملاحظتك أولاً',
+  types:{1:'خصوصي',2:'أجرة',3:'حمل',4:'زراعي',5:'إنشائي',6:'دراجة نارية'},
+  filterYes:'✅ فلتر مُبدَّل',filterNo:'❌ لم يُبدَّل',km:'كم',
+  noOil:'لم يُسجَّل',noOilyet:'لا يوجد سجل بعد.',delConfirm:'حذف هذه السيارة؟',delBtn:'حذف السيارة',
+  nextKmLabel:'التغيير القادم',
+  pwaTitle:'ثبّت التطبيق',pwaSub:'أضف RC Service إلى شاشتك الرئيسية للوصول السريع',pwaInstall:'تثبيت',pwaLater:'لاحقاً',
+  cities:['اربيل','السليمانية','دهوك','كركوك','بغداد','البصرة','الموصل','النجف','أخرى'],
+  cityVals:['اربيل','السليمانية','دهوك','كركوك','بغداد','البصرة','الموصل','النجف','other'],
+  // Sidebar
+  sbMenu:'القائمة',sbProfile:'معلوماتي',sbQrLabel:'📱 باركود رقم الهاتف',
+  sbLang:'تغيير اللغة',sbTheme:'المظهر',
+  darkMode:'ليلي',lightMode:'عادي',
+  sbName:'الاسم',sbPhone:'الهاتف',sbCity:'المدينة',sbDob:'تاريخ الميلاد',sbGender:'الجنس',
+},
+ku:{
+  regTitle:'زانیاریەکانی شوفێر',regSub:'تەنها جارێک پاشەکەوت دەکرێت',
+  name:'ناوی تەواو',phone:'ژمارەی مۆبایل',city:'شار',dob:'بەرواری لەدایکبوون',gender:'رەگەز',
+  male:'نێر',female:'مێ',regBtn:'پاشەکەوتکردن',
+  carsTitle:'ئەوتۆمبێلەکانم',noCars:'هیچ ئەوتۆمبێلێک نییە. + دابگرە.',
+  oilTitle:'دوایین گۆڕینی رون',oilSub:'دابگرە بۆ بینینی وردەکاری',adText:'شوێنی ڕێکلام',
+  addCarTitle:'زیادکردنی ئەوتۆمبێل',addCarSub:'زانیاریەکانی ئەوتۆمبێل بنووسە',
+  carName:'ناوی ئەوتۆمبێل',carType:'جۆری ئەوتۆمبێل',plate:'ژمارەی لۆحە',letter:'پیت',salyana:'ژمارەی سالیانە',
+  saveCarBtn:'پاشەکەوتکردنی ئەوتۆمبێل',checkFines:'وردەکاریی سەرپێچی',finesLoading:'بار دەکرێت...',
+  finesSummaryLabel:'سەرپێچیەکان',finesChecking:'پشکنین...',finesNone:'سەرپێچی نییە ✓',finesFound:n=>`${n} سەرپێچی`,finesUnknown:'دابگرە بۆ پشکنین',
+  feedbackTitle:'💬 تێبینی خۆت بنێرە',feedbackBtn:'ناردن',feedbackSending:'دەنێردرێت...',
+  companyTitle:'📍 RC Service',cWa:'واتساب',cAddr:'ناونیشان',
+  contactUs:'پەیوەندیمان پێوەبکە',nearestAgent:'نزیکترین بریکارى فەرمی',
+  oilModalSub:'دوایین گۆڕین',newOilBtn:'تۆمارکردنی گۆڕینی نوێ',
+  oilKm:'کیلۆمەتری ئێستا',oilDate:'بەروار',filterLbl:'فیلتەرەکەش گۆڕدرا',oilNotes:'تێبینی',
+  oilInterval:'دووری بۆ گۆڕینی داهاتوو',oilIntervalNone:'-- دووری هەڵبژێرە --',
+  nextOilLabel:'کیلۆمەتری گۆڕینی داهاتوو',nextOilDiff:d=>`دوای ${d.toLocaleString()} کم`,
+  remLbl:'ئاگاداری دوای',remUnit:'ڕۆژ  (0 = بەبێ یادەوەری)',
+  saveOil:'پاشەکەوتکردن',newOilTitle:'گۆڕینی رونى نوێ',
+  oilAlertTitle:'ئاگادارکردنەوەی گۆڕینی رون!',alertMsg:c=>`کاتی گۆڕینی رونى ${c} گەیشتووە`,
+  saved:'پاشەکەوتکرا ✓',sent:'نێردرا ✓',error:'هەڵەیەک ڕوویدا',
+  fillAll:'تکایە هەموو خانەکان پڕبکەوە',noFeedback:'تێبینیەکەت بنووسە',
+  types:{1:'تایبەت',2:'كرێ',3:'بارهەڵگر',4:'کشتوکاڵ',5:'بیناسازی',6:'مۆتۆرسیکل'},
+  filterYes:'✅ فیلتەر گۆڕدرا',filterNo:'❌ نەگۆڕدرا',km:'کم',
+  noOil:'تۆمار نەکراوە',noOilyet:'هیچ گۆڕینێک تۆمار نەکراوە.',delConfirm:'ئەم ئەوتۆمبێلە بسڕیتەوە؟',delBtn:'سڕینەوە',
+  nextKmLabel:'گۆڕینی داهاتوو',
+  pwaTitle:'ئەپێکەت دادبنێ',pwaSub:'RC Service زیادبکە بۆ شاشەی سەرەکیەکەت',pwaInstall:'دادانان',pwaLater:'دواتر',
+  cities:['هەولێر','سلێمانی','دهۆک','کەرکووک','بەغداد','بەسرە','مووسڵ','نەجەف','ئەوتری'],
+  cityVals:['هەولێر','سلێمانی','دهۆک','کەرکووک','بەغداد','بەسرە','مووسڵ','نەجەف','other'],
+  // Sidebar
+  sbMenu:'مینیو',sbProfile:'زانیاریەکانم',sbQrLabel:'📱 باركۆدی مۆبایل',
+  sbLang:'گۆڕینی زمان',sbTheme:'ڕووکار',
+  darkMode:'شەوانە',lightMode:'ڕۆژانە',
+  sbName:'ناو',sbPhone:'مۆبایل',sbCity:'شار',sbDob:'بەروار',sbGender:'رەگەز',
+},
+en:{
+  regTitle:'Driver Information',regSub:'Saved once, never asked again',
+  name:'Full Name',phone:'Phone Number',city:'City',dob:'Date of Birth',gender:'Gender',
+  male:'Male',female:'Female',regBtn:'Save & Continue',
+  carsTitle:'My Vehicles',noCars:'No vehicles yet. Press + to add.',
+  oilTitle:'Last Oil Change',oilSub:'Tap to view details',adText:'Advertisement',
+  addCarTitle:'Add Vehicle',addCarSub:'Enter vehicle & license details',
+  carName:'Vehicle Name',carType:'Vehicle Type',plate:'Plate Number',letter:'Letter',salyana:'Annual License No.',
+  saveCarBtn:'Save Vehicle',checkFines:'View Fines Details',finesLoading:'Loading fines...',
+  finesSummaryLabel:'Recorded Fines',finesChecking:'Checking...',finesNone:'No fines ✓',finesFound:n=>`${n} fine(s)`,finesUnknown:'Tap to check',
+  feedbackTitle:'💬 Send Feedback',feedbackBtn:'Send',feedbackSending:'Sending...',
+  companyTitle:'📍 RC Service',cWa:'WhatsApp',cAddr:'Address',
+  contactUs:'Contact Us',nearestAgent:'Nearest Authorized Agent',
+  oilModalSub:'Last recorded change',newOilBtn:'Log New Oil Change',
+  oilKm:'Current Kilometers',oilDate:'Date',filterLbl:'Filter also replaced',oilNotes:'Notes',
+  oilInterval:'Distance to next change',oilIntervalNone:'-- Select distance --',
+  nextOilLabel:'Next oil change at',nextOilDiff:d=>`in ${d.toLocaleString()} km`,
+  remLbl:'Remind me after',remUnit:'days  (0 = no reminder)',
+  saveOil:'Save',newOilTitle:'New Oil Change',
+  oilAlertTitle:'Oil Change Reminder!',alertMsg:c=>`Time to change oil for ${c}`,
+  saved:'Saved ✓',sent:'Sent ✓',error:'An error occurred',
+  fillAll:'Please fill all required fields',noFeedback:'Please write your feedback first',
+  types:{1:'Private',2:'Taxi',3:'Cargo',4:'Agricultural',5:'Construction',6:'Motorcycle'},
+  filterYes:'✅ Filter replaced',filterNo:'❌ Not replaced',km:'km',
+  noOil:'Not recorded',noOilyet:'No oil changes recorded yet.',delConfirm:'Delete this vehicle?',delBtn:'Delete Vehicle',
+  nextKmLabel:'Next change',
+  pwaTitle:'Install App',pwaSub:'Add RC Service to your home screen for quick access',pwaInstall:'Install',pwaLater:'Later',
+  cities:['Erbil','Sulaymaniyah','Dohuk','Kirkuk','Baghdad','Basra','Mosul','Najaf','Other'],
+  cityVals:['Erbil','Sulaymaniyah','Dohuk','Kirkuk','Baghdad','Basra','Mosul','Najaf','other'],
+  // Sidebar
+  sbMenu:'Menu',sbProfile:'My Profile',sbQrLabel:'📱 Phone QR Code',
+  sbLang:'Change Language',sbTheme:'Appearance',
+  darkMode:'Dark',lightMode:'Light',
+  sbName:'Name',sbPhone:'Phone',sbCity:'City',sbDob:'Birthday',sbGender:'Gender',
+}};
 
-function verifyAccessCode() {
-    const input = document.getElementById('accessCode').value;
-    const correctCode = "Mm19941994Mm";
-    if(input === correctCode) {
-        localStorage.setItem('isVerified', 'true');
-        document.getElementById('securityModal').classList.add('hidden');
-    } else {
-        document.getElementById('errorCode').style.display = 'block';
-    }
-}
+/* ─── STATE ─── */
+let lang   = localStorage.getItem('rc_lang')  || null;
+let user   = JSON.parse(localStorage.getItem('rc_user')  || 'null');
+let cars   = JSON.parse(localStorage.getItem('rc_cars')  || '[]');
+let oilData= JSON.parse(localStorage.getItem('rc_oil')   || '{}');
+let finesCache = JSON.parse(localStorage.getItem('rc_finesCache') || '{}');
+let curCar=null;
+let theme  = localStorage.getItem('rc_theme') || 'dark';
 
-function checkDailyAppModal() {
-    const today = new Date().toLocaleDateString();
-    const lastOpen = localStorage.getItem('lastTraccarOpenDate');
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if (lastOpen !== today) {
-        const modal = document.getElementById('appModal');
-        modal.classList.remove('hidden');
-        document.getElementById('modalTitle').innerText = translations[lang].modal_title;
-        document.getElementById('modalBody').innerText = translations[lang].modal_body;
-        document.getElementById('openAppBtn').innerText = translations[lang].modal_btn;
-    }
-}
-
-function triggerAppOpening() {
-    const today = new Date().toLocaleDateString();
-    const appPackage = "org.traccar.client";
-    window.location.href = "intent://#Intent;scheme=org.traccar.client;package=" + appPackage + ";end";
-    document.getElementById('appModal').classList.add('hidden');
-    localStorage.setItem('lastTraccarOpenDate', today);
-}
-
-window.onload = () => {
-    if(localStorage.getItem('isVerified') === 'true') {
-        document.getElementById('securityModal').classList.add('hidden');
-    }
-    checkDailyAppModal();
-    const savedLang = localStorage.getItem('appLang') || 'ar';
-    document.getElementById('langSelect').value = savedLang;
-    changeLanguage(savedLang);
-    if(localStorage.repName) {
-        document.getElementById('login').classList.add('hidden');
-        document.getElementById('formBox').classList.remove('hidden');
-        if(visitStartTime) resumeVisit();
-        
-        // الترتيب المهم: setCurrentDay أولاً ثم fetchClientsData
-        setCurrentDay();
-        fetchClientsData();
-    }
-};
-
-function changeLanguage(lang) {
-    localStorage.setItem('appLang', lang);
-    document.documentElement.lang = lang;
-    document.documentElement.dir = "rtl"; 
-    
-    document.querySelectorAll('[data-key]').forEach(el => {
-        const key = el.getAttribute('data-key');
-        if (translations[lang][key]) {
-            if (el.id === 'startVisitBtn' && visitStartTime) {
-                el.innerHTML = translations[lang]['active_visit'];
-            } else {
-                el.innerHTML = translations[lang][key];
-            }
-        }
-    });
-
-    const clientSelect = document.getElementById('reg_clientName');
-    if (clientSelect && clientSelect.options[0] && clientSelect.options[0].value === "") {
-        clientSelect.options[0].text = (lang === 'ku') ? "کڕیار هەڵبژێرە..." : "اختر العميل...";
-    }
-}
-
-function saveLogin() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    const r = document.getElementById('repName').value.trim();
-    const c = document.getElementById('city').value.trim();
-    if(!r || !c) return alert(translations[lang].alert_fill);
-    localStorage.repName = r; localStorage.city = c;
-    location.reload();
-}
-
-function switchForm(mode) {
-    currentMode = mode;
-    document.getElementById('newClientForm').classList.toggle('hidden', mode !== 'new');
-    document.getElementById('regularClientForm').classList.toggle('hidden', mode !== 'regular');
-    document.getElementById('tabNew').classList.toggle('active', mode === 'new');
-    document.getElementById('tabRegular').classList.toggle('active', mode === 'regular');
-}
-
-// --------- وظائف جلب وتصفية العملاء ---------
-
-function setCurrentDay() {
-    const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعه", "السبت"];
-    const today = days[new Date().getDay()];
-    document.getElementById('reg_daySelect').value = today || "السبت";
-}
-
-function fetchClientsData() {
-    const repName = localStorage.repName;
-    console.log("جلب عملاء المندوب:", repName);
-    document.getElementById('reg_clientName').innerHTML = '<option value="">جاري جلب العملاء...</option>';
-    
-    fetch(`${SCRIPT_URL}?action=getClients&repName=${encodeURIComponent(repName)}`)
-    .then(res => res.json())
-    .then(data => {
-        console.log("البيانات المستلمة:", data);
-        
-        let clientList = [];
-        
-        // حالة 1: الخادم يرجع array مباشرة (النسخة القديمة من السكريبت)
-        if (Array.isArray(data)) {
-            console.log("تم استلام array - سيتم الفلترة محلياً");
-            // فلترة حسب اسم المندوب محلياً
-            clientList = data.filter(item => {
-                const itemRep = (item.Salesman || item.repName || "").toString().trim();
-                return itemRep === repName.trim();
-            }).map((item, idx) => ({
-                id: idx + 1,
-                tradeName: item["Trade Name"] || item.tradeName || "",
-                ownerName: item.Owner || item.ownerName || "",
-                address: item.Address || item.address || "",
-                phone: (item.Phone || item.phone || "").toString(),
-                category: item.Category || item.category || "",
-                note: item.Note || item.note || "",
-                rate: item.Rating || item.rate || "",
-                visitDays: (item["Visit Days"] || item.visitDays || "").toString().trim(),
-                useOil: item.Rymax || item.useOil || "",
-                hasUFI: item[""] || item.hasUFI || ""
-            }));
-        }
-        // حالة 2: الخادم يرجع {status, data} (النسخة الجديدة)
-        else if (data.status === 'success') {
-            clientList = data.data;
-        }
-        else {
-            console.error("استجابة غير متوقعة:", data);
-            document.getElementById('reg_clientName').innerHTML = '<option value="">لم يتم العثور على عملاء</option>';
-            return;
-        }
-        
-        // إزالة التكرارات (نفس الاسم + نفس اليوم)
-        const seen = {};
-        allClients = clientList.filter(c => {
-            if (!c.tradeName || !c.visitDays) return false;
-            const key = c.tradeName.trim() + "||" + c.visitDays.trim();
-            if (seen[key]) return false;
-            seen[key] = true;
-            return true;
-        });
-        
-        console.log("العملاء بعد الفلترة والتنظيف:", allClients.length);
-        filterClientsByDay();
-    })
-    .catch(err => {
-        console.error("خطأ في جلب العملاء:", err);
-        document.getElementById('reg_clientName').innerHTML = '<option value="">خطأ في الاتصال</option>';
-    });
-}
-
-function filterClientsByDay() {
-    const selectedDay = document.getElementById('reg_daySelect').value;
-    const selectElem = document.getElementById('reg_clientName');
-    selectElem.innerHTML = '<option value="">اختر العميل-کڕیار هەڵبژێرە</option>';
-    
-    const filtered = allClients.filter(c => 
-        c.visitDays && c.visitDays.toString().trim() === selectedDay.trim()
-    );
-
-    console.log("اليوم المحدد:", selectedDay);
-    console.log("العملاء بعد الفلترة:", filtered.length);
-
-    if (filtered.length === 0) {
-        console.warn("لا يوجد عملاء لهذا اليوم:", selectedDay);
-        console.warn("كل الأيام المتاحة:", [...new Set(allClients.map(c => c.visitDays))]);
-    }
-    
-    filtered.forEach(client => {
-        const option = document.createElement('option');
-        option.value = client.id || client.tradeName; 
-        option.text = client.tradeName;
-        selectElem.appendChild(option);
-    });
-    
-    toggleDetailsBtn();
-}
-
-function toggleDetailsBtn() {
-    const val = document.getElementById('reg_clientName').value;
-    document.getElementById('showDetailsBtn').classList.toggle('hidden', !val);
-}
-
-// --------- وظائف تفاصيل العميل وتعديله ---------
-
-function showClientDetails() {
-    const selectedValue = document.getElementById('reg_clientName').value;
-    const client = allClients.find(c => (c.id == selectedValue || c.tradeName === selectedValue));
-    
-    if(!client) return;
-
-    document.getElementById('edit_tradeName').value = client.tradeName || '';
-    document.getElementById('edit_ownerName').value = client.ownerName || '';
-    document.getElementById('edit_address').value = client.address || '';
-    document.getElementById('edit_phone').value = client.phone || '';
-    document.getElementById('edit_category').value = client.category || '';
-    document.getElementById('edit_note').value = client.note || '';
-    document.getElementById('edit_rate').value = client.rate || '';
-    document.getElementById('edit_visitDays').value = client.visitDays || '';
-    document.getElementById('edit_useOil').value = client.useOil || '';
-    document.getElementById('edit_hasUFI').value = client.hasUFI || '';
-
-    // ← احفظ الاسم الأصلي في زر الحفظ
-    document.getElementById('saveEditBtn').setAttribute('data-original-name', client.tradeName);
-
-    const fields = ['edit_tradeName','edit_ownerName','edit_address','edit_phone',
-                    'edit_category','edit_note','edit_rate','edit_visitDays','edit_useOil','edit_hasUFI'];
-    fields.forEach(id => document.getElementById(id).disabled = true);
-    
-    document.getElementById('enableEditBtn').classList.remove('hidden');
-    document.getElementById('saveEditBtn').classList.add('hidden');
-    document.getElementById('clientDetailsModal').style.display = 'block';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-function enableClientEdit() {
-    const fields = ['edit_tradeName', 'edit_ownerName', 'edit_address', 'edit_phone', 'edit_category', 'edit_note', 'edit_rate', 'edit_visitDays', 'edit_useOil', 'edit_hasUFI'];
-    fields.forEach(id => document.getElementById(id).disabled = false);
-    
-    document.getElementById('enableEditBtn').classList.add('hidden');
-    document.getElementById('saveEditBtn').classList.remove('hidden');
-}
-
-function saveClientEdit() {
-    const btn = document.getElementById('saveEditBtn');
-    btn.disabled = true;
-    btn.innerText = "جاري الحفظ...";
-
-    // الاسم الأصلي قبل التعديل (نحتاجه للبحث)
-    const originalTradeName = btn.getAttribute('data-original-name');
-
-    const updatedData = {
-        action: 'updateClient',
-        repName: localStorage.repName,         // ← أضفنا اسم المندوب
-        tradeName: originalTradeName,          // ← الاسم الأصلي للبحث
-        newTradeName: document.getElementById('edit_tradeName').value,
-        ownerName: document.getElementById('edit_ownerName').value,
-        address: document.getElementById('edit_address').value,
-        phone: document.getElementById('edit_phone').value,
-        category: document.getElementById('edit_category').value,
-        note: document.getElementById('edit_note').value,
-        rate: document.getElementById('edit_rate').value,
-        visitDays: document.getElementById('edit_visitDays').value,
-        useOil: document.getElementById('edit_useOil').value,
-        hasUFI: document.getElementById('edit_hasUFI').value,
-    };
-
-    fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(updatedData)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            btn.innerText = "تم الحفظ ✓";
-            setTimeout(() => {
-                closeModal('clientDetailsModal');
-                fetchClientsData();
-            }, 1500);
-        } else {
-            alert("خطأ: " + data.message);
-            btn.disabled = false;
-            btn.innerText = "حفظ التعديلات";
-        }
-    })
-    .catch(err => {
-        alert("حدث خطأ أثناء الحفظ");
-        btn.disabled = false;
-        btn.innerText = "حفظ التعديلات";
-    });
-}
-
-function toggleVisit() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    const btn = document.getElementById('startVisitBtn');
-    if(!visitStartTime) {
-        btn.disabled = true;
-        btn.innerHTML = translations[lang].loading;
-        navigator.geolocation.getCurrentPosition(pos => {
-            visitStartTime = Date.now();
-            startCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            localStorage.setItem('visitStartTime', visitStartTime);
-            localStorage.setItem('startCoords', JSON.stringify(startCoords));
-            resumeVisit();
-        }, () => {
-            alert(translations[lang].alert_geo);
-            btn.disabled = false;
-            btn.innerHTML = translations[lang].start_visit;
-        }, { enableHighAccuracy: true });
-    }
-}
-
-function resumeVisit() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    document.getElementById('timerDisplay').classList.remove('hidden');
-    document.getElementById('cancelVisitBtn').classList.remove('hidden');
-    const btn = document.getElementById('startVisitBtn');
-    btn.classList.add('active');
-    btn.innerHTML = translations[lang].active_visit;
-    btn.disabled = true;
-    if(timerInterval) clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        const diff = Date.now() - visitStartTime;
-        const h = Math.floor(diff/3600000).toString().padStart(2,'0');
-        const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
-        const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
-        document.getElementById('timerDisplay').innerText = `${h}:${m}:${s}`;
-    }, 1000);
-}
-
-function cancelVisit() {
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if(confirm(translations[lang].alert_cancel)) {
-        clearInterval(timerInterval);
-        localStorage.removeItem('visitStartTime');
-        localStorage.removeItem('startCoords');
-        visitStartTime = null;
-        startCoords = null;
-        const btn = document.getElementById('startVisitBtn');
-        btn.classList.remove('active');
-        btn.disabled = false;
-        btn.innerHTML = translations[lang].start_visit;
-        document.getElementById('timerDisplay').classList.add('hidden');
-        document.getElementById('cancelVisitBtn').classList.add('hidden');
-    }
-}
-
-function toggleOrderFields() {
-    const val = document.getElementById('reg_hasOrder').value;
-    document.getElementById('orderAmountBox').classList.toggle('hidden', val === 'لا');
-    document.getElementById('orderReasonBox').classList.toggle('hidden', val === 'نعم');
-}
-
-function togglePaymentFields() {
-    const val = document.getElementById('reg_hasPayment').value;
-    document.getElementById('payAmountBox').classList.toggle('hidden', val === 'لا');
-    document.getElementById('payReasonBox').classList.toggle('hidden', val === 'نعم');
-}
-
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3;
-    const φ1 = lat1 * Math.PI/180; const φ2 = lat2 * Math.PI/180;
-    const Δφ = (lat2-lat1) * Math.PI/180; const Δλ = (lon2-lon1) * Math.PI/180;
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-function getTodayKey(){
-    const d = new Date();
-    return d.getFullYear() + "-" + 
-           String(d.getMonth()+1).padStart(2,'0') + "-" +
-           String(d.getDate()).padStart(2,'0');
-}
-
-function checkOldKM() {
-    const today = getTodayKey();
-    const savedDate = localStorage.getItem("kmDate");
-    if (savedDate && savedDate !== today) {
-        localStorage.removeItem("kmStart");
-        localStorage.removeItem("kmDate");
-    }
-}
-
-checkOldKM();
-    
-function openWorkModal() {
-    document.getElementById("workModal").style.display = "block";
-    const saved = localStorage.getItem("kmStart");
-    if (saved) {
-        const data = JSON.parse(saved);
-        document.getElementById("startKM").value = data.km;
-    }
-}
-
-async function saveWorkData() {
-    const btn = document.getElementById('saveWorkBtn');
-    const btnText = btn.querySelector('.btn-text');
-    const spinner = btn.querySelector('.spinner');
-
-    if(btn.classList.contains('sending')) return;
-
-    btn.classList.add('sending');
-    btn.disabled = true;
-    btnText.innerText = "جاري الإرسال...";
-
-    const repName = localStorage.repName;
-    const startKM = document.getElementById("startKM").value;
-    const endKM = document.getElementById("endKM").value;
-    const startImgFile = document.getElementById("startKMImg").files[0];
-    const endImgFile = document.getElementById("endKMImg").files[0];
-    const kmMsg = document.getElementById("kmMsg");
-
-    if (startKM && startImgFile && !endKM) {
-        compressImage(startImgFile, function(base64){
-            const data = {
-                km: startKM,
-                image: base64,
-                startTime: new Date().toISOString()
-            };
-            localStorage.setItem("kmStart", JSON.stringify(data));
-            localStorage.setItem("kmDate", getTodayKey());
-            kmMsg.innerHTML = "دەستپێکردنی کارکردن پاشەکەوت کراوە✅ تم حفظ بدء الدوام";
-
-// إرسال وقت البدء إلى StartTimes
-fetch(SCRIPT_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        action: "saveStartTime",
-        repName: repName,
-        startTime: data.startTime
-    })
+/* ─── INIT ─── */
+document.addEventListener('DOMContentLoaded',()=>{
+  initTheme();
+  initPWA();
+  if(!lang){show('screen-lang');return;}
+  applyLang(lang);
+  if(!user){show('screen-register');return;}
+  show('screen-main');renderMain();checkAlerts();applyCompany();initADV();
+  setTimeout(startBackgroundFinesCheck, 1500);
 });
-        });
-        return;
-    }
 
-    if (!localStorage.getItem("kmStart")) {
-        alert("يجب تسجيل بدء الدوام أولاً");
-        return;
-    }
-
-    if (!endKM || !endImgFile) {
-        alert("أدخل بيانات الإنهاء");
-        return;
-    }
-
-    const startData = JSON.parse(localStorage.getItem("kmStart"));
-    const distance = endKM - startData.km;
-
-    compressImage(endImgFile, function(endBase64){
-        fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                action: "saveKM",
-                repName: repName,
-                startKM: startData.km,
-                startTime: startData.startTime,
-                startImage: startData.image,
-                endKM: endKM,
-                endTime: new Date().toISOString(),
-                endImage: endBase64,
-                distance: distance
-            })
-        }).then(() => {
-            localStorage.removeItem("kmStart");
-            localStorage.removeItem("kmDate");
-            kmMsg.innerHTML = "✅ تم إرسال الدوام بنجاح";
-            setTimeout(()=>location.reload(),1500);
-        });
-    });
+/* ─── THEME ─── */
+function initTheme(){
+  applyTheme(theme);
 }
-    
-function compressImage(file, callback) {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = function(event) {
-        const img = new Image();
-        img.src = event.target.result;
-        img.onload = function() {
-            const canvas = document.createElement('canvas');
-            const MAX_WIDTH = 800;
-            let width = img.width;
-            let height = img.height;
-            if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width;
-                width = MAX_WIDTH;
-            }
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            const compressed = canvas.toDataURL('image/jpeg', 0.7);
-            callback(compressed);
-        };
-    };
+function setTheme(t){
+  theme=t;
+  localStorage.setItem('rc_theme',t);
+  applyTheme(t);
+  updateThemeButtons();
+  // Regenerate QR with correct colors when theme changes
+  if(user && user.phone){
+    setTimeout(()=>renderSidebarQR(user.phone), 50);
+  }
+}
+function applyTheme(t){
+  document.body.classList.toggle('light-mode', t==='light');
+}
+function updateThemeButtons(){
+  const btnD=document.getElementById('btn-theme-dark');
+  const btnL=document.getElementById('btn-theme-light');
+  if(btnD) btnD.classList.toggle('active', theme==='dark');
+  if(btnL) btnL.classList.toggle('active', theme==='light');
 }
 
-function clearErrors() {
-    document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+/* ─── SIDEBAR ─── */
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebar-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  renderSidebar();
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.body.style.overflow='';
 }
 
-function markError(id) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.classList.add('field-error');
-        el.addEventListener('input', () => el.classList.remove('field-error'), { once: true });
-        el.addEventListener('change', () => el.classList.remove('field-error'), { once: true });
-    }
+function renderSidebar(){
+  const t=T[lang]||T['ar'];
+
+  // Update texts
+  set('sb-menu-label', t.sbMenu);
+  set('sb-profile-hdr', '👤 '+t.sbProfile);
+  set('sb-qr-label', t.sbQrLabel);
+  set('sb-lang-hdr', '🌐 '+t.sbLang);
+  set('sb-theme-hdr', '🎨 '+t.sbTheme);
+  set('lbl-theme-dark', t.darkMode);
+  set('lbl-theme-light', t.lightMode);
+
+  // Active language highlight
+  ['ar','ku','en'].forEach(l=>{
+    const btn=document.getElementById('sb-lang-'+l);
+    if(btn) btn.classList.toggle('active', l===lang);
+  });
+
+  // Theme buttons
+  updateThemeButtons();
+
+  // Profile info
+  const body=document.getElementById('sb-profile-body');
+  if(user && body){
+    const genderMap={male:t.male||'ذكر', female:t.female||'أنثى'};
+    body.innerHTML=`
+      <div class="sb-info-row"><span class="sb-info-icon">👤</span><span class="sb-info-val">${user.name||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">📱</span><span class="sb-info-val" style="direction:ltr;text-align:start">${user.phone||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">🏙️</span><span class="sb-info-val">${user.city||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">🎂</span><span class="sb-info-val" style="direction:ltr;text-align:start">${user.dob||'—'}</span></div>
+      <div class="sb-info-row"><span class="sb-info-icon">⚧</span><span class="sb-info-val">${genderMap[user.gender]||user.gender||'—'}</span></div>
+    `;
+    // QR code
+    renderSidebarQR(user.phone);
+  } else if(body){
+    body.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:10px 0">—</div>';
+    document.getElementById('sb-qr-wrap').style.display='none';
+  }
 }
 
-async function handleSend() {
-    if(isSending) return;
-    const lang = localStorage.getItem('appLang') || 'ar';
-    if(!visitStartTime) return alert(translations[lang].start_visit.replace('<br>', ' '));
+let qrRendered=false;
+let lastQrPhone='';
 
-    clearErrors();
-    let hasError = false;
+function renderSidebarQR(phone){
+  const container=document.getElementById('sb-qr-code');
+  const phoneEl=document.getElementById('sb-qr-phone');
+  if(!container) return;
 
-    if (currentMode === 'new') {
-        const reqNew = ['useOil', 'hasUFI', 'tradeName', 'ownerName', 'address', 'phone', 'category', 'rate', 'visitDays'];
-        for (let id of reqNew) {
-            if (!document.getElementById(id).value.trim()) {
-                markError(id);
-                hasError = true;
-            }
+  // Rebuild if phone changed or first time
+  if(phone===lastQrPhone && qrRendered && container.children.length>0){
+    // Just update colors if theme changed
+    return;
+  }
+
+  container.innerHTML='';
+  qrRendered=false;
+
+  if(!phone){
+    document.getElementById('sb-qr-wrap').style.display='none';
+    return;
+  }
+
+  document.getElementById('sb-qr-wrap').style.display='flex';
+  if(phoneEl) phoneEl.textContent=phone;
+
+  const isDark = theme==='dark';
+  const qrDark = '#f5a623';
+  const qrLight = isDark ? '#1a2035' : '#f0f3fa';
+
+  try{
+    if(typeof QRCode !== 'undefined'){
+      new QRCode(container,{
+        text: 'tel:+'+phone.replace(/\D/g,''),
+        width:160,height:160,
+        colorDark: qrDark,
+        colorLight: qrLight,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      qrRendered=true;
+      lastQrPhone=phone;
+      // Style the generated element
+      setTimeout(()=>{
+        const img=container.querySelector('img');
+        const canvas=container.querySelector('canvas');
+        const el=img||canvas;
+        if(el){
+          el.style.borderRadius='10px';
+          el.style.display='block';
         }
-        if (document.getElementById('imageInputNew').files.length === 0) {
-            markError('imageInputNew');
-            hasError = true;
-        }
+      },100);
     } else {
-        if (!document.getElementById('reg_clientName').value.trim()) {
-            markError('reg_clientName');
-            hasError = true;
-        }
-        const hasOrder = document.getElementById('reg_hasOrder').value;
-        if (hasOrder === 'نعم' && !document.getElementById('reg_orderAmount').value.trim()) {
-            markError('reg_orderAmount');
-            hasError = true;
-        }
-        if (hasOrder === 'لا' && !document.getElementById('reg_orderReason').value.trim()) {
-            markError('reg_orderReason');
-            hasError = true;
-        }
-        const hasPayment = document.getElementById('reg_hasPayment').value;
-        if (hasPayment === 'نعم' && !document.getElementById('reg_payAmount').value.trim()) {
-            markError('reg_payAmount');
-            hasError = true;
-        }
-        if (hasPayment === 'لا' && !document.getElementById('reg_payReason').value.trim()) {
-            markError('reg_payReason');
-            hasError = true;
-        }
-        if (document.getElementById('imageInputReg').files.length === 0) {
-            markError('imageInputReg');
-            hasError = true;
-        }
+      // Fallback: show phone prominently
+      container.innerHTML=`<div style="font-size:13px;color:var(--muted);padding:10px;text-align:center">QR library loading...</div>`;
+    }
+  }catch(e){
+    container.innerHTML=`<div style="font-size:12px;color:var(--muted);padding:10px">${phone}</div>`;
+  }
+}
+
+/* Switch language from sidebar (stays on current screen) */
+function switchLang(l){
+  lang=l;
+  localStorage.setItem('rc_lang',l);
+  applyLang(l);
+  if(user){
+    renderMain();checkAlerts();
+  }
+  // Re-render sidebar texts
+  renderSidebar();
+  toast(T[l].saved,'success');
+}
+
+/* ─── ADV SLIDESHOW ─── */
+let advIndex=0;
+let advTimer=null;
+const IMAGE_EXT=['jpg','jpeg','png','gif','webp'];
+const VIDEO_EXT=['mp4','webm','ogg'];
+
+function isVideo(path){return VIDEO_EXT.some(e=>path.toLowerCase().endsWith('.'+e));}
+
+function initADV(){
+  const files=CONFIG.ADV_FILES.filter(f=>f&&f.trim());
+  const container=document.getElementById('adv-slides');
+  const dotsEl=document.getElementById('adv-dots');
+  container.innerHTML='';dotsEl.innerHTML='';
+
+  if(!files.length){
+    document.getElementById('adv-banner').innerHTML='<span class="ad-label">AD</span><div class="ad-placeholder" style="display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--muted);font-size:13px;padding:30px"><div style="font-size:28px">📢</div><div id="ad-text">مساحة إعلانية</div></div>';
+    return;
+  }
+
+  const validFiles=files.filter(f=>{
+    const ext=f.split('.').pop().toLowerCase();
+    return IMAGE_EXT.includes(ext)||VIDEO_EXT.includes(ext);
+  });
+
+  if(!validFiles.length){return;}
+
+  validFiles.forEach((file,i)=>{
+    const slide=document.createElement('div');
+    slide.className='ad-slide'+(i===0?' active':'');
+    slide.id='adv-slide-'+i;
+
+    if(isVideo(file)){
+      const vid=document.createElement('video');
+      vid.src=file;vid.muted=true;vid.loop=true;vid.autoplay=true;
+      vid.playsInline=true;vid.controls=false;
+      vid.style.cssText='width:100%;max-height:200px;object-fit:cover;display:block;background:#000;';
+      slide.appendChild(vid);
+    } else {
+      const img=document.createElement('img');
+      img.src=file;img.alt='';img.loading='lazy';
+      img.onerror=()=>{slide.remove();};
+      slide.appendChild(img);
+    }
+    container.appendChild(slide);
+
+    if(validFiles.length>1){
+      const dot=document.createElement('div');
+      dot.className='ad-dot'+(i===0?' active':'');
+      dot.id='adv-dot-'+i;
+      dot.onclick=()=>goToSlide(i);
+      dotsEl.appendChild(dot);
+    }
+  });
+
+  if(validFiles.length>1){startAdvTimer(validFiles);}
+  playCurrentVideo();
+}
+
+function playCurrentVideo(){
+  const slide=document.querySelector('.ad-slide.active');
+  if(!slide)return;
+  const vid=slide.querySelector('video');
+  if(vid){vid.play().catch(()=>{});}
+}
+
+function startAdvTimer(files){
+  clearInterval(advTimer);
+  advTimer=setInterval(()=>{
+    advIndex=(advIndex+1)%files.length;
+    goToSlide(advIndex);
+  },5000);
+}
+
+function goToSlide(idx){
+  const allSlides=document.querySelectorAll('.ad-slide');
+  const allDots=document.querySelectorAll('.ad-dot');
+  allSlides.forEach((s,i)=>{
+    s.classList.remove('active');
+    const v=s.querySelector('video');if(v&&i!==idx){v.pause();}
+  });
+  allDots.forEach(d=>d.classList.remove('active'));
+  advIndex=idx;
+  const target=document.getElementById('adv-slide-'+idx);
+  if(target){
+    target.classList.add('active');
+    const vid=target.querySelector('video');
+    if(vid){vid.currentTime=0;vid.play().catch(()=>{});}
+  }
+  const dot=document.getElementById('adv-dot-'+idx);
+  if(dot)dot.classList.add('active');
+}
+
+/* ─── PWA ─── */
+let deferredPrompt=null;
+const IS_STANDALONE=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+
+function initPWA(){
+  if(IS_STANDALONE){return;}
+  window.addEventListener('beforeinstallprompt',(e)=>{
+    e.preventDefault();
+    deferredPrompt=e;
+  });
+  showPWABanner();
+}
+
+function showPWABanner(){
+  if(IS_STANDALONE){return;}
+  document.getElementById('pwa-banner').classList.add('show');
+  updatePWAText();
+}
+
+function updatePWAText(){
+  const t=T[lang||'ar'];if(!t)return;
+  set('pwa-title',t.pwaTitle);
+  set('pwa-sub',t.pwaSub);
+  const btn=document.getElementById('pwa-install-btn');
+  if(btn)btn.textContent='📲 '+t.pwaInstall;
+}
+
+async function installPWA(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const choice=await deferredPrompt.userChoice;
+    deferredPrompt=null;
+    if(choice.outcome==='accepted'){
+      document.getElementById('pwa-banner').classList.remove('show');
+    }
+  } else {
+    const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+    if(isIOS){
+      alert(lang==='en'?'Tap the Share button ↑ then "Add to Home Screen"':lang==='ku'?'بۆتۆنی هاوبەشکردن ↑ دابگرە پاشان "زیادکردن بۆ شاشەی سەرەکی"':'اضغط زر المشاركة ↑ ثم "إضافة إلى الشاشة الرئيسية"');
+    }
+  }
+}
+
+/* ─── LANG ─── */
+function selectLang(l){lang=l;localStorage.setItem('rc_lang',l);applyLang(l);show('screen-register');}
+
+function applyLang(l){
+  const t=T[l];
+  document.documentElement.lang=l==='en'?'en':'ar';
+  document.documentElement.dir =l==='en'?'ltr':'rtl';
+  document.body.classList.toggle('ltr',l==='en');
+
+  set('reg-title',t.regTitle);set('reg-sub',t.regSub);
+  set('lbl-name',t.name);set('lbl-phone',t.phone);set('lbl-city',t.city);
+  set('lbl-dob',t.dob);set('lbl-gender',t.gender);set('reg-submit',t.regBtn);
+  set('opt-male',t.male);set('opt-female',t.female);
+
+  const cs=document.getElementById('reg-city');
+  cs.innerHTML='<option value="">--</option>';
+  t.cities.forEach((c,i)=>{const o=document.createElement('option');o.value=t.cityVals[i];o.textContent=c;cs.appendChild(o);});
+
+  set('cars-title',t.carsTitle);set('no-cars-text',t.noCars);
+  set('oil-section-title',t.oilTitle);set('oil-section-sub',t.oilSub);
+  set('add-car-title',t.addCarTitle);set('add-car-sub',t.addCarSub);
+  set('lbl-car-name',t.carName);set('lbl-car-type',t.carType);
+  set('lbl-plate',t.plate);set('lbl-letter',t.letter);set('lbl-salyana',t.salyana);
+  set('add-car-btn',t.saveCarBtn);
+  set('fines-btn-txt',t.checkFines);
+  set('del-btn-txt',t.delBtn);
+  set('new-oil-txt',t.newOilBtn);set('lbl-oil-km',t.oilKm);set('lbl-oil-date',t.oilDate);
+  set('lbl-filter',t.filterLbl);set('lbl-oil-notes',t.oilNotes);
+  set('lbl-oil-interval',t.oilInterval);set('opt-interval-none',t.oilIntervalNone);
+  set('next-oil-box-label',t.nextOilLabel);
+  set('lbl-reminder',t.remLbl);set('reminder-unit',t.remUnit);
+  set('save-oil-btn',t.saveOil);set('new-oil-title',t.newOilTitle);
+  set('feedback-title',t.feedbackTitle);set('feedback-btn',t.feedbackBtn);
+  set('company-title',t.companyTitle);
+  set('lbl-cwa',t.cWa+':');set('lbl-caddr',t.cAddr+':');
+  set('oil-alert-title',t.oilAlertTitle);
+  set('fines-summary-label',t.finesSummaryLabel);
+  set('lbl-contact-us',t.contactUs);
+  set('lbl-nearest-agent',t.nearestAgent);
+  updatePWAText();
+}
+function set(id,v){const e=document.getElementById(id);if(e)e.textContent=v;}
+
+/* ─── SCREENS ─── */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* ─── REGISTER ─── */
+async function submitRegistration(){
+  const t=T[lang];
+  const name=get('reg-name').trim(),phone=get('reg-phone').trim(),city=get('reg-city'),dob=get('reg-dob'),gender=get('reg-gender');
+  if(!name||!phone||!city||!dob){toast(t.fillAll,'error');return;}
+  user={name,phone,city,dob,gender};
+  localStorage.setItem('rc_user',JSON.stringify(user));
+  sendSheet({sheet:'users',name,phone,city,dob,gender,timestamp:new Date().toISOString()});
+  show('screen-main');renderMain();checkAlerts();applyCompany();initADV();toast(t.saved,'success');
+  setTimeout(startBackgroundFinesCheck, 1500);
+}
+
+/* ─── CARS ─── */
+function openAddCar(){openModal('modal-add-car');}
+
+function saveCar(){
+  const t=T[lang];
+  const name=get('add-car-name').trim(),type=get('add-car-type'),
+        number=get('add-plate').trim(),letter=get('add-letter'),salyana=get('add-salyana').trim();
+  if(!name||!number||!salyana){toast(t.fillAll,'error');return;}
+  const newCar={id:Date.now(),name,type,number,letter,salyana};
+  cars.push(newCar);
+  saveCars();closeModal('modal-add-car');
+  document.getElementById('add-car-name').value='';
+  document.getElementById('add-plate').value='';
+  document.getElementById('add-salyana').value='';
+  renderMain();toast(t.saved,'success');
+  setTimeout(()=>backgroundCheckFines(newCar), 800);
+}
+function saveCars(){localStorage.setItem('rc_cars',JSON.stringify(cars));}
+function saveFinesCache(){localStorage.setItem('rc_finesCache', JSON.stringify(finesCache));}
+
+function renderMain(){renderCars();renderOilList();}
+
+function renderCars(){
+  const t=T[lang];
+  const el=document.getElementById('cars-list');
+  if(!cars.length){el.innerHTML=`<div class="no-cars"><span>🚗</span><div>${t.noCars}</div></div>`;return;}
+  el.innerHTML=cars.map(c=>{
+    const icon=c.type==6?'🏍️':c.type==3?'🚛':'🚗';
+    const cached=finesCache[c.id];
+    let badgeCls='car-fines-badge',badgeTxt='🔍';
+    if(cached){
+      if(cached.count==='0'){badgeCls+=' no-fines';badgeTxt='✓ 0';}
+      else if(cached.count==='checking'){badgeCls+=' checking';badgeTxt='⏳';}
+      else if(cached.count==='?'){badgeCls='car-fines-badge';badgeTxt='?';}
+      else{badgeCls+=' has-fines';badgeTxt=cached.total?`⚠${cached.count} · ${cached.total}`:`⚠ ${cached.count}`;}
+    }
+    return`<div class="car-card" onclick="openCarDetail(${c.id})">
+      <span class="car-icon">${icon}</span>
+      <div class="car-info">
+        <div class="car-name">${c.name}</div>
+        <div class="car-plate">${c.number}${c.letter!=='0'?' - '+c.letter:''}</div>
+      </div>
+      <div class="${badgeCls}" id="badge-${c.id}">${badgeTxt}</div>
+    </div>`;
+  }).join('');
+}
+
+function startBackgroundFinesCheck(){
+  cars.forEach((c,i)=>{
+    const cache = finesCache[c.id];
+    const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+    const stuck = cache && cache.count === 'checking' && age > 120000;
+    const needsCheck =
+      !cache
+      || (cache.count !== '?' && age > 86400000)
+      || (cache.count === '?' && age > 3600000)
+      || stuck;
+    if(needsCheck){
+      setTimeout(()=>backgroundCheckFines(c), i * 2200);
+    }
+  });
+}
+
+async function backgroundCheckFines(c){
+  const cache = finesCache[c.id];
+  const age   = (cache && cache.checkedAt) ? Date.now() - cache.checkedAt : Infinity;
+  if(cache && cache.checkedAt && cache.count !== '?' && cache.count !== 'checking' && age < 86400000) return;
+  if(cache && cache.count === 'checking' && age < 120000) return;
+
+  const oldValid = (cache && cache.count !== 'checking' && cache.count !== '?' && cache.checkedAt)
+    ? {...cache} : null;
+
+  finesCache[c.id] = {
+    count: 'checking',
+    total: oldValid ? oldValid.total : '',
+    checkedAt: oldValid ? oldValid.checkedAt : null
+  };
+  updateBadge(c.id, 'checking', '');
+
+  const targetUrl = `https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;
+  const body = new URLSearchParams({
+    'Sinif': c.type, 'plate': c.number,
+    'PlateChar': c.letter, 'SanNumber': c.salyana
+  });
+  const proxies = [
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+  ];
+
+  let html = '';
+  for(const proxyFn of proxies){
+    try{
+      const res = await fetch(proxyFn(targetUrl), {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded','x-requested-with':'XMLHttpRequest'},
+        body: body.toString()
+      });
+      if(res.ok){ html = await res.text(); if(html.length > 30) break; }
+    }catch(e){ continue; }
+    if(html.length > 30) break;
+  }
+
+  if(html.length < 30){
+    if(oldValid){
+      finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
+    } else {
+      finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
+    }
+    saveFinesCache();
+    const restored = finesCache[c.id];
+    updateBadge(c.id, restored.count, restored.total || '');
+    if(curCar === c.id) refreshFinesSummaryCard(c.id);
+    return;
+  }
+
+  try{
+    const countMatch = html.match(/ژماره‌?ى\s+سه‌?رپێچى[^\d]*(\d+)/) ||
+                       html.match(/عدد المخالفات[^\d]*(\d+)/i) ||
+                       html.match(/Total[^:]*:\s*(\d+)/i);
+    const totalMatch = html.match(/بڕى\s+گشتى[^\d]*([\d,]+)/) ||
+                       html.match(/المجموع الكلي[^\d]*([\d,]+)/i) ||
+                       html.match(/Total Amount[^\d]*([\d,]+)/i);
+
+    let count = '0', total = '';
+    if(countMatch){ count = countMatch[1].trim(); }
+    else{ const rows = (html.match(/<tr[\s>]/gi)||[]).length; count = rows > 1 ? String(rows-1) : '0'; }
+
+    if(totalMatch){
+      const raw = parseInt(totalMatch[1].replace(/,/g,''));
+      total = raw >= 1000 ? Math.round(raw/1000)+'K' : String(raw);
     }
 
-    if (hasError) {
-        // تمرير تلقائي لأول حقل خاطئ
-        const firstError = document.querySelector('.field-error');
-        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
+    finesCache[c.id] = {count, total, checkedAt: Date.now()};
+    saveFinesCache();
+    updateBadge(c.id, count, total);
+    if(curCar === c.id) refreshFinesSummaryCard(c.id);
+
+  }catch(err){
+    if(oldValid){
+      finesCache[c.id] = {...oldValid, checkedAt: Date.now() - 82800000};
+    } else {
+      finesCache[c.id] = {count: '?', total: '', checkedAt: Date.now()};
     }
-    const btn = document.getElementById('sendBtn');
-    const msg = document.getElementById('msg');
-    isSending = true;
-    btn.disabled = true;
-    btn.innerText = translations[lang].loading;
+    saveFinesCache();
+    const restored = finesCache[c.id];
+    updateBadge(c.id, restored.count, restored.total || '');
+    if(curCar === c.id) refreshFinesSummaryCard(c.id);
+  }
+}
 
-    navigator.geolocation.getCurrentPosition(async pos => {
-        const dist = getDistance(startCoords.lat, startCoords.lng, pos.coords.latitude, pos.coords.longitude);
-        if(dist > 2000) { 
-            alert(`${translations[lang].alert_dist} (${Math.round(dist)}m).`); 
-            isSending = false; btn.disabled = false; btn.innerText = translations[lang].send_data_btn;
-            return; 
-        }
+function loadFines(){
+  const c=cars.find(x=>x.id===curCar);if(!c)return;
+  if(!finesCache[c.id] || finesCache[c.id].count !== 'checking'){
+    if(finesCache[c.id]) finesCache[c.id].checkedAt = 1;
+    backgroundCheckFines(c);
+    pollFinesSummary(c.id);
+  }
+  const form=document.createElement('form');
+  form.method='POST';form.action=`https://htp.moi.gov.krd/fines_form_data_${c.type}.php`;form.target='_blank';
+  const fields={'Sinif':c.type,'plate':c.number,'PlateChar':c.letter==='0'?'':c.letter,'SanNumber':c.salyana};
+  for(const key in fields){const input=document.createElement('input');input.type='hidden';input.name=key;input.value=fields[key];form.appendChild(input);}
+  document.body.appendChild(form);form.submit();document.body.removeChild(form);
+}
 
-        btn.innerText = translations[lang].sending;
-        msg.innerText = translations[lang].wait;
-        const durationMin = Math.floor((Date.now() - visitStartTime) / 60000) + " min";
-        
-        let data = { 
-            sheetName: currentMode === 'new' ? 'data' : 'Clients', 
-            repName: localStorage.repName, 
-            city: localStorage.city, 
-            duration: durationMin, 
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude
-        };
+function updateBadge(id,count,total){
+  const b=document.getElementById('badge-'+id);if(!b)return;
+  if(count==='checking'){b.className='car-fines-badge checking';b.textContent='⏳';}
+  else if(count==='0'){b.className='car-fines-badge no-fines';b.textContent='✓ 0';}
+  else if(count==='?'||!count){b.className='car-fines-badge';b.textContent='?';}
+  else{b.className='car-fines-badge has-fines';b.textContent=total?`⚠${count} · ${total}`:`⚠ ${count}`;}
+}
 
-        const fileInput = currentMode === 'new' ? document.getElementById('imageInputNew') : document.getElementById('imageInputReg');
-        const file = fileInput.files[0];
+function openCarDetail(carId){
+  const t=T[lang];
+  const c=cars.find(x=>x.id===carId);if(!c)return;
+  curCar=carId;
+  set('d-car-name',c.name);
+  set('d-car-plate',`${c.number}${c.letter!=='0'?' - '+c.letter:''}  |  ${t.types[c.type]}`);
+  document.getElementById('d-grid').innerHTML=`
+    <div class="car-detail-item"><div class="car-detail-label">${t.plate}</div><div class="car-detail-value">${c.number}</div></div>
+    <div class="car-detail-item"><div class="car-detail-label">${t.letter}</div><div class="car-detail-value">${c.letter!=='0'?c.letter:'—'}</div></div>
+    <div class="car-detail-item"><div class="car-detail-label">${t.salyana}</div><div class="car-detail-value">${c.salyana}</div></div>
+    <div class="car-detail-item"><div class="car-detail-label">${t.carType}</div><div class="car-detail-value">${t.types[c.type]}</div></div>`;
+  refreshFinesSummaryCard(carId);
+  const cached=finesCache[carId];
+  if(!cached||cached.count==='checking'){if(!cached)backgroundCheckFines(c);pollFinesSummary(carId);}
+  set('fines-btn-txt',t.checkFines);
+  openModal('modal-car-detail');
+}
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                let width = img.width;
-                let height = img.height;
-                if (width > MAX_WIDTH) {
-                    height *= MAX_WIDTH / width;
-                    width = MAX_WIDTH;
-                }
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                
-                if(currentMode === 'new') {
-                    data.tradeName = document.getElementById('tradeName').value;
-                    data.ownerName = document.getElementById('ownerName').value;
-                    data.useOil = document.getElementById('useOil').value;
-                    data.hasUFI = document.getElementById('hasUFI').value;
-                    data.address = document.getElementById('address').value;
-                    data.phone = document.getElementById('phone').value;
-                    data.category = document.getElementById('category').value;
-                    data.note = document.getElementById('note').value;
-                    data.rate = document.getElementById('rate').value;
-                    data.visitDays = document.getElementById('visitDays').value;
-                    data.oilType = document.getElementById('oilType').value;
-                    data.oilGrade = document.getElementById('oilGrade').value;
-                    data.oilDistance = document.getElementById('oilDistance').value;
-                    data.oilPrice = document.getElementById('oilPrice').value;
-                } else {
-                    const select = document.getElementById('reg_clientName');
-                    data.clientName = select.options[select.selectedIndex].text;
-                    data.hasOrder = document.getElementById('reg_hasOrder').value;
-                    data.orderAmount = document.getElementById('reg_orderAmount').value;
-                    data.orderReason = document.getElementById('reg_orderReason').value;
-                    data.hasPayment = document.getElementById('reg_hasPayment').value;
-                    data.payAmount = document.getElementById('reg_payAmount').value;
-                    data.payReason = document.getElementById('reg_payReason').value;
-                    data.note = document.getElementById('reg_note').value;
-                }
+function refreshFinesSummaryCard(carId){
+  const t=T[lang];
+  const cached=finesCache[carId];
+  const dot=document.getElementById('fines-status-dot');
+  const countEl=document.getElementById('fines-summary-count');
+  set('fines-summary-label',t.finesSummaryLabel);
+  if(!cached||cached.count==='checking'){
+    dot.className='fines-status-dot checking';
+    countEl.className='fines-summary-count muted';
+    countEl.textContent=t.finesChecking;
+  } else if(cached.count==='0'){
+    dot.className='fines-status-dot done-ok';
+    countEl.className='fines-summary-count green';
+    countEl.textContent=t.finesNone;
+  } else if(cached.count==='?'){
+    dot.className='fines-status-dot';
+    countEl.className='fines-summary-count muted';
+    countEl.textContent=t.finesUnknown;
+  } else {
+    dot.className='fines-status-dot done-bad';
+    countEl.className='fines-summary-count red';
+    const totalTxt=cached.total?` · ${cached.total}`:'';
+    countEl.textContent=t.finesFound(cached.count)+totalTxt;
+  }
+}
 
-                data.image = compressedBase64;
+function pollFinesSummary(carId){
+  let attempts=0;
+  const interval=setInterval(()=>{
+    attempts++;
+    const cached=finesCache[carId];
+    if(!cached||cached.count==='checking'){if(attempts>40)clearInterval(interval);return;}
+    clearInterval(interval);
+    if(curCar===carId){refreshFinesSummaryCard(carId);updateBadge(carId,cached.count,cached.total||'');}
+  },500);
+}
 
-                fetch(SCRIPT_URL, {
-                    method: "POST",
-                    mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                }).then(() => {
-                    msg.innerText = translations[lang].success;
-                    localStorage.removeItem('visitStartTime');
-                    localStorage.removeItem('startCoords');
-                    setTimeout(() => location.reload(), 2000);
-                }).catch(err => {
-                    alert("خطأ في الاتصال، حاول مرة أخرى");
-                    isSending = false; btn.disabled = false;
-                });
-            };
-        };
-    }, () => {
-        alert(translations[lang].alert_geo);
-        isSending = false; btn.disabled = false;
-    }, { enableHighAccuracy: true });
+function deleteCar(){
+  if(!confirm(T[lang].delConfirm))return;
+  cars=cars.filter(c=>c.id!==curCar);
+  delete oilData[curCar];delete finesCache[curCar];
+  saveCars();localStorage.setItem('rc_oil',JSON.stringify(oilData));
+  saveFinesCache();
+  closeModal('modal-car-detail');renderMain();toast(T[lang].saved,'success');
+}
+
+/* ─── OIL ─── */
+function toggleOil(){
+  document.getElementById('oil-body').classList.toggle('open');
+  document.getElementById('oil-chevron').classList.toggle('open');
+}
+
+function renderOilList(){
+  const t=T[lang];
+  const el=document.getElementById('oil-cars-list');
+  if(!cars.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:10px 0">${t.noCars}</div>`;return;}
+  el.innerHTML=cars.map(c=>{
+    const e=(oilData[c.id]||[]),last=e[e.length-1];
+    return`<div class="oil-car-item" onclick="openOilModal(${c.id})">
+      <div class="oil-car-header">
+        <div class="oil-car-name">${c.name}</div>
+        ${last?`<div class="oil-km-badge">${last.km} ${t.km}</div>`:`<div class="oil-km-badge" style="color:var(--muted);border-color:var(--border)">${t.noOil}</div>`}
+      </div>
+      <div class="oil-date">${last?last.date:''} ${last&&last.nextKm?`<span style="color:var(--gold)">→ ${Number(last.nextKm).toLocaleString()} km</span>`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+function openOilModal(carId){
+  const t=T[lang];
+  const c=cars.find(x=>x.id===carId);if(!c)return;
+  curCar=carId;
+  set('oil-modal-title',c.name);set('oil-modal-sub',t.oilModalSub);
+  document.getElementById('new-oil-form').style.display='none';
+  const entries=oilData[carId]||[];
+  const el=document.getElementById('oil-entries');
+  if(!entries.length){el.innerHTML=`<div style="color:var(--muted);font-size:14px;text-align:center;padding:14px 0">${t.noOilyet}</div>`;}
+  else{
+    el.innerHTML=[...entries].reverse().map(e=>`
+      <div class="oil-detail-card">
+        <div class="oil-detail-header">
+          <div class="oil-detail-km">${e.km}<span style="font-size:14px;font-weight:400"> ${t.km}</span></div>
+          <div class="oil-detail-date">${e.date}</div>
+        </div>
+        <div class="oil-detail-meta">
+          <span class="oil-tag ${e.filter?'':'no'}">${e.filter?t.filterYes:t.filterNo}</span>
+          ${e.remind>0?`<span class="oil-tag">🔔 ${e.remind} ${t.km==='km'?'d':'يوم'}</span>`:''}
+          ${e.nextKm?`<span class="oil-tag" style="background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.35);color:var(--gold)">→ ${Number(e.nextKm).toLocaleString()} ${t.km}</span>`:''}
+        </div>
+        ${e.notes?`<div class="oil-notes">${e.notes}</div>`:''}
+      </div>`).join('');
+  }
+  document.getElementById('oil-date').value=today();
+  document.getElementById('oil-km').value='';
+  document.getElementById('oil-notes').value='';
+  document.getElementById('oil-filter').checked=false;
+  document.getElementById('oil-reminder').value='0';
+  document.getElementById('oil-interval').value='0';
+  document.getElementById('next-oil-box').style.display='none';
+  openModal('modal-oil');
+}
+
+function toggleNewOilForm(){
+  const f=document.getElementById('new-oil-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+}
+
+function updateNextOilKm(){
+  const kmVal=parseInt(document.getElementById('oil-km').value)||0;
+  const interval=parseInt(document.getElementById('oil-interval').value)||0;
+  const box=document.getElementById('next-oil-box');
+  const t=T[lang];
+  if(kmVal>0&&interval>0){
+    const nextKm=kmVal+interval;
+    document.getElementById('next-oil-box-km').innerHTML=`${nextKm.toLocaleString()}<span> km</span>`;
+    document.getElementById('next-oil-box-diff').textContent=t.nextOilDiff(interval);
+    box.style.display='block';
+  } else {box.style.display='none';}
+}
+
+function saveOil(){
+  const t=T[lang];
+  const km=document.getElementById('oil-km').value.trim();
+  const date=document.getElementById('oil-date').value;
+  const filter=document.getElementById('oil-filter').checked;
+  const notes=document.getElementById('oil-notes').value.trim();
+  const remind=parseInt(document.getElementById('oil-reminder').value)||0;
+  const interval=parseInt(document.getElementById('oil-interval').value)||0;
+  const nextKm=(km&&interval>0)?String(parseInt(km)+interval):'';
+  if(!km||!date){toast(t.fillAll,'error');return;}
+  if(!oilData[curCar])oilData[curCar]=[];
+  oilData[curCar].push({km,date,filter,notes,remind,nextKm,ts:Date.now()});
+  localStorage.setItem('rc_oil',JSON.stringify(oilData));
+  document.getElementById('new-oil-form').style.display='none';
+  openOilModal(curCar);renderOilList();checkAlerts();toast(t.saved,'success');
+}
+
+function checkAlerts(){
+  const t=T[lang];if(!t)return;
+  const todayMs=new Date().setHours(0,0,0,0);
+  const msgs=[];
+  cars.forEach(c=>{
+    const e=oilData[c.id]||[];if(!e.length)return;
+    const last=e[e.length-1];if(!last.remind)return;
+    const due=new Date(last.date);due.setDate(due.getDate()+last.remind);
+    if(due.setHours(0,0,0,0)<=todayMs)msgs.push(t.alertMsg(c.name));
+  });
+  const el=document.getElementById('oil-alert');
+  if(msgs.length){set('oil-alert-msg',msgs.join(' | '));el.classList.add('show');}
+  else el.classList.remove('show');
+}
+
+/* ─── FEEDBACK ─── */
+async function submitFeedback(){
+  const t=T[lang];
+  const text=document.getElementById('feedback-text').value.trim();
+  if(!text){toast(t.noFeedback,'error');return;}
+  const btn=document.getElementById('feedback-btn');
+  btn.textContent=t.feedbackSending;btn.disabled=true;btn.classList.add('btn-sending');
+  try{
+    await sendSheet({sheet:'feedback',name:user?.name||'',phone:user?.phone||'',feedback:text,timestamp:new Date().toISOString()});
+    document.getElementById('feedback-text').value='';
+    toast(t.sent,'success');
+  }catch(e){toast(t.error,'error');}
+  finally{btn.textContent=t.feedbackBtn;btn.disabled=false;btn.classList.remove('btn-sending');}
+}
+
+/* ─── COMPANY ─── */
+function applyCompany(){
+  const w=document.getElementById('company-wa'),a=document.getElementById('company-addr');
+  if(w){w.textContent=CONFIG.COMPANY.whatsapp?'+'+CONFIG.COMPANY.whatsapp:'';w.href=`https://wa.me/${CONFIG.COMPANY.whatsapp}`;}
+  if(a)a.textContent=CONFIG.COMPANY.address;
+}
+
+/* ─── SHEETS ─── */
+async function sendSheet(data){
+  if(CONFIG.SHEET_URL.includes('YOUR_SCRIPT')){console.warn('Sheet URL not set:',data);return;}
+  try{
+    await fetch(CONFIG.SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  }catch(e){console.error(e);}
+}
+
+/* ─── HELPERS ─── */
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function get(id){const e=document.getElementById(id);return e?e.value:'';}
+function today(){return new Date().toISOString().split('T')[0];}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o)closeModal(o.id);});
+});
+
+// Close sidebar on Escape key
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') closeSidebar();
+});
+
+let toastT;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  clearTimeout(toastT);el.textContent=msg;el.className=`show ${type}`;
+  toastT=setTimeout(()=>el.className='',2800);
+}
+
+/* ─── SERVICE WORKER ─── */
+if('serviceWorker' in navigator){
+  const swCode=`
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>clients.claim());
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(
+    caches.open('rc-v1').then(async cache=>{
+      try{
+        const res=await fetch(e.request);
+        cache.put(e.request,res.clone());
+        return res;
+      }catch{
+        return cache.match(e.request);
+      }
+    })
+  );
+});`;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
+  const swURL=URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swURL,{scope:'./'}).catch(()=>{});
 }
 </script>
 </body>
