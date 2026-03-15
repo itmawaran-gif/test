@@ -2,249 +2,120 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة بيانات العملاء</title>
+    <title>لوحة بيانات جوجل شيت</title>
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 800px;
-            margin-bottom: 40px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h2 { text-align: center; color: #333; }
-        .error-msg { color: red; text-align: center; font-weight: bold; display: none; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        .bg-teal { background-color: #8ab6b6; color: #000; }
-        .bg-gold { background-color: #d4ac0d; color: #000; }
-        .bg-purple { background-color: #a569bd; color: #000; }
-        .bg-cyan { background-color: #00ffff; color: #000; }
-        .bg-orange { background-color: #f39c12; color: #000; }
-        .bg-light-orange { background-color: #f8c471; color: #000; }
-        .bg-light-pink { background-color: #f5b7b1; color: #000; }
-        .text-brown { color: #8b4513; font-size: 20px; }
-        .title-red { color: red; font-size: 18px; margin: 10px 0; }
-        .bg-dark-purple { background-color: #4a154b; color: #fff; font-size: 18px; }
-        .bg-red { background-color: #ff0000; color: #000; }
-        .text-large { font-size: 20px; color: #000; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 850px; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: center; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 12px; font-size: 17px; font-weight: bold; overflow: hidden; }
+        .bg-teal { background-color: #8ab6b6; }
+        .bg-gold { background-color: #d4ac0d; }
+        .bg-purple { background-color: #a569bd; }
+        .bg-cyan { background-color: #00ffff; }
+        .bg-orange { background-color: #f39c12; }
+        .bg-light-orange { background-color: #f8c471; }
+        .bg-light-pink { background-color: #f5b7b1; }
+        .bg-dark-purple { background-color: #4a154b; color: #fff; }
+        .bg-red { background-color: #ff0000; }
+        .text-brown { color: #8b4513; font-size: 22px; }
+        .title-red { color: red; font-size: 20px; margin: 10px 0; text-align: center; font-weight: bold; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; color: #444; }
+        .loading { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
 
-    <div id="error-message" class="error-msg">تعذر جلب البيانات. تأكد من إدخال ID الشيت الصحيح وأن الشيت "متاح لأي شخص لديه الرابط".</div>
-
     <div class="container">
         <h2>تفاصيل الفيديو (Sheet1)</h2>
-        
         <table>
-            <tr>
-                <th class="bg-teal">not Edite</th>
-                <th class="bg-teal">not Aprove</th>
-                <th class="bg-teal">not Published</th>
-            </tr>
-            <tr>
-                <td id="vid-not-edite">...</td>
-                <td id="vid-not-aprove">...</td>
-                <td id="vid-not-published">...</td>
-            </tr>
+            <tr><th class="bg-teal">not Edite</th><th class="bg-teal">not Aprove</th><th class="bg-teal">not Published</th></tr>
+            <tr><td id="vid-I2">-</td><td id="vid-J2">-</td><td id="vid-K2">-</td></tr>
         </table>
-
-        <div class="title-red" style="text-align: center; font-weight: bold;">Published 2026</div>
-        
+        <div class="title-red">Published 2026</div>
         <table>
-            <tr>
-                <th class="bg-gold">Rymax</th>
-                <th class="bg-purple">Mawaran</th>
-                <th class="bg-cyan">RC</th>
-                <th class="bg-orange">Client</th>
-            </tr>
-            <tr>
-                <td id="pub-rymax">...</td>
-                <td id="pub-mawaran">...</td>
-                <td id="pub-rc">...</td>
-                <td id="pub-client">...</td>
-            </tr>
+            <tr><th class="bg-gold">Rymax</th><th class="bg-purple">Mawaran</th><th class="bg-cyan">RC</th><th class="bg-orange">Client</th></tr>
+            <tr><td id="vid-H5">-</td><td id="vid-I5">-</td><td id="vid-J5">-</td><td id="vid-K5">-</td></tr>
         </table>
-
         <table>
-            <tr>
-                <th class="bg-light-orange">Edited this month Video</th>
-                <th class="bg-light-pink">Edited Previous month Video</th>
-            </tr>
-            <tr>
-                <td class="text-brown" id="edit-this-month">...</td>
-                <td class="text-brown" id="edit-prev-month">...</td>
-            </tr>
-            <tr>
-                <th class="bg-light-orange">this month By Danyar</th>
-                <th class="bg-light-pink">Previous month By Danyar</th>
-            </tr>
-            <tr>
-                <td class="text-brown" id="danyar-this-month">...</td>
-                <td class="text-brown" id="danyar-prev-month">...</td>
-            </tr>
-            <tr>
-                <th class="bg-light-orange">this month Photo</th>
-                <th class="bg-light-pink">Previous month Photo</th>
-            </tr>
-            <tr>
-                <td class="text-brown" id="photo-this-month">...</td>
-                <td class="text-brown" id="photo-prev-month">...</td>
-            </tr>
+            <tr><th class="bg-light-orange">Edited this month Video</th><th class="bg-light-pink">Edited Previous month Video</th></tr>
+            <tr><td class="text-brown" id="vid-H7">-</td><td class="text-brown" id="vid-J7">-</td></tr>
+            <tr><th class="bg-light-orange">this month By Danyar</th><th class="bg-light-pink">Previous month By Danyar</th></tr>
+            <tr><td class="text-brown" id="vid-H9">-</td><td class="text-brown" id="vid-J9">-</td></tr>
+            <tr><th class="bg-light-orange">this month Photo</th><th class="bg-light-pink">Previous month Photo</th></tr>
+            <tr><td class="text-brown" id="vid-H11">-</td><td class="text-brown" id="vid-J11">-</td></tr>
         </table>
     </div>
 
     <div class="container">
         <h2>تفاصيل الإعلانات (Sponsore)</h2>
-        
+        <div class="title-red" style="background: #4a154b; color: white; padding: 5px;">This month</div>
         <table>
-            <tr>
-                <th colspan="5" class="bg-dark-purple">This month</th>
-            </tr>
-            <tr>
-                <th class="bg-orange">Rymax</th>
-                <th class="bg-orange">Mawaran</th>
-                <th class="bg-orange">RC</th>
-                <th class="bg-orange">clint</th>
-                <th class="bg-red">TOTAL</th>
-            </tr>
-            <tr>
-                <td class="text-large" id="spon-this-rymax">...</td>
-                <td class="text-large" id="spon-this-mawaran">...</td>
-                <td class="text-large" id="spon-this-rc">...</td>
-                <td class="text-large" id="spon-this-client">...</td>
-                <td class="text-large" style="font-weight: 900;" id="spon-this-total">...</td>
-            </tr>
+            <tr><th class="bg-orange">Rymax</th><th class="bg-orange">Mawaran</th><th class="bg-orange">RC</th><th class="bg-orange">clint</th><th class="bg-red">TOTAL</th></tr>
+            <tr><td id="sp-H4">-</td><td id="sp-I4">-</td><td id="sp-J4">-</td><td id="sp-K4">-</td><td id="sp-L4">-</td></tr>
         </table>
-
+        <div class="title-red" style="background: #4a154b; color: white; padding: 5px;">Previous month</div>
         <table>
-            <tr>
-                <th colspan="5" class="bg-dark-purple">Previous month</th>
-            </tr>
-            <tr>
-                <th class="bg-orange">Rymax</th>
-                <th class="bg-orange">Mawaran</th>
-                <th class="bg-orange">RC</th>
-                <th class="bg-orange">clint</th>
-                <th class="bg-red">TOTAL</th>
-            </tr>
-            <tr>
-                <td class="text-large" id="spon-prev-rymax">...</td>
-                <td class="text-large" id="spon-prev-mawaran">...</td>
-                <td class="text-large" id="spon-prev-rc">...</td>
-                <td class="text-large" id="spon-prev-client">...</td>
-                <td class="text-large" style="font-weight: 900;" id="spon-prev-total">...</td>
-            </tr>
+            <tr><th class="bg-orange">Rymax</th><th class="bg-orange">Mawaran</th><th class="bg-orange">RC</th><th class="bg-orange">clint</th><th class="bg-red">TOTAL</th></tr>
+            <tr><td id="sp-H8">-</td><td id="sp-I8">-</td><td id="sp-J8">-</td><td id="sp-K8">-</td><td id="sp-L8">-</td></tr>
         </table>
     </div>
 
     <script>
-        // === هام جداً: ضع ID ملف جوجل شيت الخاص بك هنا ===
-        const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE'; 
+        const SHEET_ID = '17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q';
 
-        // دالة لجلب البيانات وتحديد نطاق الأعمدة (H إلى L)
-        async function fetchSheetData(sheetName) {
-            // نحدد النطاق H1:L15 لكي يكون العمود H هو رقم 0، و I هو 1 ...إلخ
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}&range=H1:L15`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Network response error');
-                const data = await response.text();
-                return parseCSV(data);
-            } catch (error) {
-                console.error('Error fetching data from ' + sheetName, error);
-                document.getElementById('error-message').style.display = 'block';
-                return [];
-            }
-        }
+        google.charts.load('current', {packages:['corechart']});
+        google.charts.setOnLoadCallback(drawSheet);
 
-        // دالة معالجة الـ CSV لتنظيف البيانات وإزالة علامات التنصيص
-        function parseCSV(str) {
-            const rows = str.trim().split('\n');
-            return rows.map(row => {
-                let cleanRow = row.trim();
-                if (cleanRow.startsWith('"') && cleanRow.endsWith('"')) {
-                    cleanRow = cleanRow.substring(1, cleanRow.length - 1);
-                    return cleanRow.split('","');
-                }
-                return cleanRow.split(',');
+        function drawSheet() {
+            // جلب بيانات Sheet1
+            const query1 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sheet1&range=H1:L15`);
+            query1.send(response1 => {
+                if (response1.isError()) return;
+                const data = response1.getDataTable();
+                
+                // تعبئة البيانات (العمود H هو 0، I هو 1، J هو 2، K هو 3)
+                // الصفوف في البرمجة تبدأ من 0، لذا الصف 2 في الشيت هو 1 في الكود
+                document.getElementById('vid-I2').innerText = data.getValue(1, 1); // I2
+                document.getElementById('vid-J2').innerText = data.getValue(1, 2); // J2
+                document.getElementById('vid-K2').innerText = data.getValue(1, 3); // K2
+                
+                document.getElementById('vid-H5').innerText = data.getValue(4, 0); // H5
+                document.getElementById('vid-I5').innerText = data.getValue(4, 1); // I5
+                document.getElementById('vid-J5').innerText = data.getValue(4, 2); // J5
+                document.getElementById('vid-K5').innerText = data.getValue(4, 3); // K5
+
+                document.getElementById('vid-H7').innerText = data.getValue(6, 0); // H7
+                document.getElementById('vid-J7').innerText = data.getValue(6, 2); // J7
+
+                document.getElementById('vid-H9').innerText = data.getValue(8, 0); // H9
+                document.getElementById('vid-J9').innerText = data.getValue(8, 2); // J9
+
+                document.getElementById('vid-H11').innerText = data.getValue(10, 0); // H11
+                document.getElementById('vid-J11').innerText = data.getValue(10, 2); // J11
+            });
+
+            // جلب بيانات Sponsore
+            const query2 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sponsore&range=H1:L15`);
+            query2.send(response2 => {
+                if (response2.isError()) return;
+                const data = response2.getDataTable();
+
+                // الشهر الحالي (الصف 4 في الشيت = Index 3)
+                document.getElementById('sp-H4').innerText = data.getValue(3, 0);
+                document.getElementById('sp-I4').innerText = data.getValue(3, 1);
+                document.getElementById('sp-J4').innerText = data.getValue(3, 2);
+                document.getElementById('sp-K4').innerText = data.getValue(3, 3);
+                document.getElementById('sp-L4').innerText = data.getValue(3, 4);
+
+                // الشهر السابق (الصف 8 في الشيت = Index 7)
+                document.getElementById('sp-H8').innerText = data.getValue(7, 0);
+                document.getElementById('sp-I8').innerText = data.getValue(7, 1);
+                document.getElementById('sp-J8').innerText = data.getValue(7, 2);
+                document.getElementById('sp-K8').innerText = data.getValue(7, 3);
+                document.getElementById('sp-L8').innerText = data.getValue(7, 4);
             });
         }
-
-        // دالة توزيع البيانات على الواجهة
-        async function loadDashboard() {
-            // -- 1. جلب بيانات Sheet1 --
-            const sheet1Data = await fetchSheetData('Sheet1');
-            if (sheet1Data.length > 0) {
-                // بناءً على الصورة الثانية:
-                // الصف 2 (Index 1) يحتوي على بيانات I, J, K
-                document.getElementById('vid-not-edite').innerText = sheet1Data[1][1] || 0;     // الخلية I2
-                document.getElementById('vid-not-aprove').innerText = sheet1Data[1][2] || 0;    // الخلية J2
-                document.getElementById('vid-not-published').innerText = sheet1Data[1][3] || 0; // الخلية K2
-
-                // الصف 5 (Index 4) يحتوي على البيانات المنشورة
-                document.getElementById('pub-rymax').innerText = sheet1Data[4][0] || 0;   // الخلية H5
-                document.getElementById('pub-mawaran').innerText = sheet1Data[4][1] || 0; // الخلية I5
-                document.getElementById('pub-rc').innerText = sheet1Data[4][2] || 0;      // الخلية J5
-                document.getElementById('pub-client').innerText = sheet1Data[4][3] || 0;  // الخلية K5
-                
-                // الصف 7 (Index 6)
-                document.getElementById('edit-this-month').innerText = sheet1Data[6][0] || 0; // الخلية H7
-                document.getElementById('edit-prev-month').innerText = sheet1Data[6][2] || 0; // الخلية J7
-                
-                // الصف 9 (Index 8)
-                document.getElementById('danyar-this-month').innerText = sheet1Data[8][0] || 0; // الخلية H9
-                document.getElementById('danyar-prev-month').innerText = sheet1Data[8][2] || 0; // الخلية J9
-                
-                // الصف 11 (Index 10)
-                document.getElementById('photo-this-month').innerText = sheet1Data[10][0] || 0; // الخلية H11
-                document.getElementById('photo-prev-month').innerText = sheet1Data[10][2] || 0; // الخلية J11
-            }
-
-            // -- 2. جلب بيانات Sponsore --
-            const sponsoreData = await fetchSheetData('Sponsore');
-            if (sponsoreData.length > 0) {
-                // بناءً على الصورة الأولى:
-                // الصف 4 (Index 3) يحتوي على بيانات الشهر الحالي
-                document.getElementById('spon-this-rymax').innerText = sponsoreData[3][0] || 0;   // الخلية H4
-                document.getElementById('spon-this-mawaran').innerText = sponsoreData[3][1] || 0; // الخلية I4
-                document.getElementById('spon-this-rc').innerText = sponsoreData[3][2] || 0;      // الخلية J4
-                document.getElementById('spon-this-client').innerText = sponsoreData[3][3] || 0;  // الخلية K4
-                document.getElementById('spon-this-total').innerText = sponsoreData[3][4] || 0;   // الخلية L4
-
-                // الصف 8 (Index 7) يحتوي على بيانات الشهر السابق
-                document.getElementById('spon-prev-rymax').innerText = sponsoreData[7][0] || 0;   // الخلية H8
-                document.getElementById('spon-prev-mawaran').innerText = sponsoreData[7][1] || 0; // الخلية I8
-                document.getElementById('spon-prev-rc').innerText = sponsoreData[7][2] || 0;      // الخلية J8
-                document.getElementById('spon-prev-client').innerText = sponsoreData[7][3] || 0;  // الخلية K8
-                document.getElementById('spon-prev-total').innerText = sponsoreData[7][4] || 0;   // الخلية L8
-            }
-        }
-
-        // تشغيل الأكواد بمجرد اكتمال تحميل الصفحة
-        window.onload = loadDashboard;
     </script>
 </body>
 </html>
