@@ -1,207 +1,766 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة إحصائيات الإنتاج</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet" />
 
-<script src="https://www.gstatic.com/charts/loader.js"></script>
+  <style>
+    :root {
+      --bg:         #07090f;
+      --bg2:        #0c1020;
+      --bg3:        #111827;
+      --border:     rgba(255,255,255,0.07);
+      --border2:    rgba(255,255,255,0.12);
 
-<style>
+      --red:    #ff4d6d;
+      --amber:  #ffb347;
+      --cyan:   #00e5ff;
+      --purple: #b06eff;
+      --green:  #00e676;
+      --pink:   #ff6eb4;
+      --blue:   #4fc3f7;
+      --teal:   #26ffb8;
+      --orange: #ff8c42;
 
-body{
-font-family:Arial;
-direction:rtl;
-text-align:center;
-background:#f5f5f5;
-}
+      --text:   #e8eaf0;
+      --muted:  #6b7280;
+      --dim:    #374151;
+    }
 
-.container{
-width:900px;
-margin:auto;
-}
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:10px;
-margin-bottom:30px;
-}
+    html { scroll-behavior: smooth; }
 
-.box{
-background:white;
-padding:20px;
-border-radius:8px;
-box-shadow:0 2px 5px rgba(0,0,0,0.2);
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-.title{
-font-size:18px;
-color:#666;
-}
+    /* ─── BACKGROUND GRID ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.value{
-font-size:32px;
-font-weight:bold;
-margin-top:10px;
-}
+    /* ─── HEADER ─── */
+    .header {
+      position: relative;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(10,12,24,0.98) 0%, rgba(10,12,24,0.85) 100%);
+      border-bottom: 1px solid var(--border2);
+      padding: 18px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(20px);
+    }
 
-.section{
-margin-top:40px;
-font-size:26px;
-}
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
 
-table{
-margin:auto;
-border-collapse:collapse;
-}
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
 
-td,th{
-border:1px solid #ddd;
-padding:10px 20px;
-font-size:18px;
-}
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      background: linear-gradient(90deg, #c084fc, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
 
-th{
-background:#8b1538;
-color:white;
-}
+    .brand-text p {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
 
-</style>
+    .header-meta {
+      text-align: left;
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
 
-<script>
+    .header-meta .dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-left: 6px;
+      animation: pulse 2s ease-in-out infinite;
+    }
 
-google.charts.load('current');
-google.charts.setOnLoadCallback(loadData);
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
 
-const sheetID="17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q";
+    /* ─── MAIN CONTAINER ─── */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
+    }
 
-function getValue(sheet,range,callback){
+    /* ─── SECTION HEADER ─── */
+    .sec-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 40px 0 22px;
+    }
 
-let query=new google.visualization.Query(
-`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheet}&range=${range}`
-);
+    .sec-icon {
+      font-size: 1.4rem;
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
-query.send(function(res){
+    .sec-icon.purple { background: rgba(176,110,255,0.15); box-shadow: 0 0 20px rgba(176,110,255,0.2); }
+    .sec-icon.green  { background: rgba(0,230,118,0.12);  box-shadow: 0 0 20px rgba(0,230,118,0.15); }
 
-let data=res.getDataTable();
-let value=data.getValue(0,0);
+    .sec-header h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
 
-callback(value);
+    .sec-header h2.purple { color: #c084fc; }
+    .sec-header h2.green  { color: #86efac; }
 
-});
+    .sec-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border2), transparent);
+    }
 
-}
+    /* ─── LOADING ─── */
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
 
-function loadData(){
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--dim);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
 
-// ====== Sheet1 ======
+    @keyframes spin { to { transform: rotate(360deg); } }
 
+    .loading p { font-size: 0.95rem; }
 
-getValue("Sheet1","I8",v=>document.getElementById("editedThisMonth").innerText=v);
-getValue("Sheet1","K8",v=>document.getElementById("editedPrevMonth").innerText=v);
+    /* ─── STATUS CARDS (Top 3) ─── */
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
 
-getValue("Sheet1","I11",v=>document.getElementById("danyarThis").innerText=v);
-getValue("Sheet1","K11",v=>document.getElementById("danyarPrev").innerText=v);
+    .status-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-getValue("Sheet1","I14",v=>document.getElementById("photoThis").innerText=v);
-getValue("Sheet1","K14",v=>document.getElementById("photoPrev").innerText=v);
+    .status-card:hover {
+      transform: translateY(-3px);
+    }
 
+    .status-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0.06;
+    }
 
-// ====== Sponsore ======
+    .status-card.s-red   { border-top: 2px solid var(--red);   }
+    .status-card.s-amber { border-top: 2px solid var(--amber); }
+    .status-card.s-cyan  { border-top: 2px solid var(--cyan);  }
 
-getValue("Sponsore","H4",v=>document.getElementById("s_rymax").innerText=v);
-getValue("Sponsore","I4",v=>document.getElementById("s_mawaran").innerText=v);
-getValue("Sponsore","J4",v=>document.getElementById("s_rc").innerText=v);
-getValue("Sponsore","K4",v=>document.getElementById("s_client").innerText=v);
-getValue("Sponsore","L4",v=>document.getElementById("s_total").innerText=v);
+    .status-card.s-red::after   { background: var(--red);   }
+    .status-card.s-amber::after { background: var(--amber); }
+    .status-card.s-cyan::after  { background: var(--cyan);  }
 
-getValue("Sponsore","H8",v=>document.getElementById("p_rymax").innerText=v);
-getValue("Sponsore","I8",v=>document.getElementById("p_mawaran").innerText=v);
-getValue("Sponsore","J8",v=>document.getElementById("p_rc").innerText=v);
-getValue("Sponsore","K8",v=>document.getElementById("p_client").innerText=v);
-getValue("Sponsore","L8",v=>document.getElementById("p_total").innerText=v);
+    .status-glow {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.25;
+    }
 
-}
+    .s-red .status-glow   { background: var(--red);   }
+    .s-amber .status-glow { background: var(--amber); }
+    .s-cyan .status-glow  { background: var(--cyan);  }
 
-</script>
+    .status-num {
+      font-family: 'Bebas Neue', 'Cairo', sans-serif;
+      font-size: 4.5rem;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+      position: relative;
+    }
 
+    .s-red   .status-num { color: var(--red);   text-shadow: 0 0 30px rgba(255,77,109,0.4); }
+    .s-amber .status-num { color: var(--amber); text-shadow: 0 0 30px rgba(255,179,71,0.4); }
+    .s-cyan  .status-num { color: var(--cyan);  text-shadow: 0 0 30px rgba(0,229,255,0.4);  }
+
+    .status-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ─── CLIENT CARDS ─── */
+    .clients-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .client-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 16px;
+      text-align: center;
+      animation: fadeUp 0.5s ease both;
+      transition: transform 0.2s;
+    }
+
+    .client-card:hover { transform: translateY(-2px); }
+
+    .client-name {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 10px;
+    }
+
+    .client-val {
+      font-family: 'Bebas Neue', 'Cairo', sans-serif;
+      font-size: 3rem;
+      line-height: 1;
+      letter-spacing: 0.05em;
+    }
+
+    .cv-purple { color: var(--purple); text-shadow: 0 0 20px rgba(176,110,255,0.35); }
+    .cv-blue   { color: var(--blue);   text-shadow: 0 0 20px rgba(79,195,247,0.35); }
+    .cv-teal   { color: var(--teal);   text-shadow: 0 0 20px rgba(38,255,184,0.35); }
+    .cv-orange { color: var(--orange); text-shadow: 0 0 20px rgba(255,140,66,0.35); }
+
+    /* ─── COMPARE GROUP ─── */
+    .compare-group {
+      margin-top: 18px;
+    }
+
+    .compare-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .compare-label::before {
+      content: '';
+      width: 16px;
+      height: 2px;
+      background: var(--purple);
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .compare-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+      transition: transform 0.2s;
+    }
+
+    .compare-card:hover { transform: translateY(-2px); }
+
+    .compare-card-head {
+      padding: 10px 18px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .compare-card.this-m .compare-card-head {
+      background: rgba(176,110,255,0.1);
+      color: #c084fc;
+    }
+
+    .compare-card.prev-m .compare-card-head {
+      background: rgba(79,195,247,0.08);
+      color: var(--blue);
+    }
+
+    .compare-card-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      padding: 18px;
+    }
+
+    .cc-cell {
+      text-align: center;
+      padding: 6px;
+    }
+
+    .cc-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      min-height: 1em;
+      word-break: break-word;
+    }
+
+    .cc-val {
+      font-family: 'Bebas Neue', 'Cairo', sans-serif;
+      font-size: 2.4rem;
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+
+    .this-m .cc-val { color: var(--purple); text-shadow: 0 0 16px rgba(176,110,255,0.3); }
+    .prev-m .cc-val { color: var(--blue);   text-shadow: 0 0 16px rgba(79,195,247,0.25); }
+
+    /* ─── SPONSOR BLOCK ─── */
+    .sponsor-block {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      margin-top: 16px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .sponsor-head {
+      padding: 14px 24px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sponsor-block.sp-this .sponsor-head {
+      background: rgba(0,230,118,0.08);
+      color: var(--green);
+    }
+
+    .sponsor-block.sp-prev .sponsor-head {
+      background: rgba(255,179,71,0.08);
+      color: var(--amber);
+    }
+
+    .sponsor-body {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 22px 24px;
+      gap: 8px;
+    }
+
+    .sp-item {
+      text-align: center;
+      padding: 8px 4px;
+    }
+
+    .sp-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      min-height: 1.4em;
+    }
+
+    .sp-val {
+      font-family: 'Bebas Neue', 'Cairo', sans-serif;
+      font-size: 2.6rem;
+      line-height: 1;
+      letter-spacing: 0.04em;
+    }
+
+    .sp-this .sp-val { color: var(--green); text-shadow: 0 0 18px rgba(0,230,118,0.3); }
+    .sp-prev .sp-val { color: var(--amber); text-shadow: 0 0 18px rgba(255,179,71,0.3); }
+
+    .sp-item.sp-total .sp-label { color: var(--pink); }
+    .sp-item.sp-total .sp-val   {
+      color: var(--pink) !important;
+      font-size: 3rem;
+      text-shadow: 0 0 22px rgba(255,110,180,0.4) !important;
+    }
+
+    .sp-divider {
+      grid-column: 4 / 5;
+      border-right: 1px solid var(--border2);
+      margin: 4px 0;
+      pointer-events: none;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .status-card:nth-child(1) { animation-delay: 0.05s; }
+    .status-card:nth-child(2) { animation-delay: 0.10s; }
+    .status-card:nth-child(3) { animation-delay: 0.15s; }
+    .client-card:nth-child(1) { animation-delay: 0.20s; }
+    .client-card:nth-child(2) { animation-delay: 0.25s; }
+    .client-card:nth-child(3) { animation-delay: 0.30s; }
+    .client-card:nth-child(4) { animation-delay: 0.35s; }
+
+    /* ─── DIVIDER ─── */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border2), transparent);
+      margin: 44px 0 0;
+    }
+
+    /* ─── ERROR ─── */
+    .error-box {
+      background: rgba(255,77,109,0.08);
+      border: 1px solid rgba(255,77,109,0.25);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      color: #fca5a5;
+      font-size: 0.9rem;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .sponsor-body { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .status-grid  { grid-template-columns: 1fr; }
+      .clients-grid { grid-template-columns: repeat(2, 1fr); }
+      .compare-row  { grid-template-columns: 1fr; }
+      .sponsor-body { grid-template-columns: repeat(2, 1fr); }
+      .header       { padding: 14px 18px; }
+      .container    { padding: 24px 14px 40px; }
+      .status-num   { font-size: 3.5rem; }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="container">
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="header">
+  <div class="header-brand">
+    <div class="brand-icon">🎬</div>
+    <div class="brand-text">
+      <h1>لوحة إحصائيات الإنتاج</h1>
+      <p>Production Dashboard · Real-time Stats</p>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span class="dot"></span>
+    <span id="updateTime">جارٍ التحميل...</span>
+    <br/>
+    <span style="font-size:0.65rem;">البيانات من Google Sheets</span>
+  </div>
+</header>
 
-<h2>Video Editing</h2>
+<!-- ═══════════════ MAIN ═══════════════ -->
+<main class="container" id="app">
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>جارٍ تحميل البيانات من Google Sheets...</p>
+  </div>
+</main>
 
-<table>
-<tr>
-<th>Edited this month</th>
-<th>Edited Previous month</th>
-</tr>
+<!-- ═══════════════ SCRIPT ═══════════════ -->
+<script>
+  const SHEET_ID = '17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q';
 
-<tr>
-<td id="editedThisMonth"></td>
-<td id="editedPrevMonth"></td>
-</tr>
+  /* ── fetch a range via gviz ── */
+  async function fetchRange(sheetName, range) {
+    const url =
+      `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq` +
+      `?tqx=out:json&sheet=${encodeURIComponent(sheetName)}&range=${range}`;
+    const res  = await fetch(url);
+    const text = await res.text();
+    const m    = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);?\s*$/);
+    if (!m) throw new Error(`لا توجد بيانات في النطاق ${range} من صفحة ${sheetName}`);
+    return JSON.parse(m[1]).table;
+  }
 
-<tr>
-<th>this month By Danyar</th>
-<th>Previous By Danyar</th>
-</tr>
+  /* ── safe cell getter ── */
+  function c(table, r, col) {
+    try {
+      const cellData = table?.rows?.[r]?.c?.[col];
+      if (!cellData) return '—';
+      if (cellData.f !== null && cellData.f !== undefined) return String(cellData.f);
+      if (cellData.v !== null && cellData.v !== undefined) {
+        if (typeof cellData.v === 'number')
+          return Number.isInteger(cellData.v) ? String(cellData.v) : cellData.v.toFixed(1);
+        return String(cellData.v);
+      }
+      return '—';
+    } catch { return '—'; }
+  }
 
-<tr>
-<td id="danyarThis"></td>
-<td id="danyarPrev"></td>
-</tr>
+  /* ── build compare card ── */
+  function compareCard(cls, icon, title, t, r0, r1, c0, c1) {
+    return `
+      <div class="compare-card ${cls}">
+        <div class="compare-card-head">${icon} ${title}</div>
+        <div class="compare-card-body">
+          <div class="cc-cell">
+            <div class="cc-label">${c(t, r0, c0)}</div>
+            <div class="cc-val">${c(t, r1, c0)}</div>
+          </div>
+          <div class="cc-cell">
+            <div class="cc-label">${c(t, r0, c1)}</div>
+            <div class="cc-val">${c(t, r1, c1)}</div>
+          </div>
+        </div>
+      </div>`;
+  }
 
-<tr>
-<th>Photo this month</th>
-<th>Photo Previous</th>
-</tr>
+  /* ── build sponsor item ── */
+  function spItem(table, r0, r1, col, extra = '') {
+    return `
+      <div class="sp-item ${extra}">
+        <div class="sp-label">${c(table, r0, col)}</div>
+        <div class="sp-val">${c(table, r1, col)}</div>
+      </div>`;
+  }
 
-<tr>
-<td id="photoThis"></td>
-<td id="photoPrev"></td>
-</tr>
+  /* ── main ── */
+  async function loadData() {
+    try {
+      const [status, clients, videos, danyar, photos, spThis, spPrev] =
+        await Promise.all([
+          fetchRange('Sheet1',  'I2:K2'),
+          fetchRange('Sheet1',  'I5:L6'),
+          fetchRange('Sheet1',  'I8:L9'),
+          fetchRange('Sheet1',  'I11:L12'),
+          fetchRange('Sheet1',  'I14:L15'),
+          fetchRange('Sponsore','H4:L5'),
+          fetchRange('Sponsore','H8:L9'),
+        ]);
 
-</table>
+      /* timestamp */
+      const now = new Date().toLocaleString('ar-IQ', {
+        weekday: 'short', year: 'numeric',
+        month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      });
+      document.getElementById('updateTime').textContent = now;
 
+      /* ── build HTML ── */
+      document.getElementById('app').innerHTML = `
 
-<h2 class="section">Sponsore Ads</h2>
+        <!-- ▸ VIDEO SECTION ◂ -->
+        <div class="sec-header">
+          <div class="sec-icon purple">🎬</div>
+          <h2 class="purple">تفاصيل الفيديو</h2>
+          <div class="sec-line"></div>
+        </div>
 
-<table>
+        <!-- Status cards -->
+        <div class="status-grid">
+          <div class="status-card s-red">
+            <div class="status-glow"></div>
+            <div class="status-num">${c(status, 0, 0)}</div>
+            <div class="status-label">⛔ لم يُعدَّل</div>
+          </div>
+          <div class="status-card s-amber">
+            <div class="status-glow"></div>
+            <div class="status-num">${c(status, 0, 1)}</div>
+            <div class="status-label">⏳ لم يُوافَق عليه</div>
+          </div>
+          <div class="status-card s-cyan">
+            <div class="status-glow"></div>
+            <div class="status-num">${c(status, 0, 2)}</div>
+            <div class="status-label">📤 لم يُنشَر</div>
+          </div>
+        </div>
 
-<tr>
-<th>Rymax</th>
-<th>Mawaran</th>
-<th>RC</th>
-<th>Client</th>
-<th>Total</th>
-</tr>
+        <!-- Client breakdown -->
+        <div class="clients-grid" style="margin-top:16px;">
+          <div class="client-card">
+            <div class="client-name">${c(clients, 0, 0)}</div>
+            <div class="client-val cv-purple">${c(clients, 1, 0)}</div>
+          </div>
+          <div class="client-card">
+            <div class="client-name">${c(clients, 0, 1)}</div>
+            <div class="client-val cv-blue">${c(clients, 1, 1)}</div>
+          </div>
+          <div class="client-card">
+            <div class="client-name">${c(clients, 0, 2)}</div>
+            <div class="client-val cv-teal">${c(clients, 1, 2)}</div>
+          </div>
+          <div class="client-card">
+            <div class="client-name">${c(clients, 0, 3)}</div>
+            <div class="client-val cv-orange">${c(clients, 1, 3)}</div>
+          </div>
+        </div>
 
-<tr>
-<td id="s_rymax"></td>
-<td id="s_mawaran"></td>
-<td id="s_rc"></td>
-<td id="s_client"></td>
-<td id="s_total"></td>
-</tr>
+        <!-- Videos edited -->
+        <div class="compare-group" style="margin-top:24px;">
+          <div class="compare-label">فيديوهات المعدّلة</div>
+          <div class="compare-row">
+            ${compareCard('this-m', '📅', 'هذا الشهر',   videos, 0, 1, 0, 1)}
+            ${compareCard('prev-m', '🗓️', 'الشهر الماضي', videos, 0, 1, 2, 3)}
+          </div>
+        </div>
 
-<tr>
-<th colspan="5">Previous Month</th>
-</tr>
+        <!-- Danyar -->
+        <div class="compare-group" style="margin-top:18px;">
+          <div class="compare-label">تعديلات دانيار</div>
+          <div class="compare-row">
+            ${compareCard('this-m', '📅', 'هذا الشهر',   danyar, 0, 1, 0, 1)}
+            ${compareCard('prev-m', '🗓️', 'الشهر الماضي', danyar, 0, 1, 2, 3)}
+          </div>
+        </div>
 
-<tr>
-<td id="p_rymax"></td>
-<td id="p_mawaran"></td>
-<td id="p_rc"></td>
-<td id="p_client"></td>
-<td id="p_total"></td>
-</tr>
+        <!-- Photos -->
+        <div class="compare-group" style="margin-top:18px;">
+          <div class="compare-label">الصور</div>
+          <div class="compare-row">
+            ${compareCard('this-m', '📅', 'هذا الشهر',   photos, 0, 1, 0, 1)}
+            ${compareCard('prev-m', '🗓️', 'الشهر الماضي', photos, 0, 1, 2, 3)}
+          </div>
+        </div>
 
-</table>
+        <div class="section-divider"></div>
 
-</div>
+        <!-- ▸ ADS SECTION ◂ -->
+        <div class="sec-header">
+          <div class="sec-icon green">📢</div>
+          <h2 class="green">تفاصيل الإعلانات</h2>
+          <div class="sec-line"></div>
+        </div>
 
+        <!-- Sponsor – This Month -->
+        <div class="sponsor-block sp-this">
+          <div class="sponsor-head">📅 الإعلانات — هذا الشهر</div>
+          <div class="sponsor-body">
+            ${spItem(spThis, 0, 1, 0)}
+            ${spItem(spThis, 0, 1, 1)}
+            ${spItem(spThis, 0, 1, 2)}
+            ${spItem(spThis, 0, 1, 3)}
+            ${spItem(spThis, 0, 1, 4, 'sp-total')}
+          </div>
+        </div>
+
+        <!-- Sponsor – Previous Month -->
+        <div class="sponsor-block sp-prev" style="margin-top:16px;">
+          <div class="sponsor-head">🗓️ الإعلانات — الشهر الماضي</div>
+          <div class="sponsor-body">
+            ${spItem(spPrev, 0, 1, 0)}
+            ${spItem(spPrev, 0, 1, 1)}
+            ${spItem(spPrev, 0, 1, 2)}
+            ${spItem(spPrev, 0, 1, 3)}
+            ${spItem(spPrev, 0, 1, 4, 'sp-total')}
+          </div>
+        </div>
+      `;
+
+    } catch (err) {
+      document.getElementById('updateTime').textContent = 'فشل التحميل';
+      document.getElementById('app').innerHTML = `
+        <div class="error-box">
+          <p style="font-size:2rem;margin-bottom:12px;">⚠️</p>
+          <p style="font-weight:700;margin-bottom:8px;">حدث خطأ أثناء تحميل البيانات</p>
+          <p style="color:#9ca3af;font-size:0.8rem;">${err.message}</p>
+          <p style="color:#9ca3af;font-size:0.75rem;margin-top:12px;">
+            تأكد من أن جدول Google Sheets مشترك بصلاحية "Anyone with the link can view"
+          </p>
+        </div>`;
+    }
+  }
+
+  loadData();
+</script>
 </body>
 </html>
