@@ -1,127 +1,247 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <title>لوحة البيانات - نسخة الإصلاح النهائي</title>
-    <script src="https://www.gstatic.com/charts/loader.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 900px; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: center; }
-        th, td { border: 1px solid #ddd; padding: 12px; font-weight: bold; font-size: 16px; }
-        .bg-teal { background-color: #8ab6b6; }
-        .bg-gold { background-color: #d4ac0d; }
-        .bg-purple { background-color: #a569bd; }
-        .bg-cyan { background-color: #00ffff; }
-        .bg-orange { background-color: #f39c12; }
-        .bg-light-orange { background-color: #f8c471; }
-        .bg-light-pink { background-color: #f5b7b1; }
-        .bg-dark-purple { background-color: #4a154b; color: white; padding: 10px; text-align: center; font-weight: bold; }
-        .bg-red { background-color: #ff0000; }
-        .text-brown { color: #8b4513; font-size: 20px; }
-        .title-red { color: red; font-size: 18px; text-align: center; margin: 10px 0; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+direction:rtl;
+text-align:center;
+background:#f5f5f5;
+}
+
+.container{
+width:900px;
+margin:auto;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin-bottom:30px;
+}
+
+.box{
+background:white;
+padding:20px;
+border-radius:8px;
+box-shadow:0 2px 5px rgba(0,0,0,0.2);
+}
+
+.title{
+font-size:18px;
+color:#666;
+}
+
+.value{
+font-size:32px;
+font-weight:bold;
+margin-top:10px;
+}
+
+.section{
+margin-top:40px;
+font-size:26px;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #ddd;
+padding:10px 20px;
+font-size:18px;
+}
+
+th{
+background:#8b1538;
+color:white;
+}
+
+</style>
+
+<script>
+
+google.charts.load('current');
+google.charts.setOnLoadCallback(loadData);
+
+const sheetID="YOUR_SHEET_ID";
+
+function getValue(sheet,range,callback){
+
+let query=new google.visualization.Query(
+`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheet}&range=${range}`
+);
+
+query.send(function(res){
+
+let data=res.getDataTable();
+let value=data.getValue(0,0);
+
+callback(value);
+
+});
+
+}
+
+function loadData(){
+
+// ====== Sheet1 ======
+
+getValue("Sheet1","I2",v=>document.getElementById("notEdit").innerText=v);
+getValue("Sheet1","J2",v=>document.getElementById("notApprove").innerText=v);
+getValue("Sheet1","K2",v=>document.getElementById("notPublished").innerText=v);
+
+getValue("Sheet1","I5",v=>document.getElementById("rymax").innerText=v);
+getValue("Sheet1","J5",v=>document.getElementById("mawaran").innerText=v);
+getValue("Sheet1","K5",v=>document.getElementById("rc").innerText=v);
+getValue("Sheet1","L5",v=>document.getElementById("client").innerText=v);
+
+getValue("Sheet1","I8",v=>document.getElementById("editedThisMonth").innerText=v);
+getValue("Sheet1","K8",v=>document.getElementById("editedPrevMonth").innerText=v);
+
+getValue("Sheet1","I11",v=>document.getElementById("danyarThis").innerText=v);
+getValue("Sheet1","K11",v=>document.getElementById("danyarPrev").innerText=v);
+
+getValue("Sheet1","I14",v=>document.getElementById("photoThis").innerText=v);
+getValue("Sheet1","K14",v=>document.getElementById("photoPrev").innerText=v);
+
+
+// ====== Sponsore ======
+
+getValue("Sponsore","H4",v=>document.getElementById("s_rymax").innerText=v);
+getValue("Sponsore","I4",v=>document.getElementById("s_mawaran").innerText=v);
+getValue("Sponsore","J4",v=>document.getElementById("s_rc").innerText=v);
+getValue("Sponsore","K4",v=>document.getElementById("s_client").innerText=v);
+getValue("Sponsore","L4",v=>document.getElementById("s_total").innerText=v);
+
+getValue("Sponsore","H8",v=>document.getElementById("p_rymax").innerText=v);
+getValue("Sponsore","I8",v=>document.getElementById("p_mawaran").innerText=v);
+getValue("Sponsore","J8",v=>document.getElementById("p_rc").innerText=v);
+getValue("Sponsore","K8",v=>document.getElementById("p_client").innerText=v);
+getValue("Sponsore","L8",v=>document.getElementById("p_total").innerText=v);
+
+}
+
+</script>
+
 </head>
+
 <body>
 
-    <div class="container">
-        <h2>تفاصيل الفيديو (Sheet1)</h2>
-        <table>
-            <tr><th class="bg-teal">not Edite</th><th class="bg-teal">not Aprove</th><th class="bg-teal">not Published</th></tr>
-            <tr><td id="S1-I2">جاري التحميل...</td><td id="S1-J2">-</td><td id="S1-K2">-</td></tr>
-        </table>
+<div class="container">
 
-        <div class="title-red">Published 2026</div>
-        <table>
-            <tr><th class="bg-gold">Rymax</th><th class="bg-purple">Mawaran</th><th class="bg-cyan">RC</th><th class="bg-orange">Client</th></tr>
-            <tr><td id="S1-I5">-</td><td id="S1-J5">-</td><td id="S1-K5">-</td><td id="S1-L5">-</td></tr>
-        </table>
+<h2>Video Status</h2>
 
-        <table>
-            <tr><th class="bg-light-orange">Edited this month Video</th><th class="bg-light-pink">Edited Previous month Video</th></tr>
-            <tr><td class="text-brown" id="S1-I8">-</td><td class="text-brown" id="S1-K8">-</td></tr>
-            <tr><th class="bg-light-orange">this month By Danyar</th><th class="bg-light-pink">Previous month By Danyar</th></tr>
-            <tr><td class="text-brown" id="S1-I11">-</td><td class="text-brown" id="S1-K11">-</td></tr>
-            <tr><th class="bg-light-orange">this month Photo</th><th class="bg-light-pink">Previous month Photo</th></tr>
-            <tr><td class="text-brown" id="S1-I14">-</td><td class="text-brown" id="S1-K14">-</td></tr>
-        </table>
-    </div>
+<div class="grid">
 
-    <div class="container">
-        <h2>تفاصيل الإعلانات (Sponsore)</h2>
-        <div class="bg-dark-purple">This month</div>
-        <table>
-            <tr><th class="bg-orange">Rymax</th><th class="bg-orange">Mawaran</th><th class="bg-orange">RC</th><th class="bg-orange">clint</th><th class="bg-red">TOTAL</th></tr>
-            <tr><td id="SP-H4">-</td><td id="SP-I4">-</td><td id="SP-J4">-</td><td id="SP-K4">-</td><td id="SP-L4">-</td></tr>
-        </table>
+<div class="box">
+<div class="title">Not Edit</div>
+<div class="value" id="notEdit">0</div>
+</div>
 
-        <div class="bg-dark-purple">Previous month</div>
-        <table>
-            <tr><th class="bg-orange">Rymax</th><th class="bg-orange">Mawaran</th><th class="bg-orange">RC</th><th class="bg-orange">clint</th><th class="bg-red">TOTAL</th></tr>
-            <tr><td id="SP-H8">-</td><td id="SP-I8">-</td><td id="SP-J8">-</td><td id="SP-K8">-</td><td id="SP-L8">-</td></tr>
-        </table>
-    </div>
+<div class="box">
+<div class="title">Not Approve</div>
+<div class="value" id="notApprove">0</div>
+</div>
 
-    <script>
-        const SHEET_ID = '17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q';
+<div class="box">
+<div class="title">Not Published</div>
+<div class="value" id="notPublished">0</div>
+</div>
 
-        google.charts.load('current', {packages:['corechart']});
-        google.charts.setOnLoadCallback(init);
+</div>
 
-        // دالة لجلب القيمة بأمان لتجنب خطأ الـ Index
-        function safeGetValue(dataTable, rowIndex, colIndex) {
-            // التحقق مما إذا كان الصف موجوداً في البيانات المستلمة
-            if (rowIndex < dataTable.getNumberOfRows()) {
-                return dataTable.getValue(rowIndex, colIndex) || 0;
-            }
-            return 0; // إذا لم يجد الصف يرجع صفر بدلاً من الخطأ
-        }
+<h2>Published 2026</h2>
 
-        function init() {
-            // طلب نطاق واسع H1:L20 لضمان شمول الخلايا المدموجة المتأخرة
-            const q1 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sheet1&range=H1:L20`);
-            q1.send(res => {
-                if (res.isError()) { console.error(res.getMessage()); return; }
-                const dt = res.getDataTable();
-                
-                // الأعمدة: H=0, I=1, J=2, K=3, L=4
-                document.getElementById('S1-I2').innerText = safeGetValue(dt, 1, 1); // I2
-                document.getElementById('S1-J2').innerText = safeGetValue(dt, 1, 2); // J2
-                document.getElementById('S1-K2').innerText = safeGetValue(dt, 1, 3); // K2
-                
-                document.getElementById('S1-I5').innerText = safeGetValue(dt, 4, 1); // I5
-                document.getElementById('S1-J5').innerText = safeGetValue(dt, 4, 2); // J5
-                document.getElementById('S1-K5').innerText = safeGetValue(dt, 4, 3); // K5
-                document.getElementById('S1-L5').innerText = safeGetValue(dt, 4, 4); // L5
+<div class="grid">
 
-                document.getElementById('S1-I8').innerText = safeGetValue(dt, 7, 1); // I8
-                document.getElementById('S1-K8').innerText = safeGetValue(dt, 7, 3); // K8
+<div class="box"><div class="title">Rymax</div><div class="value" id="rymax"></div></div>
+<div class="box"><div class="title">Mawaran</div><div class="value" id="mawaran"></div></div>
+<div class="box"><div class="title">RC</div><div class="value" id="rc"></div></div>
+<div class="box"><div class="title">Client</div><div class="value" id="client"></div></div>
 
-                document.getElementById('S1-I11').innerText = safeGetValue(dt, 10, 1); // I11
-                document.getElementById('S1-K11').innerText = safeGetValue(dt, 10, 3); // K11
+</div>
 
-                document.getElementById('S1-I14').innerText = safeGetValue(dt, 13, 1); // I14
-                document.getElementById('S1-K14').innerText = safeGetValue(dt, 13, 3); // K14
-            });
+<h2>Video Editing</h2>
 
-            const q2 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sponsore&range=H1:L15`);
-            q2.send(res => {
-                if (res.isError()) return;
-                const dt = res.getDataTable();
+<table>
+<tr>
+<th>Edited this month</th>
+<th>Edited Previous month</th>
+</tr>
 
-                document.getElementById('SP-H4').innerText = safeGetValue(dt, 3, 0); // H4
-                document.getElementById('SP-I4').innerText = safeGetValue(dt, 3, 1);
-                document.getElementById('SP-J4').innerText = safeGetValue(dt, 3, 2);
-                document.getElementById('SP-K4').innerText = safeGetValue(dt, 3, 3);
-                document.getElementById('SP-L4').innerText = safeGetValue(dt, 3, 4);
+<tr>
+<td id="editedThisMonth"></td>
+<td id="editedPrevMonth"></td>
+</tr>
 
-                document.getElementById('SP-H8').innerText = safeGetValue(dt, 7, 0); // H8
-                document.getElementById('SP-I8').innerText = safeGetValue(dt, 7, 1);
-                document.getElementById('SP-J8').innerText = safeGetValue(dt, 7, 2);
-                document.getElementById('SP-K8').innerText = safeGetValue(dt, 7, 3);
-                document.getElementById('SP-L8').innerText = safeGetValue(dt, 7, 4);
-            });
-        }
-    </script>
+<tr>
+<th>By Danyar</th>
+<th>Previous</th>
+</tr>
+
+<tr>
+<td id="danyarThis"></td>
+<td id="danyarPrev"></td>
+</tr>
+
+<tr>
+<th>Photo this month</th>
+<th>Photo Previous</th>
+</tr>
+
+<tr>
+<td id="photoThis"></td>
+<td id="photoPrev"></td>
+</tr>
+
+</table>
+
+
+<h2 class="section">Sponsore Ads</h2>
+
+<table>
+
+<tr>
+<th>Rymax</th>
+<th>Mawaran</th>
+<th>RC</th>
+<th>Client</th>
+<th>Total</th>
+</tr>
+
+<tr>
+<td id="s_rymax"></td>
+<td id="s_mawaran"></td>
+<td id="s_rc"></td>
+<td id="s_client"></td>
+<td id="s_total"></td>
+</tr>
+
+<tr>
+<th colspan="5">Previous Month</th>
+</tr>
+
+<tr>
+<td id="p_rymax"></td>
+<td id="p_mawaran"></td>
+<td id="p_rc"></td>
+<td id="p_client"></td>
+<td id="p_total"></td>
+</tr>
+
+</table>
+
+</div>
+
 </body>
 </html>
