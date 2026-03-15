@@ -96,14 +96,6 @@ function loadData(){
 
 // ====== Sheet1 ======
 
-getValue("Sheet1","I2",v=>document.getElementById("notEdit").innerText=v);
-getValue("Sheet1","J2",v=>document.getElementById("notApprove").innerText=v);
-getValue("Sheet1","K2",v=>document.getElementById("notPublished").innerText=v);
-
-getValue("Sheet1","I5",v=>document.getElementById("rymax").innerText=v);
-getValue("Sheet1","J5",v=>document.getElementById("mawaran").innerText=v);
-getValue("Sheet1","K5",v=>document.getElementById("rc").innerText=v);
-getValue("Sheet1","L5",v=>document.getElementById("client").innerText=v);
 
 getValue("Sheet1","I8",v=>document.getElementById("editedThisMonth").innerText=v);
 getValue("Sheet1","K8",v=>document.getElementById("editedPrevMonth").innerText=v);
@@ -138,38 +130,6 @@ getValue("Sponsore","L8",v=>document.getElementById("p_total").innerText=v);
 <body>
 
 <div class="container">
-
-<h2>Video Status</h2>
-
-<div class="grid">
-
-<div class="box">
-<div class="title">Not Edit</div>
-<div class="value" id="notEdit">0</div>
-</div>
-
-<div class="box">
-<div class="title">Not Approve</div>
-<div class="value" id="notApprove">0</div>
-</div>
-
-<div class="box">
-<div class="title">Not Published</div>
-<div class="value" id="notPublished">0</div>
-</div>
-
-</div>
-
-<h2>Published 2026</h2>
-
-<div class="grid">
-
-<div class="box"><div class="title">Rymax</div><div class="value" id="rymax"></div></div>
-<div class="box"><div class="title">Mawaran</div><div class="value" id="mawaran"></div></div>
-<div class="box"><div class="title">RC</div><div class="value" id="rc"></div></div>
-<div class="box"><div class="title">Client</div><div class="value" id="client"></div></div>
-
-</div>
 
 <h2>Video Editing</h2>
 
