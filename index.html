@@ -3,207 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستەمی وەرگرتنی ئۆتۆمبێل</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007bff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <title>لوحة بيانات العملاء</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background: #f0f2f5; padding: 20px; color: #333; }
-        .card { background: white; padding: 30px 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        h2 { color: #007bff; margin-bottom: 20px; }
-        button { background: #007bff; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; margin: 15px 0; width: 100%; transition: 0.3s; }
-        button:active { transform: scale(0.98); }
-        input { padding: 15px; width: 90%; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
-        input:focus { border-color: #007bff; }
-        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-top: 15px; background: #000; }
-        .status { color: #28a745; font-weight: bold; margin-top: 15px; min-height: 24px; }
-        .driver-info { background: #e7f3ff; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; }
-        #traccarOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            z-index: 9999;
-            justify-content: center;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
             align-items: center;
         }
-        #traccarOverlay.show { display: flex; }
-        #traccarPopup {
-            background: white;
-            border-radius: 20px;
-            padding: 35px 25px;
-            max-width: 340px;
-            width: 90%;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 40px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h2 { text-align: center; color: #333; }
+        .error-msg { color: red; text-align: center; font-weight: bold; display: none; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
             text-align: center;
-            animation: popIn 0.3s ease;
         }
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to   { transform: scale(1);   opacity: 1; }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: bold;
         }
-        #traccarPopup h3 { color: #007bff; font-size: 22px; margin-bottom: 10px; }
-        #traccarPopup p { color: #555; font-size: 15px; margin-bottom: 25px; line-height: 1.6; }
-        #openTraccarBtn {
-            background: linear-gradient(135deg, #007bff, #0056cc);
-            color: white; border: none; padding: 16px 30px;
-            border-radius: 12px; font-size: 18px; font-weight: bold;
-            cursor: pointer; width: 100%; transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
-        }
-        #openTraccarBtn:active { transform: scale(0.97); }
+        
+        .bg-teal { background-color: #8ab6b6; color: #000; }
+        .bg-gold { background-color: #d4ac0d; color: #000; }
+        .bg-purple { background-color: #a569bd; color: #000; }
+        .bg-cyan { background-color: #00ffff; color: #000; }
+        .bg-orange { background-color: #f39c12; color: #000; }
+        .bg-light-orange { background-color: #f8c471; color: #000; }
+        .bg-light-pink { background-color: #f5b7b1; color: #000; }
+        .text-brown { color: #8b4513; font-size: 20px; }
+        .title-red { color: red; font-size: 18px; margin: 10px 0; }
+        .bg-dark-purple { background-color: #4a154b; color: #fff; font-size: 18px; }
+        .bg-red { background-color: #ff0000; color: #000; }
+        .text-large { font-size: 20px; color: #000; }
     </style>
 </head>
 <body>
 
-<div id="traccarOverlay" class="show">
-    <div id="traccarPopup">
-        <h3>بەیانی باش</h3>
-        <p><br><strong>ئامادەی بۆ ڕۆژێکی نوێ؟</strong><br></p>
-        <button id="openTraccarBtn" onclick="openTraccar()">OK</button>
+    <div id="error-message" class="error-msg">تعذر جلب البيانات. تأكد من إدخال ID الشيت الصحيح وأن الشيت "متاح لأي شخص لديه الرابط".</div>
+
+    <div class="container">
+        <h2>تفاصيل الفيديو (Sheet1)</h2>
+        
+        <table>
+            <tr>
+                <th class="bg-teal">not Edite</th>
+                <th class="bg-teal">not Aprove</th>
+                <th class="bg-teal">not Published</th>
+            </tr>
+            <tr>
+                <td id="vid-not-edite">...</td>
+                <td id="vid-not-aprove">...</td>
+                <td id="vid-not-published">...</td>
+            </tr>
+        </table>
+
+        <div class="title-red" style="text-align: center; font-weight: bold;">Published 2026</div>
+        
+        <table>
+            <tr>
+                <th class="bg-gold">Rymax</th>
+                <th class="bg-purple">Mawaran</th>
+                <th class="bg-cyan">RC</th>
+                <th class="bg-orange">Client</th>
+            </tr>
+            <tr>
+                <td id="pub-rymax">...</td>
+                <td id="pub-mawaran">...</td>
+                <td id="pub-rc">...</td>
+                <td id="pub-client">...</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th class="bg-light-orange">Edited this month Video</th>
+                <th class="bg-light-pink">Edited Previous month Video</th>
+            </tr>
+            <tr>
+                <td class="text-brown" id="edit-this-month">...</td>
+                <td class="text-brown" id="edit-prev-month">...</td>
+            </tr>
+            <tr>
+                <th class="bg-light-orange">this month By Danyar</th>
+                <th class="bg-light-pink">Previous month By Danyar</th>
+            </tr>
+            <tr>
+                <td class="text-brown" id="danyar-this-month">...</td>
+                <td class="text-brown" id="danyar-prev-month">...</td>
+            </tr>
+            <tr>
+                <th class="bg-light-orange">this month Photo</th>
+                <th class="bg-light-pink">Previous month Photo</th>
+            </tr>
+            <tr>
+                <td class="text-brown" id="photo-this-month">...</td>
+                <td class="text-brown" id="photo-prev-month">...</td>
+            </tr>
+        </table>
     </div>
-</div>
 
-<div class="card" id="app">
-    <h2>سیستەمی وەرگرتنی ئۆتۆمبێل</h2>
-    <div id="nameSection" style="display:none;">
-        <p>بەخێربێن، تکایە ناوی خۆت بنووسە:</p>
-        <input type="text" id="driverNameInput" placeholder="ناوی تەواوی شۆفێر">
-        <button onclick="saveName()">OK</button>
+    <div class="container">
+        <h2>تفاصيل الإعلانات (Sponsore)</h2>
+        
+        <table>
+            <tr>
+                <th colspan="5" class="bg-dark-purple">This month</th>
+            </tr>
+            <tr>
+                <th class="bg-orange">Rymax</th>
+                <th class="bg-orange">Mawaran</th>
+                <th class="bg-orange">RC</th>
+                <th class="bg-orange">clint</th>
+                <th class="bg-red">TOTAL</th>
+            </tr>
+            <tr>
+                <td class="text-large" id="spon-this-rymax">...</td>
+                <td class="text-large" id="spon-this-mawaran">...</td>
+                <td class="text-large" id="spon-this-rc">...</td>
+                <td class="text-large" id="spon-this-client">...</td>
+                <td class="text-large" style="font-weight: 900;" id="spon-this-total">...</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th colspan="5" class="bg-dark-purple">Previous month</th>
+            </tr>
+            <tr>
+                <th class="bg-orange">Rymax</th>
+                <th class="bg-orange">Mawaran</th>
+                <th class="bg-orange">RC</th>
+                <th class="bg-orange">clint</th>
+                <th class="bg-red">TOTAL</th>
+            </tr>
+            <tr>
+                <td class="text-large" id="spon-prev-rymax">...</td>
+                <td class="text-large" id="spon-prev-mawaran">...</td>
+                <td class="text-large" id="spon-prev-rc">...</td>
+                <td class="text-large" id="spon-prev-client">...</td>
+                <td class="text-large" style="font-weight: 900;" id="spon-prev-total">...</td>
+            </tr>
+        </table>
     </div>
-    <div id="mainSection" style="display:none;">
-        <div class="driver-info" id="driverDisplayName"></div>
-        <div id="reader" style="display:none;"></div>
-        <button id="actionBtn" onclick="startScan()">وەرگرتنی ئۆتۆمبێل (Scan QR)</button>
-        <p class="status" id="statusMsg"></p>
-        <button onclick="clearUser()" style="background:none; color:#888; font-size:14px; margin-top:20px;">تغيير السائق</button>
-    </div>
-</div>
 
-<script>
-    let driverName = localStorage.getItem('driverName');
-    let isOnTrip = localStorage.getItem('isOnTrip') === 'true';
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx89l4TEtUKO27rxIoeMqxa7Sv6phCPNzsZaCh-XEMxcaW2BKqGDF6Ig8o-spsvNP8m/exec';
+    <script>
+        // === هام جداً: ضع ID ملف جوجل شيت الخاص بك هنا ===
+        const SHEET_ID = 'YOUR_GOOGLE_SHEET_ID_HERE'; 
 
-    function checkTraccarPopup() {
-        const today = new Date().toDateString();
-        const lastShown = localStorage.getItem('traccarLastShown');
-        if (lastShown === today) {
-            document.getElementById('traccarOverlay').classList.remove('show');
-        }
-    }
-
-    function openTraccar() {
-        const today = new Date().toDateString();
-        localStorage.setItem('traccarLastShown', today);
-        document.getElementById('traccarOverlay').classList.remove('show');
-
-        // Use hidden iframe so the browser stays on this page
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = 'org.traccar.client://';
-        document.body.appendChild(iframe);
-        setTimeout(() => document.body.removeChild(iframe), 2000);
-    }
-
-    window.onload = () => {
-        checkTraccarPopup();
-        if (!driverName) {
-            document.getElementById('nameSection').style.display = 'block';
-        } else {
-            showMain();
-        }
-    };
-
-    function saveName() {
-        let name = document.getElementById('driverNameInput').value.trim();
-        if (name) {
-            localStorage.setItem('driverName', name);
-            driverName = name;
-            showMain();
-        } else {
-            alert("تکایە ناوەکە بنووسن");
-        }
-    }
-
-    function showMain() {
-        document.getElementById('nameSection').style.display = 'none';
-        document.getElementById('mainSection').style.display = 'block';
-        document.getElementById('driverDisplayName').innerText = "السائق: " + driverName;
-        updateUI();
-    }
-
-    function updateUI() {
-        const btn = document.getElementById('actionBtn');
-        if (isOnTrip) {
-            btn.innerText = "گەڕاندنەوەی ئۆتۆمبێل (Scan QR)";
-            btn.style.background = "#dc3545";
-        } else {
-            btn.innerText = "وەرگرتنی ئۆتۆمبێل (Scan QR)";
-            btn.style.background = "#007bff";
-        }
-    }
-
-    function startScan() {
-        document.getElementById('reader').style.display = 'block';
-        document.getElementById('statusMsg').innerText = "جاري فتح الكاميرا...";
-        const html5QrCode = new Html5Qrcode("reader");
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-        html5QrCode.start({ facingMode: "environment" }, config,
-            (decodedText) => {
-                sendData(decodedText);
-                html5QrCode.stop().then(() => {
-                    document.getElementById('reader').style.display = 'none';
-                });
+        // دالة لجلب البيانات وتحديد نطاق الأعمدة (H إلى L)
+        async function fetchSheetData(sheetName) {
+            // نحدد النطاق H1:L15 لكي يكون العمود H هو رقم 0، و I هو 1 ...إلخ
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}&range=H1:L15`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Network response error');
+                const data = await response.text();
+                return parseCSV(data);
+            } catch (error) {
+                console.error('Error fetching data from ' + sheetName, error);
+                document.getElementById('error-message').style.display = 'block';
+                return [];
             }
-        ).catch(err => {
-            alert("خطأ في الكاميرا: تأكد من إعطاء الصلاحية");
-            document.getElementById('reader').style.display = 'none';
-        });
-    }
-
-    function sendData(carId) {
-        const type = isOnTrip ? "end" : "start";
-        const now = new Date().toLocaleString('en-GB', {
-            year: 'numeric', month: 'numeric', day: 'numeric',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false
-        }).replace(/\//g, '-');
-        document.getElementById('statusMsg').innerText = "داتاکان تۆمار دەکرێن...";
-        fetch(scriptURL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify({ driverName, carId, time: now, type })
-        }).then(() => {
-            isOnTrip = !isOnTrip;
-            localStorage.setItem('isOnTrip', isOnTrip);
-            document.getElementById('statusMsg').innerText = "تەواو ✅";
-            updateUI();
-        }).catch(err => {
-            alert("فشل الاتصال: " + err);
-            document.getElementById('statusMsg').innerText = "هەڵەی گواستنەوە ❌";
-        });
-    }
-
-    function clearUser() {
-        let password = prompt("تکایە وشەی نهێنی بنووسە (أدخل كلمة السر):");
-        if (password === "Mm19941994Mm") {
-            if(confirm("آیا دڵنیایت لە سڕینەوەی ناوی شۆفێر؟ (هل تريد مسح بيانات السائق؟)")) {
-                localStorage.clear();
-                location.reload();
-            }
-        } else if (password !== null) {
-            alert("وشەی نهێنی هەڵەیە! (كلمة السر خاطئة)");
         }
-    }
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-        });
-    }
-</script>
+        // دالة معالجة الـ CSV لتنظيف البيانات وإزالة علامات التنصيص
+        function parseCSV(str) {
+            const rows = str.trim().split('\n');
+            return rows.map(row => {
+                let cleanRow = row.trim();
+                if (cleanRow.startsWith('"') && cleanRow.endsWith('"')) {
+                    cleanRow = cleanRow.substring(1, cleanRow.length - 1);
+                    return cleanRow.split('","');
+                }
+                return cleanRow.split(',');
+            });
+        }
+
+        // دالة توزيع البيانات على الواجهة
+        async function loadDashboard() {
+            // -- 1. جلب بيانات Sheet1 --
+            const sheet1Data = await fetchSheetData('Sheet1');
+            if (sheet1Data.length > 0) {
+                // بناءً على الصورة الثانية:
+                // الصف 2 (Index 1) يحتوي على بيانات I, J, K
+                document.getElementById('vid-not-edite').innerText = sheet1Data[1][1] || 0;     // الخلية I2
+                document.getElementById('vid-not-aprove').innerText = sheet1Data[1][2] || 0;    // الخلية J2
+                document.getElementById('vid-not-published').innerText = sheet1Data[1][3] || 0; // الخلية K2
+
+                // الصف 5 (Index 4) يحتوي على البيانات المنشورة
+                document.getElementById('pub-rymax').innerText = sheet1Data[4][0] || 0;   // الخلية H5
+                document.getElementById('pub-mawaran').innerText = sheet1Data[4][1] || 0; // الخلية I5
+                document.getElementById('pub-rc').innerText = sheet1Data[4][2] || 0;      // الخلية J5
+                document.getElementById('pub-client').innerText = sheet1Data[4][3] || 0;  // الخلية K5
+                
+                // الصف 7 (Index 6)
+                document.getElementById('edit-this-month').innerText = sheet1Data[6][0] || 0; // الخلية H7
+                document.getElementById('edit-prev-month').innerText = sheet1Data[6][2] || 0; // الخلية J7
+                
+                // الصف 9 (Index 8)
+                document.getElementById('danyar-this-month').innerText = sheet1Data[8][0] || 0; // الخلية H9
+                document.getElementById('danyar-prev-month').innerText = sheet1Data[8][2] || 0; // الخلية J9
+                
+                // الصف 11 (Index 10)
+                document.getElementById('photo-this-month').innerText = sheet1Data[10][0] || 0; // الخلية H11
+                document.getElementById('photo-prev-month').innerText = sheet1Data[10][2] || 0; // الخلية J11
+            }
+
+            // -- 2. جلب بيانات Sponsore --
+            const sponsoreData = await fetchSheetData('Sponsore');
+            if (sponsoreData.length > 0) {
+                // بناءً على الصورة الأولى:
+                // الصف 4 (Index 3) يحتوي على بيانات الشهر الحالي
+                document.getElementById('spon-this-rymax').innerText = sponsoreData[3][0] || 0;   // الخلية H4
+                document.getElementById('spon-this-mawaran').innerText = sponsoreData[3][1] || 0; // الخلية I4
+                document.getElementById('spon-this-rc').innerText = sponsoreData[3][2] || 0;      // الخلية J4
+                document.getElementById('spon-this-client').innerText = sponsoreData[3][3] || 0;  // الخلية K4
+                document.getElementById('spon-this-total').innerText = sponsoreData[3][4] || 0;   // الخلية L4
+
+                // الصف 8 (Index 7) يحتوي على بيانات الشهر السابق
+                document.getElementById('spon-prev-rymax').innerText = sponsoreData[7][0] || 0;   // الخلية H8
+                document.getElementById('spon-prev-mawaran').innerText = sponsoreData[7][1] || 0; // الخلية I8
+                document.getElementById('spon-prev-rc').innerText = sponsoreData[7][2] || 0;      // الخلية J8
+                document.getElementById('spon-prev-client').innerText = sponsoreData[7][3] || 0;  // الخلية K8
+                document.getElementById('spon-prev-total').innerText = sponsoreData[7][4] || 0;   // الخلية L8
+            }
+        }
+
+        // تشغيل الأكواد بمجرد اكتمال تحميل الصفحة
+        window.onload = loadDashboard;
+    </script>
 </body>
 </html>
