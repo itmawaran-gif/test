@@ -2,15 +2,13 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة البيانات الاحترافية</title>
+    <title>لوحة البيانات - نسخة الإصلاح النهائي</title>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 900px; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: center; }
-        th, td { border: 1px solid #ddd; padding: 12px; font-size: 16px; font-weight: bold; }
-        
-        /* التنسيقات اللونية */
+        th, td { border: 1px solid #ddd; padding: 12px; font-weight: bold; font-size: 16px; }
         .bg-teal { background-color: #8ab6b6; }
         .bg-gold { background-color: #d4ac0d; }
         .bg-purple { background-color: #a569bd; }
@@ -18,7 +16,7 @@
         .bg-orange { background-color: #f39c12; }
         .bg-light-orange { background-color: #f8c471; }
         .bg-light-pink { background-color: #f5b7b1; }
-        .bg-dark-purple { background-color: #4a154b; color: white; padding: 10px; font-size: 18px; text-align: center; font-weight: bold; border-radius: 5px 5px 0 0; }
+        .bg-dark-purple { background-color: #4a154b; color: white; padding: 10px; text-align: center; font-weight: bold; }
         .bg-red { background-color: #ff0000; }
         .text-brown { color: #8b4513; font-size: 20px; }
         .title-red { color: red; font-size: 18px; text-align: center; margin: 10px 0; font-weight: bold; }
@@ -30,7 +28,7 @@
         <h2>تفاصيل الفيديو (Sheet1)</h2>
         <table>
             <tr><th class="bg-teal">not Edite</th><th class="bg-teal">not Aprove</th><th class="bg-teal">not Published</th></tr>
-            <tr><td id="S1-I2">-</td><td id="S1-J2">-</td><td id="S1-K2">-</td></tr>
+            <tr><td id="S1-I2">جاري التحميل...</td><td id="S1-J2">-</td><td id="S1-K2">-</td></tr>
         </table>
 
         <div class="title-red">Published 2026</div>
@@ -70,54 +68,58 @@
         google.charts.load('current', {packages:['corechart']});
         google.charts.setOnLoadCallback(init);
 
+        // دالة لجلب القيمة بأمان لتجنب خطأ الـ Index
+        function safeGetValue(dataTable, rowIndex, colIndex) {
+            // التحقق مما إذا كان الصف موجوداً في البيانات المستلمة
+            if (rowIndex < dataTable.getNumberOfRows()) {
+                return dataTable.getValue(rowIndex, colIndex) || 0;
+            }
+            return 0; // إذا لم يجد الصف يرجع صفر بدلاً من الخطأ
+        }
+
         function init() {
-            // جلب بيانات Sheet1 (النطاق من H إلى L والصفوف حتى 15)
-            const q1 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sheet1&range=H1:L15`);
+            // طلب نطاق واسع H1:L20 لضمان شمول الخلايا المدموجة المتأخرة
+            const q1 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sheet1&range=H1:L20`);
             q1.send(res => {
-                if (res.isError()) return;
-                const data = res.getDataTable();
+                if (res.isError()) { console.error(res.getMessage()); return; }
+                const dt = res.getDataTable();
                 
-                // الأعمدة في النطاق H1:L15 هي: H=0, I=1, J=2, K=3, L=4
-                // الصفوف تبدأ من 0 (الصف 1 في الشيت هو 0 في الكود)
+                // الأعمدة: H=0, I=1, J=2, K=3, L=4
+                document.getElementById('S1-I2').innerText = safeGetValue(dt, 1, 1); // I2
+                document.getElementById('S1-J2').innerText = safeGetValue(dt, 1, 2); // J2
+                document.getElementById('S1-K2').innerText = safeGetValue(dt, 1, 3); // K2
                 
-                document.getElementById('S1-I2').innerText = data.getValue(1, 1); // I2
-                document.getElementById('S1-J2').innerText = data.getValue(1, 2); // J2
-                document.getElementById('S1-K2').innerText = data.getValue(1, 3); // K2
-                
-                document.getElementById('S1-I5').innerText = data.getValue(4, 1); // I5
-                document.getElementById('S1-J5').innerText = data.getValue(4, 2); // J5
-                document.getElementById('S1-K5').innerText = data.getValue(4, 3); // K5
-                document.getElementById('S1-L5').innerText = data.getValue(4, 4); // L5
+                document.getElementById('S1-I5').innerText = safeGetValue(dt, 4, 1); // I5
+                document.getElementById('S1-J5').innerText = safeGetValue(dt, 4, 2); // J5
+                document.getElementById('S1-K5').innerText = safeGetValue(dt, 4, 3); // K5
+                document.getElementById('S1-L5').innerText = safeGetValue(dt, 4, 4); // L5
 
-                document.getElementById('S1-I8').innerText = data.getValue(7, 1); // I8
-                document.getElementById('S1-K8').innerText = data.getValue(7, 3); // K8
+                document.getElementById('S1-I8').innerText = safeGetValue(dt, 7, 1); // I8
+                document.getElementById('S1-K8').innerText = safeGetValue(dt, 7, 3); // K8
 
-                document.getElementById('S1-I11').innerText = data.getValue(10, 1); // I11
-                document.getElementById('S1-K11').innerText = data.getValue(10, 3); // K11
+                document.getElementById('S1-I11').innerText = safeGetValue(dt, 10, 1); // I11
+                document.getElementById('S1-K11').innerText = safeGetValue(dt, 10, 3); // K11
 
-                document.getElementById('S1-I14').innerText = data.getValue(13, 1); // I14
-                document.getElementById('S1-K14').innerText = data.getValue(13, 3); // K14
+                document.getElementById('S1-I14').innerText = safeGetValue(dt, 13, 1); // I14
+                document.getElementById('S1-K14').innerText = safeGetValue(dt, 13, 3); // K14
             });
 
-            // جلب بيانات Sponsore (نفس النطاق)
             const q2 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sponsore&range=H1:L15`);
             q2.send(res => {
                 if (res.isError()) return;
-                const data = res.getDataTable();
+                const dt = res.getDataTable();
 
-                // This Month (الصف 4 = Index 3)
-                document.getElementById('SP-H4').innerText = data.getValue(3, 0); // H4
-                document.getElementById('SP-I4').innerText = data.getValue(3, 1); // I4
-                document.getElementById('SP-J4').innerText = data.getValue(3, 2); // J4
-                document.getElementById('SP-K4').innerText = data.getValue(3, 3); // K4
-                document.getElementById('SP-L4').innerText = data.getValue(3, 4); // L4
+                document.getElementById('SP-H4').innerText = safeGetValue(dt, 3, 0); // H4
+                document.getElementById('SP-I4').innerText = safeGetValue(dt, 3, 1);
+                document.getElementById('SP-J4').innerText = safeGetValue(dt, 3, 2);
+                document.getElementById('SP-K4').innerText = safeGetValue(dt, 3, 3);
+                document.getElementById('SP-L4').innerText = safeGetValue(dt, 3, 4);
 
-                // Previous Month (الصف 8 = Index 7)
-                document.getElementById('SP-H8').innerText = data.getValue(7, 0); // H8
-                document.getElementById('SP-I8').innerText = data.getValue(7, 1); // I8
-                document.getElementById('SP-J8').innerText = data.getValue(7, 2); // J8
-                document.getElementById('SP-K8').innerText = data.getValue(7, 3); // K8
-                document.getElementById('SP-L8').innerText = data.getValue(7, 4); // L8
+                document.getElementById('SP-H8').innerText = safeGetValue(dt, 7, 0); // H8
+                document.getElementById('SP-I8').innerText = safeGetValue(dt, 7, 1);
+                document.getElementById('SP-J8').innerText = safeGetValue(dt, 7, 2);
+                document.getElementById('SP-K8').innerText = safeGetValue(dt, 7, 3);
+                document.getElementById('SP-L8').innerText = safeGetValue(dt, 7, 4);
             });
         }
     </script>
