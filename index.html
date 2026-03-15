@@ -2,15 +2,15 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة البيانات - النسخة المصححة</title>
+    <title>لوحة البيانات الاحترافية</title>
     <script src="https://www.gstatic.com/charts/loader.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 850px; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; text-align: center; }
-        th, td { border: 1px solid #ccc; padding: 10px; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; margin-bottom: 30px; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; text-align: center; }
+        th, td { border: 1px solid #ddd; padding: 12px; font-size: 16px; font-weight: bold; }
         
-        /* التنسيقات اللونية كما في الصورة */
+        /* التنسيقات اللونية */
         .bg-teal { background-color: #8ab6b6; }
         .bg-gold { background-color: #d4ac0d; }
         .bg-purple { background-color: #a569bd; }
@@ -18,7 +18,7 @@
         .bg-orange { background-color: #f39c12; }
         .bg-light-orange { background-color: #f8c471; }
         .bg-light-pink { background-color: #f5b7b1; }
-        .bg-dark-purple { background-color: #4a154b; color: white; }
+        .bg-dark-purple { background-color: #4a154b; color: white; padding: 10px; font-size: 18px; text-align: center; font-weight: bold; border-radius: 5px 5px 0 0; }
         .bg-red { background-color: #ff0000; }
         .text-brown { color: #8b4513; font-size: 20px; }
         .title-red { color: red; font-size: 18px; text-align: center; margin: 10px 0; font-weight: bold; }
@@ -30,96 +30,94 @@
         <h2>تفاصيل الفيديو (Sheet1)</h2>
         <table>
             <tr><th class="bg-teal">not Edite</th><th class="bg-teal">not Aprove</th><th class="bg-teal">not Published</th></tr>
-            <tr><td id="cell-I2">-</td><td id="cell-J2">-</td><td id="cell-K2">-</td></tr>
+            <tr><td id="S1-I2">-</td><td id="S1-J2">-</td><td id="S1-K2">-</td></tr>
         </table>
 
         <div class="title-red">Published 2026</div>
         <table>
             <tr><th class="bg-gold">Rymax</th><th class="bg-purple">Mawaran</th><th class="bg-cyan">RC</th><th class="bg-orange">Client</th></tr>
-            <tr><td id="cell-H6">-</td><td id="cell-I6">-</td><td id="cell-J6">-</td><td id="cell-K6">-</td></tr>
+            <tr><td id="S1-I5">-</td><td id="S1-J5">-</td><td id="S1-K5">-</td><td id="S1-L5">-</td></tr>
         </table>
 
         <table>
             <tr><th class="bg-light-orange">Edited this month Video</th><th class="bg-light-pink">Edited Previous month Video</th></tr>
-            <tr><td class="text-brown" id="cell-H9">-</td><td class="text-brown" id="cell-J9">-</td></tr>
+            <tr><td class="text-brown" id="S1-I8">-</td><td class="text-brown" id="S1-K8">-</td></tr>
             <tr><th class="bg-light-orange">this month By Danyar</th><th class="bg-light-pink">Previous month By Danyar</th></tr>
-            <tr><td class="text-brown" id="cell-H11">-</td><td class="text-brown" id="cell-J11">-</td></tr>
+            <tr><td class="text-brown" id="S1-I11">-</td><td class="text-brown" id="S1-K11">-</td></tr>
             <tr><th class="bg-light-orange">this month Photo</th><th class="bg-light-pink">Previous month Photo</th></tr>
-            <tr><td class="text-brown" id="cell-H13">-</td><td class="text-brown" id="cell-J13">-</td></tr>
+            <tr><td class="text-brown" id="S1-I14">-</td><td class="text-brown" id="S1-K14">-</td></tr>
         </table>
     </div>
 
     <div class="container">
         <h2>تفاصيل الإعلانات (Sponsore)</h2>
-        <div class="bg-dark-purple" style="text-align: center; padding: 8px;">This month</div>
+        <div class="bg-dark-purple">This month</div>
         <table>
             <tr><th class="bg-orange">Rymax</th><th class="bg-orange">Mawaran</th><th class="bg-orange">RC</th><th class="bg-orange">clint</th><th class="bg-red">TOTAL</th></tr>
-            <tr><td id="sp-H5">-</td><td id="sp-I5">-</td><td id="sp-J5">-</td><td id="sp-K5">-</td><td id="sp-L5">-</td></tr>
+            <tr><td id="SP-H4">-</td><td id="SP-I4">-</td><td id="SP-J4">-</td><td id="SP-K4">-</td><td id="SP-L4">-</td></tr>
         </table>
 
-        <div class="bg-dark-purple" style="text-align: center; padding: 8px;">Previous month</div>
+        <div class="bg-dark-purple">Previous month</div>
         <table>
             <tr><th class="bg-orange">Rymax</th><th class="bg-orange">Mawaran</th><th class="bg-orange">RC</th><th class="bg-orange">clint</th><th class="bg-red">TOTAL</th></tr>
-            <tr><td id="sp-H9">-</td><td id="sp-I9">-</td><td id="sp-J9">-</td><td id="sp-K9">-</td><td id="sp-L9">-</td></tr>
+            <tr><td id="SP-H8">-</td><td id="SP-I8">-</td><td id="SP-J8">-</td><td id="SP-K8">-</td><td id="SP-L8">-</td></tr>
         </table>
     </div>
 
     <script>
-        // ID الخاص بملفك
         const SHEET_ID = '17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q';
 
         google.charts.load('current', {packages:['corechart']});
-        google.charts.setOnLoadCallback(loadAllData);
+        google.charts.setOnLoadCallback(init);
 
-        function loadAllData() {
-            // 1. جلب بيانات Sheet1 (النطاق H1:K13)
-            const query1 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sheet1&range=H1:K13`);
-            query1.send(res1 => {
-                if (res1.isError()) return;
-                const dt = res1.getDataTable();
+        function init() {
+            // جلب بيانات Sheet1 (النطاق من H إلى L والصفوف حتى 15)
+            const q1 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sheet1&range=H1:L15`);
+            q1.send(res => {
+                if (res.isError()) return;
+                const data = res.getDataTable();
                 
-                // العمود H=0, I=1, J=2, K=3
-                // الصف 2 (Index 1)
-                document.getElementById('cell-I2').innerText = dt.getValue(1, 1);
-                document.getElementById('cell-J2').innerText = dt.getValue(1, 2);
-                document.getElementById('cell-K2').innerText = dt.getValue(1, 3);
+                // الأعمدة في النطاق H1:L15 هي: H=0, I=1, J=2, K=3, L=4
+                // الصفوف تبدأ من 0 (الصف 1 في الشيت هو 0 في الكود)
                 
-                // الصف 6 (Index 5) - بعد دمج "Published 2026" في الصف 4 و 5
-                document.getElementById('cell-H6').innerText = dt.getValue(5, 0);
-                document.getElementById('cell-I6').innerText = dt.getValue(5, 1);
-                document.getElementById('cell-J6').innerText = dt.getValue(5, 2);
-                document.getElementById('cell-K6').innerText = dt.getValue(5, 3);
+                document.getElementById('S1-I2').innerText = data.getValue(1, 1); // I2
+                document.getElementById('S1-J2').innerText = data.getValue(1, 2); // J2
+                document.getElementById('S1-K2').innerText = data.getValue(1, 3); // K2
+                
+                document.getElementById('S1-I5').innerText = data.getValue(4, 1); // I5
+                document.getElementById('S1-J5').innerText = data.getValue(4, 2); // J5
+                document.getElementById('S1-K5').innerText = data.getValue(4, 3); // K5
+                document.getElementById('S1-L5').innerText = data.getValue(4, 4); // L5
 
-                // الصفوف 9، 11، 13 (نأخذ القيم من H و J لأن العناوين مدموجة H:I و J:K)
-                document.getElementById('cell-H9').innerText = dt.getValue(8, 0); 
-                document.getElementById('cell-J9').innerText = dt.getValue(8, 2);
-                
-                document.getElementById('cell-H11').innerText = dt.getValue(10, 0);
-                document.getElementById('cell-J11').innerText = dt.getValue(10, 2);
-                
-                document.getElementById('cell-H13').innerText = dt.getValue(12, 0);
-                document.getElementById('cell-J13').innerText = dt.getValue(12, 2);
+                document.getElementById('S1-I8').innerText = data.getValue(7, 1); // I8
+                document.getElementById('S1-K8').innerText = data.getValue(7, 3); // K8
+
+                document.getElementById('S1-I11').innerText = data.getValue(10, 1); // I11
+                document.getElementById('S1-K11').innerText = data.getValue(10, 3); // K11
+
+                document.getElementById('S1-I14').innerText = data.getValue(13, 1); // I14
+                document.getElementById('S1-K14').innerText = data.getValue(13, 3); // K14
             });
 
-            // 2. جلب بيانات Sponsore (النطاق H1:L9)
-            const query2 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sponsore&range=H1:L9`);
-            query2.send(res2 => {
-                if (res2.isError()) return;
-                const dt = res2.getDataTable();
+            // جلب بيانات Sponsore (نفس النطاق)
+            const q2 = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=Sponsore&range=H1:L15`);
+            q2.send(res => {
+                if (res.isError()) return;
+                const data = res.getDataTable();
 
-                // بيانات "This month" تظهر في الصف رقم 5 (Index 4)
-                document.getElementById('sp-H5').innerText = dt.getValue(4, 0);
-                document.getElementById('sp-I5').innerText = dt.getValue(4, 1);
-                document.getElementById('sp-J5').innerText = dt.getValue(4, 2);
-                document.getElementById('sp-K5').innerText = dt.getValue(4, 3);
-                document.getElementById('sp-L5').innerText = dt.getValue(4, 4);
+                // This Month (الصف 4 = Index 3)
+                document.getElementById('SP-H4').innerText = data.getValue(3, 0); // H4
+                document.getElementById('SP-I4').innerText = data.getValue(3, 1); // I4
+                document.getElementById('SP-J4').innerText = data.getValue(3, 2); // J4
+                document.getElementById('SP-K4').innerText = data.getValue(3, 3); // K4
+                document.getElementById('SP-L4').innerText = data.getValue(3, 4); // L4
 
-                // بيانات "Previous month" تظهر في الصف رقم 9 (Index 8)
-                document.getElementById('sp-H9').innerText = dt.getValue(8, 0);
-                document.getElementById('sp-I9').innerText = dt.getValue(8, 1);
-                document.getElementById('sp-J9').innerText = dt.getValue(8, 2);
-                document.getElementById('sp-K9').innerText = dt.getValue(8, 3);
-                document.getElementById('sp-L9').innerText = dt.getValue(8, 4);
+                // Previous Month (الصف 8 = Index 7)
+                document.getElementById('SP-H8').innerText = data.getValue(7, 0); // H8
+                document.getElementById('SP-I8').innerText = data.getValue(7, 1); // I8
+                document.getElementById('SP-J8').innerText = data.getValue(7, 2); // J8
+                document.getElementById('SP-K8').innerText = data.getValue(7, 3); // K8
+                document.getElementById('SP-L8').innerText = data.getValue(7, 4); // L8
             });
         }
     </script>
