@@ -200,7 +200,7 @@
 <div class="container" id="app">
   <div class="loading">
     <div class="spinner"></div>
-    <p>Loading...</p>
+    <p>جاري جلب البيانات من السحابة...</p>
   </div>
 </div>
 
@@ -256,12 +256,12 @@ function formatDateOnly(date){
 }
 
 function loadData() {
-  // Video Stats
+  // Video & Photo Stats
   getValue("Sheet1","I8",  "vid_this"); getValue("Sheet1","K8",  "vid_prev");
   getValue("Sheet1","I11", "dan_this"); getValue("Sheet1","K11", "dan_prev");
   getValue("Sheet1","I14", "photo_this"); getValue("Sheet1","K14", "photo_prev");
   
-  // Sponsor data
+  // Sponsor data (Current & Previous)
   getValue("Sponsore","H4","s_rymax"); getValue("Sponsore","I4","s_mawaran");
   getValue("Sponsore","J4","s_rc"); getValue("Sponsore","K4","s_client"); getValue("Sponsore","L4","s_total");
   getValue("Sponsore","H8","p_rymax"); getValue("Sponsore","I8","p_mawaran");
@@ -343,6 +343,17 @@ function renderUI() {
         <div class="sp-item"><div class="sp-label">RC</div>      <div class="sp-val">${DATA['s_rc']}</div></div>
         <div class="sp-item"><div class="sp-label">Client</div>  <div class="sp-val">${DATA['s_client']}</div></div>
         <div class="sp-item sp-total"><div class="sp-label">Total</div><div class="sp-val">${DATA['s_total']}</div></div>
+      </div>
+    </div>
+
+    <div class="sponsor-block sp-prev" style="margin-top:16px;">
+      <div class="sponsor-head">🗓️ Previous Month Total: ${DATA['p_total']}</div>
+      <div class="sponsor-body">
+        <div class="sp-item"><div class="sp-label">Rymax</div> <div class="sp-val">${DATA['p_rymax']}</div></div>
+        <div class="sp-item"><div class="sp-label">Mawaran</div><div class="sp-val">${DATA['p_mawaran']}</div></div>
+        <div class="sp-item"><div class="sp-label">RC</div>      <div class="sp-val">${DATA['p_rc']}</div></div>
+        <div class="sp-item"><div class="sp-label">Client</div>  <div class="sp-val">${DATA['p_client']}</div></div>
+        <div class="sp-item sp-total"><div class="sp-label">Total</div><div class="sp-val">${DATA['p_total']}</div></div>
       </div>
     </div>
 
