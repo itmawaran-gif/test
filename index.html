@@ -332,7 +332,7 @@ function loadData() {
 function d(key) {
   return DATA[key] !== undefined ? DATA[key] : '—';
 }
-  function fetchJobData() {
+function fetchJobData() {
   totalCalls++;
   const q = new google.visualization.Query(
     `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=job`
@@ -340,10 +340,30 @@ function d(key) {
 
   q.send(function(res) {
     try {
-      DATA['jobTable'] = res.getDataTable();
+      const table = res.getDataTable();
+
+      let data = [];
+      const cols = table.getNumberOfColumns();
+      const rows = table.getNumberOfRows();
+
+      for (let i = 0; i < rows; i++) {
+        let row = [];
+        for (let j = 0; j < cols; j++) {
+          row.push(table.getValue(i, j));
+        }
+        data.push(row);
+      }
+
+      DATA['jobTable'] = {
+        columns: cols,
+        rows: data,
+        labels: Array.from({length: cols}, (_, i) => table.getColumnLabel(i))
+      };
+
     } catch(e) {
       DATA['jobTable'] = null;
     }
+
     doneCalls++;
     if (doneCalls >= totalCalls) renderUI();
   });
@@ -463,22 +483,25 @@ function renderJobCards(selectedDate){
   const table = DATA['jobTable'];
   if(!table) return;
 
-  const numCols = table.getNumberOfColumns();
-  const numRows = table.getNumberOfRows();
+  const cols = table.columns;
+  const rows = table.rows;
+  const labels = table.labels;
 
   let html = '';
 
-  for(let j=0; j<numCols; j+=2){
-    let emp = table.getColumnLabel(j);
+  for(let j=0; j<cols; j+=2){
+
+    let emp = labels[j];
     if(!emp || emp.includes("Column")) continue;
 
     let work = "لا توجد أعمال";
 
-    for(let i=0;i<numRows;i++){
-      let date = table.getValue(i,j);
-      if(date instanceof Date){
-        if(formatDateOnly(date) === selectedDate){
-          work = table.getValue(i,j+1) || "لا توجد أعمال";
+    for(let i=0;i<rows.length;i++){
+      let cellDate = rows[i][j];
+
+      if(cellDate instanceof Date){
+        if(formatDateOnly(cellDate) === selectedDate){
+          work = rows[i][j+1] || "لا توجد أعمال";
           break;
         }
       }
