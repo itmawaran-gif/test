@@ -84,9 +84,11 @@
   }
   .sec-icon.purple{background:rgba(176,110,255,.15);box-shadow:0 0 20px rgba(176,110,255,.2);}
   .sec-icon.green {background:rgba(0,230,118,.12); box-shadow:0 0 20px rgba(0,230,118,.15);}
+  .sec-icon.teal  {background:rgba(38,255,184,.12); box-shadow:0 0 20px rgba(38,255,184,.15);}
   .sec-header h2{font-size:2rem;font-weight:900;letter-spacing:.03em;}
   .sec-header h2.purple{color:#c084fc;}
   .sec-header h2.green {color:#86efac;}
+  .sec-header h2.teal  {color:var(--teal);}
   .sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
 
   /* LOADING */
@@ -189,6 +191,240 @@
   .sp-total .sp-val{color:var(--pink)!important;font-size:3rem;text-shadow:0 0 22px rgba(255,110,180,.4)!important;}
 
   .section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:44px 0 0;}
+
+  /* ═══════════════════════════════════════════
+     JOB SECTION
+  ═══════════════════════════════════════════ */
+  .job-date-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 14px 20px;
+  }
+  .job-date-label {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    white-space: nowrap;
+  }
+  .job-date-input {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: .88rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    flex: 1;
+    min-width: 150px;
+    max-width: 200px;
+  }
+  .job-date-input:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(38,255,184,.12);
+  }
+  /* calendar icon color fix */
+  .job-date-input::-webkit-calendar-picker-indicator {
+    filter: invert(.7) sepia(1) hue-rotate(130deg);
+    cursor: pointer;
+  }
+  .job-date-shortcuts {
+    display: flex;
+    gap: 8px;
+    margin-right: auto;
+  }
+  .shortcut-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--muted);
+    font-family: 'Cairo', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+  .shortcut-btn:hover,
+  .shortcut-btn.active {
+    background: rgba(38,255,184,.12);
+    border-color: rgba(38,255,184,.4);
+    color: var(--teal);
+  }
+  .job-load-btn {
+    background: linear-gradient(135deg,rgba(38,255,184,.18),rgba(0,229,255,.12));
+    border: 1px solid rgba(38,255,184,.4);
+    border-radius: 10px;
+    color: var(--teal);
+    font-family: 'Cairo', sans-serif;
+    font-size: .85rem;
+    font-weight: 800;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .04em;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .job-load-btn:hover {
+    background: linear-gradient(135deg,rgba(38,255,184,.28),rgba(0,229,255,.22));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(38,255,184,.2);
+  }
+
+  /* Job cards grid */
+  .job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .job-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeUp .45s ease both;
+    transition: transform .2s, box-shadow .2s;
+    border-top: 2px solid rgba(38,255,184,.3);
+  }
+  .job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  }
+  .job-card-head {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(38,255,184,.07);
+  }
+  .job-card-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(135deg,rgba(38,255,184,.25),rgba(0,229,255,.2));
+    border: 1px solid rgba(38,255,184,.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .job-card-name {
+    font-size: .95rem;
+    font-weight: 800;
+    color: var(--teal);
+    letter-spacing: .03em;
+    flex: 1;
+  }
+  .job-card-badge {
+    font-size: .65rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    letter-spacing: .04em;
+  }
+  .job-card-body {
+    padding: 0;
+  }
+  /* Each entry row: date + work */
+  .job-entry {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--border));
+  }
+  .job-entry:last-child { border-bottom: none; }
+  .job-entry-date {
+    padding: 12px 14px;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--muted);
+    border-left: 1px solid var(--border);
+    white-space: nowrap;
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 90px;
+    background: rgba(255,255,255,.018);
+  }
+  .job-entry-work {
+    padding: 12px 16px;
+    font-size: .86rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .job-no-data {
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .job-no-data-icon {
+    font-size: 1.8rem;
+    opacity: .4;
+  }
+  .job-loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .job-spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--dim);
+    border-top-color: var(--teal);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  /* Selected date banner */
+  .job-selected-date-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(38,255,184,.07);
+    border: 1px solid rgba(38,255,184,.2);
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: .04em;
+  }
+  .job-selected-date-banner span {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
   @media(max-width:700px){
@@ -199,6 +435,9 @@
     .header{padding:14px 18px;}
     .container{padding:24px 14px 40px;}
     .status-num,.cc-val{font-size:3rem;}
+    .job-grid{grid-template-columns:1fr;}
+    .job-date-input{max-width:100%;}
+    .job-date-shortcuts{margin-right:0;}
   }
 </style>
 </head>
@@ -214,15 +453,14 @@
   </div>
   <div class="header-meta">
     <span class="dot"></span>
-    <span id="updateTime">جارٍ التحميل...</span><br/>
-    <span style="font-size:.65rem;">البيانات من Google Sheets</span>
+    <span id="updateTime">Loading...</span><br/>
   </div>
 </header>
 
 <div class="container" id="app">
   <div class="loading">
     <div class="spinner"></div>
-    <p>جارٍ تحميل البيانات من Google Sheets...</p>
+    <p>Loading...</p>
   </div>
 </div>
 
@@ -232,7 +470,6 @@ google.charts.setOnLoadCallback(loadData);
 
 const sheetID = "17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q";
 
-// Store all values
 const DATA = {};
 let totalCalls = 0;
 let doneCalls  = 0;
@@ -256,36 +493,28 @@ function getValue(sheet, range, key) {
 }
 
 function loadData() {
-  // Sheet1 – Status
   getValue("Sheet1","I2",  "notEdit");
   getValue("Sheet1","J2",  "notApprove");
   getValue("Sheet1","K2",  "notPublished");
-  // Sheet1 – Client labels (row 5)
   getValue("Sheet1","I5",  "rymax_lbl");
   getValue("Sheet1","J5",  "mawaran_lbl");
   getValue("Sheet1","K5",  "rc_lbl");
   getValue("Sheet1","L5",  "client_lbl");
-  // Sheet1 – Client values (row 6)
   getValue("Sheet1","I6",  "rymax_val");
   getValue("Sheet1","J6",  "mawaran_val");
   getValue("Sheet1","K6",  "rc_val");
   getValue("Sheet1","L6",  "client_val");
-  // Sheet1 – Edited videos
   getValue("Sheet1","I8",  "vid_this");
   getValue("Sheet1","K8",  "vid_prev");
-  // Sheet1 – Danyar
   getValue("Sheet1","I11", "dan_this");
   getValue("Sheet1","K11", "dan_prev");
-  // Sheet1 – Photo
   getValue("Sheet1","I14", "photo_this");
   getValue("Sheet1","K14", "photo_prev");
-  // Sponsore – This month
   getValue("Sponsore","H4","s_rymax");
   getValue("Sponsore","I4","s_mawaran");
   getValue("Sponsore","J4","s_rc");
   getValue("Sponsore","K4","s_client");
   getValue("Sponsore","L4","s_total");
-  // Sponsore – Previous month
   getValue("Sponsore","H8","p_rymax");
   getValue("Sponsore","I8","p_mawaran");
   getValue("Sponsore","J8","p_rc");
@@ -383,7 +612,261 @@ function renderUI() {
         <div class="sp-item sp-total"><div class="sp-label">Total</div><div class="sp-val">${d('p_total')}</div></div>
       </div>
     </div>
+
+    <!-- ═══════════ JOB SECTION ═══════════ -->
+    <div class="section-divider"></div>
+
+    <div class="sec-header">
+      <div class="sec-icon teal">💼</div>
+      <h2 class="teal">Job</h2>
+      <div class="sec-line"></div>
+    </div>
+
+    <!-- Date picker bar -->
+    <div class="job-date-bar">
+      <span class="job-date-label">📅 التاريخ</span>
+      <input type="date" class="job-date-input" id="jobDateInput"/>
+      <div class="job-date-shortcuts">
+        <button class="shortcut-btn" id="btnYesterday" onclick="setJobDate('yesterday')">أمس</button>
+        <button class="shortcut-btn" id="btnToday"     onclick="setJobDate('today')">اليوم</button>
+      </div>
+      <button class="job-load-btn" onclick="loadJobSection()">
+        🔍 عرض
+      </button>
+    </div>
+
+    <!-- Job results container -->
+    <div id="job-section">
+      <div class="job-loading">
+        <div class="job-spinner"></div>
+        <p style="font-size:.85rem;color:var(--muted)">جاري تحميل بيانات الموظفين...</p>
+      </div>
+    </div>
   `;
+
+  // Init date picker with yesterday
+  initJobDatePicker();
+}
+
+/* ════════════════════════════════════════════
+   JOB SECTION LOGIC
+════════════════════════════════════════════ */
+
+function getYesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return fmtInputDate(d);
+}
+
+function getTodayStr() {
+  return fmtInputDate(new Date());
+}
+
+function fmtInputDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fmtDisplayDate(dateStr) {
+  // dateStr = "YYYY-MM-DD"  →  nice Arabic display
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('ar-IQ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+function initJobDatePicker() {
+  const inp = document.getElementById('jobDateInput');
+  if (!inp) return;
+  const yesterday = getYesterdayStr();
+  inp.value = yesterday;
+  updateShortcutBtns(yesterday);
+  // Auto-load
+  setTimeout(() => loadJobSection(), 0);
+}
+
+function setJobDate(which) {
+  const inp = document.getElementById('jobDateInput');
+  if (!inp) return;
+  const val = (which === 'today') ? getTodayStr() : getYesterdayStr();
+  inp.value = val;
+  updateShortcutBtns(val);
+  loadJobSection();
+}
+
+function updateShortcutBtns(val) {
+  const btnY = document.getElementById('btnYesterday');
+  const btnT = document.getElementById('btnToday');
+  if (!btnY || !btnT) return;
+  btnY.classList.toggle('active', val === getYesterdayStr());
+  btnT.classList.toggle('active', val === getTodayStr());
+}
+
+function loadJobSection() {
+  const inp = document.getElementById('jobDateInput');
+  const dateStr = inp ? inp.value : getYesterdayStr();
+  updateShortcutBtns(dateStr);
+
+  const sec = document.getElementById('job-section');
+  if (!sec) return;
+  sec.innerHTML = `
+    <div class="job-loading">
+      <div class="job-spinner"></div>
+      <p style="font-size:.85rem;color:var(--muted)">جاري تحميل البيانات...</p>
+    </div>`;
+
+  const q = new google.visualization.Query(
+    `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent('job')}&headers=0`
+  );
+  q.send(function(res) {
+    try {
+      if (res.isError()) throw new Error(res.getMessage());
+      const table = res.getDataTable();
+      renderJobData(table, dateStr);
+    } catch(e) {
+      document.getElementById('job-section').innerHTML =
+        `<div class="job-no-data"><div class="job-no-data-icon">⚠️</div><div>تعذر تحميل بيانات الموظفين<br><small style="font-size:.72rem">${e.message||''}</small></div></div>`;
+    }
+  });
+}
+
+/* ────────────────────────────────────────────
+   Normalize any cell value to "YYYY-MM-DD" or null
+──────────────────────────────────────────── */
+function normDateStr(val) {
+  if (val === null || val === undefined || val === '') return null;
+
+  // gviz Date object
+  if (val instanceof Date) {
+    return `${val.getFullYear()}-${String(val.getMonth()+1).padStart(2,'0')}-${String(val.getDate()).padStart(2,'0')}`;
+  }
+
+  const s = String(val).trim();
+
+  // DD/MM/YYYY  or  D/M/YYYY
+  const m1 = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+  if (m1) return `${m1[3]}-${m1[2].padStart(2,'0')}-${m1[1].padStart(2,'0')}`;
+
+  // YYYY/MM/DD  or  YYYY-MM-DD
+  const m2 = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
+  if (m2) return `${m2[1]}-${m2[2].padStart(2,'0')}-${m2[3].padStart(2,'0')}`;
+
+  // Fallback: try JS Date parse
+  const parsed = new Date(s);
+  if (!isNaN(parsed)) {
+    return `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}-${String(parsed.getDate()).padStart(2,'0')}`;
+  }
+
+  return null;
+}
+
+/* ────────────────────────────────────────────
+   Render job data table
+   Sheet structure (0-indexed rows):
+     Row 0  → Employee names  (col 0, 2, 4 … = name;  col 1, 3, 5 … = null/merge)
+     Row 1  → Column headers  ("التاريخ" / "الأعمال") – skip
+     Row 2+ → data  (even col = date, odd col = work)
+──────────────────────────────────────────── */
+function renderJobData(table, targetDateStr) {
+  const sec = document.getElementById('job-section');
+  if (!table || table.getNumberOfRows() < 2) {
+    sec.innerHTML = `<div class="job-no-data"><div class="job-no-data-icon">📭</div><div>لا توجد بيانات في صفحة job</div></div>`;
+    return;
+  }
+
+  const numCols = table.getNumberOfColumns();
+  const numRows = table.getNumberOfRows();
+
+  // ── 1. Collect employee names from row 0 ──
+  const employees = [];
+  for (let c = 0; c < numCols - 1; c += 2) {
+    const raw = table.getValue(0, c);
+    const name = (raw !== null && raw !== undefined && String(raw).trim() !== '') ? String(raw).trim() : null;
+    if (name) {
+      employees.push({ name, dateCol: c, workCol: c + 1 });
+    }
+  }
+
+  if (employees.length === 0) {
+    sec.innerHTML = `<div class="job-no-data"><div class="job-no-data-icon">👤</div><div>لم يتم العثور على أسماء موظفين في الصف الأول</div></div>`;
+    return;
+  }
+
+  // ── 2. For each employee find rows matching targetDateStr ──
+  //    Data rows start from index 2 (skip row 0 = names, row 1 = headers)
+  const results = employees.map(emp => {
+    const entries = [];
+    for (let r = 2; r < numRows; r++) {
+      const dateVal = table.getValue(r, emp.dateCol);
+      const ds = normDateStr(dateVal);
+      if (!ds) continue;
+      if (ds === targetDateStr) {
+        const workVal = table.getValue(r, emp.workCol);
+        const work = (workVal !== null && workVal !== undefined) ? String(workVal).trim() : '';
+        entries.push({ date: ds, work });
+      }
+    }
+    return { ...emp, entries };
+  });
+
+  // ── 3. Build HTML ──
+  const displayDate = fmtDisplayDate(targetDateStr);
+  const hasAny = results.some(r => r.entries.length > 0);
+
+  let html = `
+    <div class="job-selected-date-banner">
+      📅 &nbsp;
+      <span>يعرض بيانات يوم:</span>
+      &nbsp;${displayDate}
+      ${hasAny ? '' : '&nbsp;·&nbsp;<span style="color:var(--red);font-size:.8rem">لا توجد بيانات لهذا اليوم</span>'}
+    </div>
+    <div class="job-grid">
+  `;
+
+  results.forEach((emp, idx) => {
+    const delay = (idx * 0.06).toFixed(2);
+    html += `
+      <div class="job-card" style="animation-delay:${delay}s">
+        <div class="job-card-head">
+          <div class="job-card-avatar">👤</div>
+          <div class="job-card-name">${escHtml(emp.name)}</div>
+          <div class="job-card-badge">${emp.entries.length} سجل</div>
+        </div>
+        <div class="job-card-body">
+    `;
+
+    if (emp.entries.length === 0) {
+      html += `
+        <div class="job-no-data">
+          <div class="job-no-data-icon">🗓️</div>
+          <div>لا يوجد عمل مسجل لهذا اليوم</div>
+        </div>
+      `;
+    } else {
+      emp.entries.forEach(en => {
+        // Format display date nicely (short)
+        const dParts = en.date.split('-');
+        const shortDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
+        html += `
+          <div class="job-entry" style="border-bottom:1px solid var(--border)">
+            <div class="job-entry-date">📅 ${shortDate}</div>
+            <div class="job-entry-work">${escHtml(en.work) || '<span style="color:var(--muted);font-style:italic">—</span>'}</div>
+          </div>
+        `;
+      });
+    }
+
+    html += `</div></div>`;
+  });
+
+  html += `</div>`;
+  sec.innerHTML = html;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 </script>
 </body>
