@@ -84,11 +84,9 @@
   }
   .sec-icon.purple{background:rgba(176,110,255,.15);box-shadow:0 0 20px rgba(176,110,255,.2);}
   .sec-icon.green {background:rgba(0,230,118,.12); box-shadow:0 0 20px rgba(0,230,118,.15);}
-  .sec-icon.orange{background:rgba(255,140,66,.12); box-shadow:0 0 20px rgba(255,140,66,.15);}
   .sec-header h2{font-size:2rem;font-weight:900;letter-spacing:.03em;}
   .sec-header h2.purple{color:#c084fc;}
   .sec-header h2.green {color:#86efac;}
-  .sec-header h2.orange{color:var(--orange);}
   .sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
 
   /* LOADING */
@@ -99,6 +97,51 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
   .loading p{font-size:.95rem;}
+
+  /* STATUS CARDS */
+  .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .status-card{
+    background:var(--bg3);border:1px solid var(--border);border-radius:18px;
+    padding:28px 24px;text-align:center;position:relative;overflow:hidden;
+    animation:fadeUp .5s ease both;transition:transform .2s;
+  }
+  .status-card:hover{transform:translateY(-3px);}
+  .status-card::after{content:'';position:absolute;inset:0;border-radius:inherit;opacity:.06;}
+  .status-card.s-red  {border-top:2px solid var(--red);}
+  .status-card.s-amber{border-top:2px solid var(--amber);}
+  .status-card.s-cyan {border-top:2px solid var(--cyan);}
+  .status-card.s-red::after  {background:var(--red);}
+  .status-card.s-amber::after{background:var(--amber);}
+  .status-card.s-cyan::after {background:var(--cyan);}
+  .status-glow{
+    position:absolute;top:-20px;left:50%;transform:translateX(-50%);
+    width:80px;height:80px;border-radius:50%;filter:blur(30px);opacity:.25;
+  }
+  .s-red   .status-glow{background:var(--red);}
+  .s-amber .status-glow{background:var(--amber);}
+  .s-cyan  .status-glow{background:var(--cyan);}
+  .status-num{
+    font-family:'Bebas Neue','Cairo',sans-serif;
+    font-size:4.5rem;line-height:1;letter-spacing:.04em;margin-bottom:8px;position:relative;
+  }
+  .s-red   .status-num{color:var(--red);  text-shadow:0 0 30px rgba(255,77,109,.4);}
+  .s-amber .status-num{color:var(--amber);text-shadow:0 0 30px rgba(255,179,71,.4);}
+  .s-cyan  .status-num{color:var(--cyan); text-shadow:0 0 30px rgba(0,229,255,.4);}
+  .status-label{font-size:.82rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
+
+  /* CLIENT CARDS */
+  .clients-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px;}
+  .client-card{
+    background:var(--bg3);border:1px solid var(--border);border-radius:16px;
+    padding:20px 16px;text-align:center;animation:fadeUp .5s ease both;transition:transform .2s;
+  }
+  .client-card:hover{transform:translateY(-2px);}
+  .client-name{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+  .client-val{font-family:'Bebas Neue','Cairo',sans-serif;font-size:3rem;line-height:1;letter-spacing:.05em;}
+  .cv-purple{color:var(--purple);text-shadow:0 0 20px rgba(176,110,255,.35);}
+  .cv-blue  {color:var(--blue);  text-shadow:0 0 20px rgba(79,195,247,.35);}
+  .cv-teal  {color:var(--teal);  text-shadow:0 0 20px rgba(38,255,184,.35);}
+  .cv-orange{color:var(--orange);text-shadow:0 0 20px rgba(255,140,66,.35);}
 
   /* COMPARE */
   .compare-group{margin-top:24px;}
@@ -145,33 +188,136 @@
   .sp-total .sp-label{color:var(--pink)!important;}
   .sp-total .sp-val{color:var(--pink)!important;font-size:3rem;text-shadow:0 0 22px rgba(255,110,180,.4)!important;}
 
-  /* JOB SECTION STYLES */
-  .job-controls{
-    display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;
-    background:var(--bg3);padding:15px 25px;border-radius:15px;border:1px solid var(--border);
-  }
-  .job-controls input{
-    background:var(--bg2);border:1px solid var(--border2);color:var(--text);
-    padding:8px 12px;border-radius:8px;font-family:inherit;
-  }
-  .job-table-wrapper{
-    overflow-x:auto;background:var(--bg3);border-radius:18px;border:1px solid var(--border);
-  }
-  table{width:100%;border-collapse:collapse;min-width:700px;}
-  th, td{padding:14px;border:1px solid var(--border);text-align:center;font-size:0.9rem;}
-  .th-name{background:rgba(176,110,255,0.05);color:var(--purple);font-weight:800;font-size:1rem;}
-  .th-sub{background:var(--bg2);color:var(--muted);font-size:0.75rem;text-transform:uppercase;}
-  .work-cell{color:var(--cyan);font-weight:600;}
-  .date-cell{color:var(--muted);}
-
   .section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:44px 0 0;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
+  /* ===== NEW: JOB SECTION ===== */
+  .job-wrap{
+    margin-top:24px;
+  }
+  .job-controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    margin:0 0 14px;
+  }
+  .job-controls .job-title{
+    font-size:1.1rem;font-weight:900;color:var(--muted);
+    letter-spacing:.06em;text-transform:uppercase;
+    display:flex;align-items:center;gap:10px;
+  }
+  .job-controls .job-title::before{
+    content:'';
+    width:16px;height:2px;background:var(--cyan);
+    border-radius:2px;display:inline-block;
+  }
+  .job-controls .job-date{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    padding:10px 12px;border-radius:14px;
+  }
+  .job-controls label{color:var(--muted);font-weight:700;font-size:.95rem;}
+  .job-controls input[type="date"]{
+    background:transparent;color:var(--text);
+    border:1px solid var(--border2);
+    border-radius:10px;padding:8px 10px;
+    outline:none;
+  }
+  .job-controls .job-refresh{
+    background:linear-gradient(135deg,rgba(176,110,255,.22),rgba(0,229,255,.18));
+    border:1px solid rgba(255,255,255,0.10);
+    color:var(--text);
+    padding:8px 12px;border-radius:12px;
+    cursor:pointer;font-weight:800;letter-spacing:.02em;
+    transition:transform .2s, filter .2s;
+  }
+  .job-controls .job-refresh:hover{transform:translateY(-1px);filter:brightness(1.05);}
+
+  .job-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+  .job-card{
+    background:var(--bg3);
+    border:1px solid var(--border);
+    border-radius:18px;
+    overflow:hidden;
+    animation:fadeUp .5s ease both;
+  }
+  .job-card .job-head{
+    padding:14px 18px;
+    display:flex;align-items:center;justify-content:flex-start;gap:10px;
+    border-bottom:1px solid var(--border);
+    background:rgba(0,229,255,.06);
+    font-weight:900;
+    letter-spacing:.04em;
+  }
+  .job-card .job-head .job-person{
+    font-size:1.1rem;
+  }
+  .job-card .job-table{
+    display:grid;
+    grid-template-columns:1fr 1.4fr;
+  }
+  /* column widths: left is dates(header) and right is works */
+  .job-col{
+    padding:14px 16px;
+  }
+  .job-col.left{
+    border-left:1px solid var(--border);
+    background:rgba(255,255,255,0.02);
+  }
+  .job-col.right{
+    padding-right:18px;
+  }
+  .job-hdr{
+    font-size:.9rem;color:var(--muted);font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .job-date-val{
+    font-family:'Bebas Neue','Cairo',sans-serif;
+    font-size:1.45rem;line-height:1.1;letter-spacing:.02em;
+    color:#cfefff;
+    text-shadow:0 0 14px rgba(0,229,255,.18);
+    margin-bottom:10px;
+    word-break:break-word;
+  }
+  .job-works{
+    display:flex;flex-direction:column;gap:8px;
+    word-break:break-word;
+  }
+  .job-work-item{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+  }
+  .job-work-item .job-work-text{
+    font-weight:700; color:var(--text);
+    font-size:.98rem;
+    line-height:1.5;
+  }
+  .job-empty{
+    padding:18px 16px;
+    color:var(--muted);
+    font-weight:700;
+  }
+
   @media(max-width:700px){
+    .status-grid{grid-template-columns:1fr;}
+    .clients-grid{grid-template-columns:repeat(2,1fr);}
     .compare-row{grid-template-columns:1fr;}
     .sponsor-body{grid-template-columns:repeat(2,1fr);}
     .header{padding:14px 18px;}
     .container{padding:24px 14px 40px;}
+    .status-num,.cc-val{font-size:3rem;}
+    .job-card .job-table{grid-template-columns:1fr;}
+    .job-col.left{border-left:none;border-bottom:1px solid var(--border);}
   }
 </style>
 </head>
@@ -199,63 +345,307 @@
 </div>
 
 <script>
-google.charts.load('current', {'packages':['corechart']});
+google.charts.load('current');
 google.charts.setOnLoadCallback(loadData);
 
 const sheetID = "17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q";
+
+// Store all values
 const DATA = {};
 let totalCalls = 0;
 let doneCalls  = 0;
 
 function getValue(sheet, range, key) {
   totalCalls++;
-  const q = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheet)}&range=${range}`);
+  const q = new google.visualization.Query(
+    `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheet)}&range=${range}`
+  );
   q.send(function(res) {
     try {
       const table = res.getDataTable();
       const v = table ? table.getValue(0, 0) : null;
       DATA[key] = (v === null || v === undefined || v === '') ? '—' : v;
-    } catch(e) { DATA[key] = '—'; }
-    checkFinish();
+    } catch(e) {
+      DATA[key] = '—';
+    }
+    doneCalls++;
+    if (doneCalls >= totalCalls) renderUI();
   });
 }
 
-function fetchJobData() {
+/* ===== NEW: JOB BULK FETCH =====
+   الافتراضات عن صفحة "job" (عدّل إذا كانت مختلفة):
+   - الصف 1: أسماء الموظفين (بدءاً من العمود B مثلاً)، مع كل موظف يأخذ عمودين متجاورين:
+       [EmployeeNameHeader1][DateHeader1] [WorksHeader1]
+     لكن حسب وصفك: "يوجد اسماء الموضف في السطر الاول كل عمودين مدموجين و فيهم اسم و تحتهم الهيدر الخاص بالتاريخ على اليسار و الاعمال على اليمين"
+   - الصف 2: تحت اسم الموظف يوجد هيدر التاريخ في العمود الأول (Date column) وهيدر الأعمال في العمود الثاني (Works column)
+   - الصفوف بدءاً من 3: يوجد تاريخ في عمود التاريخ، وأعمال الموظف في عمود الأعمال
+*/
+const JOB_SHEET = "job";
+// لتكن الأداة تعرف نطاق الأعمدة تلقائياً سنطلب "الحد الأقصى" بشكل واسع (عدّل إذا احتجت)
+const JOB_RANGE = "A1:Z200";
+
+let JOB_MATRIX = {
+  headers: [], // [{ name, dateCol, worksCol }]
+  rows: []     // [{ date: 'YYYY-MM-DD' , worksByPersonName: {Name: worksStringOrHtml}}]
+};
+
+// تحويل التاريخ إلى صيغة date input (YYYY-MM-DD)
+function toISODate(d){
+  // d: Date
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+function normalizeAnyDateToISO(value){
+  if(value === null || value === undefined || value === '') return '';
+  // إذا كان Excel/Sheets يرجع date كـ "Date" أو كنص
+  try{
+    // لو كان كـ Date object:
+    if(Object.prototype.toString.call(value) === '[object Date]'){
+      return toISODate(value);
+    }
+  }catch(e){}
+  // لو نص مثل 14/04/2026 أو 2026-04-14
+  const s = String(value).trim();
+  // ISO مباشرة
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  // dd/mm/yyyy
+  const m1 = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+  if(m1){
+    const dd = String(m1[1]).padStart(2,'0');
+    const mm = String(m1[2]).padStart(2,'0');
+    const yyyy = m1[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  // yyyy/mm/dd
+  const m2 = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
+  if(m2){
+    const yyyy = m2[1];
+    const mm = String(m2[2]).padStart(2,'0');
+    const dd = String(m2[3]).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  return s; // fallback
+}
+
+function fetchJobMatrix(){
   totalCalls++;
-  const q = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=job`);
-  q.send(function(res) {
-    try {
-      DATA['jobTable'] = res.getDataTable();
-    } catch(e) { DATA['jobTable'] = null; }
-    checkFinish();
-  });
-}
+  const q = new google.visualization.Query(
+    `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(JOB_SHEET)}&range=${encodeURIComponent(JOB_RANGE)}`
+  );
+  q.send(function(res){
+    try{
+      const table = res.getDataTable();
+      // table.getNumberOfRows(), getNumberOfColumns()
+      const colCount = table ? table.getNumberOfColumns() : 0;
+      const rowCount = table ? table.getNumberOfRows() : 0;
 
-function checkFinish() {
-  doneCalls++;
-  if (doneCalls >= totalCalls) renderUI();
+      // نفترض صف 1 = index 0، صف 2 = index 1، بيانات تبدأ من index 2
+      // واسم الموظف موجود في صف 1 عند بداية كل زوج أعمدة.
+      // لكن لا نستطيع معرفة أين يبدأ بالضبط، لذا سنفحص الأعمدة:
+      // - الأعمدة الزوجية/المزدوجة: (dateCol, worksCol) للأسماء.
+      // سنبني رؤوس عبر دمجها منطقيًا: نأخذ عنوان الاسم من الصف 1 عند عمود "dateCol" (نفترض).
+      const headers = [];
+      // هنا سنحاول كشف الأزواج: نفترض أن العمود A هو التاريخ العام أو يكون ضمن الأزواج.
+      // حسب وصفك: "الهيدر الخاص بالتاريخ على اليسار و الاعمال على اليمين" داخل كل زوج.
+      // يعني: لكل موظف يوجد عمود تاريخ وعمود أعمال ضمن الزوج نفسه.
+      // لذلك سنعامل كل زوج أعمدة (k,k+1) كموظف واحد.
+      // سنبدأ من عمود 1 (B) لأن A غالباً للتاريخ العام، ولكن قد لا يكون موجوداً.
+      // سنجرب من العمود 0 إلى النهاية بأزواج.
+      // الأفضل: إذا كانت الأعمدة تبدأ من A، سنعمل الأزواج من A.
+      // سنستخدم: الاسم من الصف 1 عند الأعمدة الفردية/زوجية ونسمح فارغ.
+
+      for(let c=0;c<colCount;c+=2){
+        const nameCell = table.getValue(0, c);
+        const name = (nameCell === null || nameCell === undefined || String(nameCell).trim()==='') ? '' : String(nameCell).trim();
+        if(!name) continue;
+        headers.push({
+          name,
+          dateCol: c,
+          worksCol: c+1
+        });
+      }
+
+      JOB_MATRIX.headers = headers;
+      JOB_MATRIX.rows = [];
+
+      for(let r=2;r<rowCount;r++){
+        // لكل صف بيانات: نقرأ التاريخ من كل موظف (تاريخ كل موظف داخل زوجه)
+        // ونكوّن سجل لكل تاريخ إذا كانت الأعمال موجودة.
+        // بما أنك تريد: "يجب يجلب البيانات ... لليوم السابق عند الفتح"
+        // سنفترض أن التاريخ في "dateCol" لكل موظف يمثل اليوم لنفس الصف.
+        const byPerson = {};
+        let anyWork = false;
+
+        // نأخذ التاريخ كـ أول تاريخ غير فارغ من أي موظف
+        let rowDateISO = '';
+
+        for(const h of headers){
+          const rawDate = table.getValue(r, h.dateCol);
+          const dateISO = normalizeAnyDateToISO(rawDate);
+          const worksRaw = table.getValue(r, h.worksCol);
+          const works = (worksRaw === null || worksRaw === undefined || String(worksRaw).trim()==='') ? '' : String(worksRaw).trim();
+
+          if(dateISO && !rowDateISO) rowDateISO = dateISO;
+          if(works){
+            anyWork = true;
+            byPerson[h.name] = works;
+          }
+        }
+        if(!rowDateISO) continue;
+        if(!anyWork) continue;
+
+        // قد تتكرر نفس السنة/الشهر/اليوم عبر موظفين مختلفين في صفوف مختلفة.
+        // سنجمع: لكل تاريخ نخزن الأعمال لكل موظف.
+        let existing = JOB_MATRIX.rows.find(x => x.dateISO === rowDateISO);
+        if(!existing){
+          existing = { dateISO: rowDateISO, worksByPersonName: {} };
+          JOB_MATRIX.rows.push(existing);
+        }
+        Object.assign(existing.worksByPersonName, byPerson);
+      }
+    }catch(e){
+      JOB_MATRIX.headers = [];
+      JOB_MATRIX.rows = [];
+    }
+
+    doneCalls++;
+    if (doneCalls >= totalCalls) renderUI();
+  });
 }
 
 function loadData() {
-  // Existing stats
-  getValue("Sheet1","I8",  "vid_this"); getValue("Sheet1","K8",  "vid_prev");
-  getValue("Sheet1","I11", "dan_this"); getValue("Sheet1","K11", "dan_prev");
-  getValue("Sheet1","I14", "photo_this"); getValue("Sheet1","K14", "photo_prev");
-  getValue("Sponsore","H4","s_rymax"); getValue("Sponsore","I4","s_mawaran");
-  getValue("Sponsore","J4","s_rc"); getValue("Sponsore","K4","s_client"); getValue("Sponsore","L4","s_total");
-  getValue("Sponsore","H8","p_rymax"); getValue("Sponsore","I8","p_mawaran");
-  getValue("Sponsore","J8","p_rc"); getValue("Sponsore","K8","p_client"); getValue("Sponsore","L8","p_total");
-  
-  // Job stats
-  fetchJobData();
+  // Sheet1 – Status
+  getValue("Sheet1","I2",  "notEdit");
+  getValue("Sheet1","J2",  "notApprove");
+  getValue("Sheet1","K2",  "notPublished");
+  // Sheet1 – Client labels (row 5)
+  getValue("Sheet1","I5",  "rymax_lbl");
+  getValue("Sheet1","J5",  "mawaran_lbl");
+  getValue("Sheet1","K5",  "rc_lbl");
+  getValue("Sheet1","L5",  "client_lbl");
+  // Sheet1 – Client values (row 6)
+  getValue("Sheet1","I6",  "rymax_val");
+  getValue("Sheet1","J6",  "mawaran_val");
+  getValue("Sheet1","K6",  "rc_val");
+  getValue("Sheet1","L6",  "client_val");
+  // Sheet1 – Edited videos
+  getValue("Sheet1","I8",  "vid_this");
+  getValue("Sheet1","K8",  "vid_prev");
+  // Sheet1 – Danyar
+  getValue("Sheet1","I11", "dan_this");
+  getValue("Sheet1","K11", "dan_prev");
+  // Sheet1 – Photo
+  getValue("Sheet1","I14", "photo_this");
+  getValue("Sheet1","K14", "photo_prev");
+  // Sponsore – This month
+  getValue("Sponsore","H4","s_rymax");
+  getValue("Sponsore","I4","s_mawaran");
+  getValue("Sponsore","J4","s_rc");
+  getValue("Sponsore","K4","s_client");
+  getValue("Sponsore","L4","s_total");
+  // Sponsore – Previous month
+  getValue("Sponsore","H8","p_rymax");
+  getValue("Sponsore","I8","p_mawaran");
+  getValue("Sponsore","J8","p_rc");
+  getValue("Sponsore","K8","p_client");
+  getValue("Sponsore","L8","p_total");
+
+  // ===== NEW: fetch job matrix =====
+  fetchJobMatrix();
 }
 
-function d(key) { return DATA[key] !== undefined ? DATA[key] : '—'; }
+function d(key) {
+  return DATA[key] !== undefined ? DATA[key] : '—';
+}
 
-function getYesterday() {
+let JOB_SELECTED_DATE_ISO = "";
+
+function getYesterdayISO(){
   const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+  d.setDate(d.getDate()-1);
+  // adjust to local: keep date component only
+  return toISODate(d);
+}
+
+function renderJobSection(){
+  const selected = JOB_SELECTED_DATE_ISO || getYesterdayISO();
+
+  // تحديث قيمة input
+  const input = document.getElementById('jobDateInput');
+  if(input) input.value = selected;
+
+  const row = JOB_MATRIX.rows.find(x => x.dateISO === selected);
+
+  // إذا لا يوجد بيانات، نعرض صفحة فاضية
+  const worksByPerson = row ? row.worksByPersonName : {};
+
+  const cardsHtml = JOB_MATRIX.headers.map((h, idx)=>{
+    const works = worksByPerson[h.name];
+    const worksText = works && String(works).trim() ? works : '—';
+
+    // لعرض الأعمال كمفصل/قائمة لو كانت مفصولة بفواصل أو أسطر
+    // نقسم على سطر جديد أو فاصلة
+    const parts = String(worksText).split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    const displayParts = (parts.length <= 1 && worksText!=='—')
+      ? String(worksText).split(/\s*،\s*|,\s*/).map(s=>s.trim()).filter(Boolean)
+      : parts;
+
+    const items = (worksText === '—')
+      ? `<div class="job-empty">لا توجد أعمال في هذا اليوم.</div>`
+      : `<div class="job-works">
+           ${displayParts.length ? displayParts.map(p=>`
+              <div class="job-work-item">
+                <div class="job-work-text">${p}</div>
+              </div>
+           `).join('') : `<div class="job-empty">لا توجد أعمال في هذا اليوم.</div>`}
+         </div>`;
+
+    return `
+      <div class="job-card">
+        <div class="job-head">👤 <span class="job-person">${h.name}</span></div>
+        <div class="job-table">
+          <div class="job-col left">
+            <div class="job-hdr">Date</div>
+            <div class="job-date-val">${selected}</div>
+          </div>
+          <div class="job-col right">
+            <div class="job-hdr">Works</div>
+            ${items}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if(!JOB_MATRIX.headers.length){
+    return `<div class="job-wrap">
+      <div class="job-card"><div class="job-head">📌 <span class="job-person">job</span></div>
+      <div class="job-empty">تعذر تحميل بيانات صفحة "job". تأكد من نطاق الأعمدة/الرؤوس أو شكل الجدول.</div></div>
+    </div>`;
+  }
+
+  return `
+    <div class="job-wrap">
+      <div class="job-controls">
+        <div class="job-title">Job · أعمال الموظفين</div>
+        <div class="job-date">
+          <label for="jobDateInput">التاريخ:</label>
+          <input id="jobDateInput" type="date"/>
+          <button class="job-refresh" id="jobApplyBtn" type="button">عرض</button>
+        </div>
+      </div>
+
+      <div class="job-grid" id="jobGrid">
+        ${cardsHtml}
+      </div>
+    </div>
+  `;
 }
 
 function renderUI() {
@@ -265,8 +655,8 @@ function renderUI() {
   });
   document.getElementById('updateTime').textContent = now;
 
-  const app = document.getElementById('app');
-  app.innerHTML = `
+  document.getElementById('app').innerHTML = `
+
     <div class="sec-header">
       <div class="sec-icon purple">🎬</div>
       <h2 class="purple">Video Editing</h2>
@@ -345,86 +735,41 @@ function renderUI() {
       </div>
     </div>
 
+    <!-- ===== NEW: JOB SECTION at bottom ===== -->
     <div class="section-divider"></div>
-
-    <div class="sec-header">
-      <div class="sec-icon orange">💼</div>
-      <h2 class="orange">Job</h2>
-      <div class="sec-line"></div>
-    </div>
-
-    <div class="job-controls">
-      <span style="font-weight:700; color:var(--muted)">تاريخ الأعمال:</span>
-      <input type="date" id="jobDateInput" value="${getYesterday()}" onchange="renderJobTable(this.value)">
-    </div>
-
-    <div class="job-table-wrapper" id="jobTableContainer"></div>
+    ${(() => {
+      JOB_SELECTED_DATE_ISO = getYesterdayISO();
+      return renderJobSection();
+    })()}
   `;
-  renderJobTable(getYesterday());
-}
 
-function renderJobTable(selectedDate) {
-  const table = DATA['jobTable'];
-  if (!table) return;
+  // bind job events
+  const applyBtn = document.getElementById('jobApplyBtn');
+  const input = document.getElementById('jobDateInput');
 
-  const numCols = table.getNumberOfColumns();
-  const numRows = table.getNumberOfRows();
-  
-  // بناء الهيدر بناءً على عدد الموظفين في الشيت (كل عمودين مدمجين)
-  let headHtml = '<thead><tr>';
-  let subHeadHtml = '<tr>';
-  
-  for (let j = 0; j < numCols; j += 2) {
-    let name = table.getColumnLabel(j);
-    headHtml += `<th colspan="2" class="th-name">${name}</th>`;
-    subHeadHtml += `<th class="th-sub">التاريخ</th><th class="th-sub">العمل</th>`;
-  }
-  headHtml += '</tr>' + subHeadHtml + '</tr></thead>';
-
-  // بناء محتوى الجدول لليوم المختار
-  let bodyHtml = '<tbody>';
-  let foundAny = false;
-
-  for (let i = 0; i < numRows; i++) {
-    let rowMatch = false;
-    // نتحقق إذا كان أي من أعمدة التواريخ في هذا الصف يطابق التاريخ المختار
-    for (let j = 0; j < numCols; j += 2) {
-      let cellDate = table.getValue(i, j);
-      if (cellDate instanceof Date) {
-        let formattedDate = cellDate.toISOString().split('T')[0];
-        if (formattedDate === selectedDate) rowMatch = true;
+  if(applyBtn && input){
+    const apply = () => {
+      JOB_SELECTED_DATE_ISO = input.value || getYesterdayISO();
+      // إعادة عرض القسم فقط
+      const jobHtml = renderJobSection();
+      // نحتاج نبدل الجزء كله (ببساطة عبر إعادة innerHTML داخل container jobGrid parent)
+      // سنستبدل كل job-wrap:
+      const existing = document.querySelector('.job-wrap');
+      if(existing){
+        existing.outerHTML = jobHtml;
       }
-    }
-
-    if (rowMatch) {
-      foundAny = true;
-      bodyHtml += '<tr>';
-      for (let j = 0; j < numCols; j += 2) {
-        let cellDate = table.getValue(i, j);
-        let work = table.getValue(i, j+1) || '—';
-        let formattedDate = '—';
-        
-        if (cellDate instanceof Date) {
-          formattedDate = cellDate.toISOString().split('T')[0];
-        }
-
-        // إظهار البيانات فقط إذا كان التاريخ يطابق المختار لهذا الموظف
-        if (formattedDate === selectedDate) {
-           bodyHtml += `<td class="date-cell">${formattedDate}</td><td class="work-cell">${work}</td>`;
-        } else {
-           bodyHtml += `<td class="date-cell">—</td><td class="work-cell">—</td>`;
-        }
+      // إعادة binding بعد الاستبدال
+      const newApply = document.getElementById('jobApplyBtn');
+      const newInput = document.getElementById('jobDateInput');
+      if(newApply && newInput){
+        newApply.onclick = apply;
+        newInput.onchange = null;
       }
-      bodyHtml += '</tr>';
-    }
-  }
+    };
 
-  if (!foundAny) {
-    bodyHtml += `<tr><td colspan="${numCols}" style="padding:40px; color:var(--muted)">لا توجد بيانات مسجلة لهذا التاريخ</td></tr>`;
+    applyBtn.onclick = apply;
+    input.onchange = apply; // يعرض مباشرة عند اختيار التاريخ (اختياري)
   }
-  
-  bodyHtml += '</tbody>';
-  document.getElementById('jobTableContainer').innerHTML = `<table>${headHtml}${bodyHtml}</table>`;
 }
 </script>
 </body>
