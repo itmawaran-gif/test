@@ -11,23 +11,23 @@
 
 <style>
   :root {
-    --bg:     #07090f;
-    --bg2:    #0c1020;
-    --bg3:    #111827;
+    --bg:      #07090f;
+    --bg2:     #0c1020;
+    --bg3:     #111827;
     --border: rgba(255,255,255,0.07);
     --border2:rgba(255,255,255,0.12);
-    --red:    #ff4d6d;
-    --amber:  #ffb347;
-    --cyan:   #00e5ff;
-    --purple: #b06eff;
-    --green:  #00e676;
-    --pink:   #ff6eb4;
-    --blue:   #4fc3f7;
-    --teal:   #26ffb8;
-    --orange: #ff8c42;
-    --text:   #e8eaf0;
-    --muted:  #6b7280;
-    --dim:    #374151;
+    --red:     #ff4d6d;
+    --amber:   #ffb347;
+    --cyan:    #00e5ff;
+    --purple:  #b06eff;
+    --green:   #00e676;
+    --pink:    #ff6eb4;
+    --blue:    #4fc3f7;
+    --teal:    #26ffb8;
+    --orange:  #ff8c42;
+    --text:    #e8eaf0;
+    --muted:   #6b7280;
+    --dim:     #374151;
   }
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -82,362 +82,74 @@
     width:46px;height:46px;border-radius:12px;
     display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;
   }
-  .sec-icon.purple{background:rgba(176,110,255,.15);box-shadow:0 0 20px rgba(176,110,255,.2);}
-  .sec-icon.green {background:rgba(0,230,118,.12); box-shadow:0 0 20px rgba(0,230,118,.15);}
-  .sec-icon.teal  {background:rgba(38,255,184,.12); box-shadow:0 0 20px rgba(38,255,184,.15);}
+  .sec-icon.purple {background:rgba(176,110,255,.15);box-shadow:0 0 20px rgba(176,110,255,.2);}
+  .sec-icon.green  {background:rgba(0,230,118,.12); box-shadow:0 0 20px rgba(0,230,118,.15);}
+  .sec-icon.orange {background:rgba(255,140,66,.12); box-shadow:0 0 20px rgba(255,140,66,.15);}
   .sec-header h2{font-size:2rem;font-weight:900;letter-spacing:.03em;}
   .sec-header h2.purple{color:#c084fc;}
   .sec-header h2.green {color:#86efac;}
-  .sec-header h2.teal  {color:var(--teal);}
+  .sec-header h2.orange{color:var(--orange);}
   .sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
 
-  /* LOADING */
-  .loading{text-align:center;padding:80px 20px;color:var(--muted);}
-  .spinner{
-    width:48px;height:48px;border:3px solid var(--dim);border-top-color:var(--purple);
-    border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 20px;
-  }
-  @keyframes spin{to{transform:rotate(360deg);}}
-  .loading p{font-size:.95rem;}
-
-  /* STATUS CARDS */
-  .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .status-card{
-    background:var(--bg3);border:1px solid var(--border);border-radius:18px;
-    padding:28px 24px;text-align:center;position:relative;overflow:hidden;
-    animation:fadeUp .5s ease both;transition:transform .2s;
-  }
-  .status-card:hover{transform:translateY(-3px);}
-  .status-card::after{content:'';position:absolute;inset:0;border-radius:inherit;opacity:.06;}
-  .status-card.s-red  {border-top:2px solid var(--red);}
-  .status-card.s-amber{border-top:2px solid var(--amber);}
-  .status-card.s-cyan {border-top:2px solid var(--cyan);}
-  .status-card.s-red::after  {background:var(--red);}
-  .status-card.s-amber::after{background:var(--amber);}
-  .status-card.s-cyan::after {background:var(--cyan);}
-  .status-glow{
-    position:absolute;top:-20px;left:50%;transform:translateX(-50%);
-    width:80px;height:80px;border-radius:50%;filter:blur(30px);opacity:.25;
-  }
-  .s-red   .status-glow{background:var(--red);}
-  .s-amber .status-glow{background:var(--amber);}
-  .s-cyan  .status-glow{background:var(--cyan);}
-  .status-num{
-    font-family:'Bebas Neue','Cairo',sans-serif;
-    font-size:4.5rem;line-height:1;letter-spacing:.04em;margin-bottom:8px;position:relative;
-  }
-  .s-red   .status-num{color:var(--red);  text-shadow:0 0 30px rgba(255,77,109,.4);}
-  .s-amber .status-num{color:var(--amber);text-shadow:0 0 30px rgba(255,179,71,.4);}
-  .s-cyan  .status-num{color:var(--cyan); text-shadow:0 0 30px rgba(0,229,255,.4);}
-  .status-label{font-size:.82rem;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;}
-
-  /* CLIENT CARDS */
-  .clients-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px;}
-  .client-card{
-    background:var(--bg3);border:1px solid var(--border);border-radius:16px;
-    padding:20px 16px;text-align:center;animation:fadeUp .5s ease both;transition:transform .2s;
-  }
-  .client-card:hover{transform:translateY(-2px);}
-  .client-name{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
-  .client-val{font-family:'Bebas Neue','Cairo',sans-serif;font-size:3rem;line-height:1;letter-spacing:.05em;}
-  .cv-purple{color:var(--purple);text-shadow:0 0 20px rgba(176,110,255,.35);}
-  .cv-blue  {color:var(--blue);  text-shadow:0 0 20px rgba(79,195,247,.35);}
-  .cv-teal  {color:var(--teal);  text-shadow:0 0 20px rgba(38,255,184,.35);}
-  .cv-orange{color:var(--orange);text-shadow:0 0 20px rgba(255,140,66,.35);}
-
-  /* COMPARE */
-  .compare-group{margin-top:24px;}
-  .compare-label{
-    font-size:1.1rem;font-weight:800;color:var(--muted);
-    text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;
-    display:flex;align-items:center;gap:8px;
-  }
-  .compare-label::before{content:'';width:16px;height:2px;background:var(--purple);border-radius:2px;display:inline-block;}
-  .compare-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .compare-card{
-    background:var(--bg3);border:1px solid var(--border);border-radius:16px;
-    overflow:hidden;animation:fadeUp .5s ease both;transition:transform .2s;
-  }
-  .compare-card:hover{transform:translateY(-2px);}
-  .compare-card-head{
-    padding:14px 22px;font-size:1.1rem;font-weight:700;letter-spacing:.04em;
-    display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);
-  }
-  .compare-card.this-m .compare-card-head{background:rgba(176,110,255,.10);color:#c084fc;}
-  .compare-card.prev-m .compare-card-head{background:rgba(79,195,247,.08); color:var(--blue);}
-  .compare-card-body{display:flex;align-items:center;justify-content:center;padding:24px;}
-  .cc-val{font-family:'Bebas Neue','Cairo',sans-serif;font-size:4.2rem;line-height:1;letter-spacing:.04em;}
-  .this-m .cc-val{color:var(--purple);text-shadow:0 0 22px rgba(176,110,255,.4);}
-  .prev-m .cc-val{color:var(--blue);  text-shadow:0 0 22px rgba(79,195,247,.3);}
-
-  /* SPONSOR */
-  .sponsor-block{
-    background:var(--bg3);border:1px solid var(--border);
-    border-radius:18px;overflow:hidden;animation:fadeUp .5s ease both;
-  }
-  .sponsor-head{
-    padding:16px 24px;font-size:1.15rem;font-weight:800;letter-spacing:.04em;
-    display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);
-  }
-  .sponsor-block.sp-this .sponsor-head{background:rgba(0,230,118,.08);color:var(--green);}
-  .sponsor-block.sp-prev .sponsor-head{background:rgba(255,179,71,.08); color:var(--amber);}
-  .sponsor-body{display:grid;grid-template-columns:repeat(5,1fr);padding:22px 24px;gap:8px;}
-  .sp-item{text-align:center;padding:8px 4px;}
-  .sp-label{font-size:.9rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
-  .sp-val{font-family:'Bebas Neue','Cairo',sans-serif;font-size:2.8rem;line-height:1;letter-spacing:.04em;}
-  .sp-this .sp-val{color:var(--green);text-shadow:0 0 18px rgba(0,230,118,.3);}
-  .sp-prev .sp-val{color:var(--amber);text-shadow:0 0 18px rgba(255,179,71,.3);}
-  .sp-total .sp-label{color:var(--pink)!important;}
-  .sp-total .sp-val{color:var(--pink)!important;font-size:3rem;text-shadow:0 0 22px rgba(255,110,180,.4)!important;}
-
-  .section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin:44px 0 0;}
-
-  /* ═══════════════════════════════════════════
-     JOB SECTION
-  ═══════════════════════════════════════════ */
-  .job-date-bar {
+  /* JOB SECTION STYLES */
+  .job-controls {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 14px;
-    padding: 14px 20px;
+    padding: 15px 25px;
+    border-radius: 15px;
+    border: 1px solid var(--border);
   }
-  .job-date-label {
-    font-size: .78rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    white-space: nowrap;
-  }
-  .job-date-input {
+  .job-controls input[type="date"] {
     background: var(--bg2);
     border: 1px solid var(--border2);
-    border-radius: 10px;
     color: var(--text);
-    font-family: 'Cairo', sans-serif;
-    font-size: .88rem;
-    font-weight: 600;
-    padding: 8px 14px;
-    cursor: pointer;
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    flex: 1;
-    min-width: 150px;
-    max-width: 200px;
-  }
-  .job-date-input:focus {
-    border-color: var(--teal);
-    box-shadow: 0 0 0 3px rgba(38,255,184,.12);
-  }
-  /* calendar icon color fix */
-  .job-date-input::-webkit-calendar-picker-indicator {
-    filter: invert(.7) sepia(1) hue-rotate(130deg);
-    cursor: pointer;
-  }
-  .job-date-shortcuts {
-    display: flex;
-    gap: 8px;
-    margin-right: auto;
-  }
-  .shortcut-btn {
-    background: transparent;
-    border: 1px solid var(--border2);
+    padding: 8px 15px;
     border-radius: 8px;
-    color: var(--muted);
-    font-family: 'Cairo', sans-serif;
-    font-size: .78rem;
-    font-weight: 700;
-    padding: 6px 14px;
-    cursor: pointer;
-    transition: all .2s;
-    letter-spacing: .04em;
-    white-space: nowrap;
+    font-family: inherit;
+    outline: none;
   }
-  .shortcut-btn:hover,
-  .shortcut-btn.active {
-    background: rgba(38,255,184,.12);
-    border-color: rgba(38,255,184,.4);
-    color: var(--teal);
-  }
-  .job-load-btn {
-    background: linear-gradient(135deg,rgba(38,255,184,.18),rgba(0,229,255,.12));
-    border: 1px solid rgba(38,255,184,.4);
-    border-radius: 10px;
-    color: var(--teal);
-    font-family: 'Cairo', sans-serif;
-    font-size: .85rem;
-    font-weight: 800;
-    padding: 8px 20px;
-    cursor: pointer;
-    transition: all .2s;
-    letter-spacing: .04em;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .job-load-btn:hover {
-    background: linear-gradient(135deg,rgba(38,255,184,.28),rgba(0,229,255,.22));
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(38,255,184,.2);
-  }
-
-  /* Job cards grid */
-  .job-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-  }
-  .job-card {
+  .table-container {
+    overflow-x: auto;
     background: var(--bg3);
+    border-radius: 18px;
     border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    animation: fadeUp .45s ease both;
-    transition: transform .2s, box-shadow .2s;
-    border-top: 2px solid rgba(38,255,184,.3);
   }
-  .job-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
   }
-  .job-card-head {
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(38,255,184,.07);
+  th, td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid var(--border);
   }
-  .job-card-avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    background: linear-gradient(135deg,rgba(38,255,184,.25),rgba(0,229,255,.2));
-    border: 1px solid rgba(38,255,184,.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    flex-shrink: 0;
-  }
-  .job-card-name {
-    font-size: .95rem;
+  th.emp-name {
+    background: rgba(176,110,255,0.1);
+    color: var(--purple);
+    font-size: 1.1rem;
     font-weight: 800;
-    color: var(--teal);
-    letter-spacing: .03em;
-    flex: 1;
   }
-  .job-card-badge {
-    font-size: .65rem;
-    font-weight: 700;
-    color: var(--muted);
+  th.sub-head {
     background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 2px 8px;
-    letter-spacing: .04em;
-  }
-  .job-card-body {
-    padding: 0;
-  }
-  /* Each entry row: date + work */
-  .job-entry {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 0;
-    border-bottom: 1px solid var(--border));
-  }
-  .job-entry:last-child { border-bottom: none; }
-  .job-entry-date {
-    padding: 12px 14px;
-    font-size: .72rem;
-    font-weight: 700;
     color: var(--muted);
-    border-left: 1px solid var(--border);
-    white-space: nowrap;
-    display: flex;
-    align-items: flex-start;
-    gap: 4px;
-    min-width: 90px;
-    background: rgba(255,255,255,.018);
+    font-size: 0.85rem;
+    text-transform: uppercase;
   }
-  .job-entry-work {
-    padding: 12px 16px;
-    font-size: .86rem;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1.65;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .job-no-data {
-    padding: 28px 20px;
-    text-align: center;
-    color: var(--muted);
-    font-size: .85rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  .job-no-data-icon {
-    font-size: 1.8rem;
-    opacity: .4;
-  }
-  .job-loading {
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--muted);
-  }
-  .job-spinner {
-    width: 32px;
-    height: 32px;
-    border: 2px solid var(--dim);
-    border-top-color: var(--teal);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    margin: 0 auto 12px;
+  tr:hover td {
+    background: rgba(255,255,255,0.02);
   }
 
-  /* Selected date banner */
-  .job-selected-date-banner {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 18px;
-    background: rgba(38,255,184,.07);
-    border: 1px solid rgba(38,255,184,.2);
-    border-radius: 12px;
-    margin-bottom: 18px;
-    font-size: .82rem;
-    font-weight: 700;
-    color: var(--teal);
-    letter-spacing: .04em;
-  }
-  .job-selected-date-banner span {
-    color: var(--muted);
-    font-weight: 500;
-  }
-
+  /* REUSE EXISTING STYLES */
+  .compare-group, .sponsor-block, .compare-card { animation: fadeUp 0.5s ease both; }
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
   @media(max-width:700px){
-    .status-grid{grid-template-columns:1fr;}
-    .clients-grid{grid-template-columns:repeat(2,1fr);}
     .compare-row{grid-template-columns:1fr;}
     .sponsor-body{grid-template-columns:repeat(2,1fr);}
-    .header{padding:14px 18px;}
-    .container{padding:24px 14px 40px;}
-    .status-num,.cc-val{font-size:3rem;}
-    .job-grid{grid-template-columns:1fr;}
-    .job-date-input{max-width:100%;}
-    .job-date-shortcuts{margin-right:0;}
   }
 </style>
 </head>
@@ -460,56 +172,70 @@
 <div class="container" id="app">
   <div class="loading">
     <div class="spinner"></div>
-    <p>Loading...</p>
+    <p>جاري تحميل البيانات...</p>
   </div>
 </div>
 
 <script>
-google.charts.load('current');
+google.charts.load('current', {'packages':['corechart', 'table']});
 google.charts.setOnLoadCallback(loadData);
 
 const sheetID = "17I1gZX_N0_0QdswT6Hc13LJRezyz23J6v4aLjIeru8Q";
-
 const DATA = {};
+let doneCalls = 0;
 let totalCalls = 0;
-let doneCalls  = 0;
+
+// الحصول على تاريخ الأمس بتنسيق YYYY-MM-DD
+function getYesterdayDate() {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday.toISOString().split('T')[0];
+}
 
 function getValue(sheet, range, key) {
   totalCalls++;
-  const q = new google.visualization.Query(
-    `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheet)}&range=${range}`
-  );
+  const q = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent(sheet)}&range=${range}`);
   q.send(function(res) {
     try {
       const table = res.getDataTable();
-      const v = table ? table.getValue(0, 0) : null;
-      DATA[key] = (v === null || v === undefined || v === '') ? '—' : v;
-    } catch(e) {
-      DATA[key] = '—';
-    }
-    doneCalls++;
-    if (doneCalls >= totalCalls) renderUI();
+      DATA[key] = (table && table.getNumberOfRows() > 0) ? table.getValue(0, 0) : '—';
+    } catch(e) { DATA[key] = '—'; }
+    checkFinished();
   });
 }
 
+// جلب بيانات صفحة Job
+function fetchJobData(targetDate) {
+  const q = new google.visualization.Query(`https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=job`);
+  q.send(function(res) {
+    if (res.isError()) {
+      console.error('Error fetching job data');
+      return;
+    }
+    const table = res.getDataTable();
+    DATA['jobRaw'] = table;
+    DATA['selectedDate'] = targetDate;
+    checkFinished();
+  });
+}
+
+function checkFinished() {
+  doneCalls++;
+  if (doneCalls >= totalCalls) renderUI();
+}
+
 function loadData() {
-  getValue("Sheet1","I2",  "notEdit");
-  getValue("Sheet1","J2",  "notApprove");
-  getValue("Sheet1","K2",  "notPublished");
-  getValue("Sheet1","I5",  "rymax_lbl");
-  getValue("Sheet1","J5",  "mawaran_lbl");
-  getValue("Sheet1","K5",  "rc_lbl");
-  getValue("Sheet1","L5",  "client_lbl");
-  getValue("Sheet1","I6",  "rymax_val");
-  getValue("Sheet1","J6",  "mawaran_val");
-  getValue("Sheet1","K6",  "rc_val");
-  getValue("Sheet1","L6",  "client_val");
+  totalCalls = 0; doneCalls = 0;
+  
+  // Sheet1 Values
   getValue("Sheet1","I8",  "vid_this");
   getValue("Sheet1","K8",  "vid_prev");
   getValue("Sheet1","I11", "dan_this");
   getValue("Sheet1","K11", "dan_prev");
   getValue("Sheet1","I14", "photo_this");
   getValue("Sheet1","K14", "photo_prev");
+  
+  // Sponsor Values
   getValue("Sponsore","H4","s_rymax");
   getValue("Sponsore","I4","s_mawaran");
   getValue("Sponsore","J4","s_rc");
@@ -520,11 +246,13 @@ function loadData() {
   getValue("Sponsore","J8","p_rc");
   getValue("Sponsore","K8","p_client");
   getValue("Sponsore","L8","p_total");
+
+  // Job Data
+  totalCalls++; 
+  fetchJobData(getYesterdayDate());
 }
 
-function d(key) {
-  return DATA[key] !== undefined ? DATA[key] : '—';
-}
+function d(key) { return DATA[key] || '—'; }
 
 function renderUI() {
   const now = new Date().toLocaleString('ar-IQ',{
@@ -533,340 +261,123 @@ function renderUI() {
   });
   document.getElementById('updateTime').textContent = now;
 
-  document.getElementById('app').innerHTML = `
-
+  let html = `
     <div class="sec-header">
       <div class="sec-icon purple">🎬</div>
       <h2 class="purple">Video Editing</h2>
       <div class="sec-line"></div>
     </div>
-
-    <div class="compare-group">
-      <div class="compare-label">Edited Videos</div>
-      <div class="compare-row">
+    <div class="compare-row">
         <div class="compare-card this-m">
-          <div class="compare-card-head">📅 Edited this month</div>
-          <div class="compare-card-body"><div class="cc-val">${d('vid_this')}</div></div>
+            <div class="compare-card-head">📅 Edited this month</div>
+            <div class="compare-card-body"><div class="cc-val">${d('vid_this')}</div></div>
         </div>
         <div class="compare-card prev-m">
-          <div class="compare-card-head">🗓️ Edited Previous month</div>
-          <div class="compare-card-body"><div class="cc-val">${d('vid_prev')}</div></div>
+            <div class="compare-card-head">🗓️ Edited Previous month</div>
+            <div class="compare-card-body"><div class="cc-val">${d('vid_prev')}</div></div>
         </div>
-      </div>
-    </div>
-
-    <div class="compare-group" style="margin-top:18px;">
-      <div class="compare-label">By Danyar</div>
-      <div class="compare-row">
-        <div class="compare-card this-m">
-          <div class="compare-card-head">📅 this month By Danyar</div>
-          <div class="compare-card-body"><div class="cc-val">${d('dan_this')}</div></div>
-        </div>
-        <div class="compare-card prev-m">
-          <div class="compare-card-head">🗓️ Previous month By Danyar</div>
-          <div class="compare-card-body"><div class="cc-val">${d('dan_prev')}</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="compare-group" style="margin-top:18px;">
-      <div class="compare-label">Photo</div>
-      <div class="compare-row">
-        <div class="compare-card this-m">
-          <div class="compare-card-head">📅 Photo this month</div>
-          <div class="compare-card-body"><div class="cc-val">${d('photo_this')}</div></div>
-        </div>
-        <div class="compare-card prev-m">
-          <div class="compare-card-head">🗓️ Photo Previous month</div>
-          <div class="compare-card-body"><div class="cc-val">${d('photo_prev')}</div></div>
-        </div>
-      </div>
     </div>
 
     <div class="section-divider"></div>
 
     <div class="sec-header">
       <div class="sec-icon green">📢</div>
-      <h2 class="green">Sponsore Ads</h2>
+      <h2 class="green">Sponsor Ads</h2>
       <div class="sec-line"></div>
     </div>
-
     <div class="sponsor-block sp-this">
       <div class="sponsor-head">📅 This Month</div>
       <div class="sponsor-body">
-        <div class="sp-item"><div class="sp-label">Rymax</div>  <div class="sp-val">${d('s_rymax')}</div></div>
+        <div class="sp-item"><div class="sp-label">Rymax</div><div class="sp-val">${d('s_rymax')}</div></div>
         <div class="sp-item"><div class="sp-label">Mawaran</div><div class="sp-val">${d('s_mawaran')}</div></div>
-        <div class="sp-item"><div class="sp-label">RC</div>      <div class="sp-val">${d('s_rc')}</div></div>
-        <div class="sp-item"><div class="sp-label">Client</div>  <div class="sp-val">${d('s_client')}</div></div>
+        <div class="sp-item"><div class="sp-label">RC</div><div class="sp-val">${d('s_rc')}</div></div>
         <div class="sp-item sp-total"><div class="sp-label">Total</div><div class="sp-val">${d('s_total')}</div></div>
       </div>
     </div>
 
-    <div class="sponsor-block sp-prev" style="margin-top:16px;">
-      <div class="sponsor-head">🗓️ Previous Month</div>
-      <div class="sponsor-body">
-        <div class="sp-item"><div class="sp-label">Rymax</div>  <div class="sp-val">${d('p_rymax')}</div></div>
-        <div class="sp-item"><div class="sp-label">Mawaran</div><div class="sp-val">${d('p_mawaran')}</div></div>
-        <div class="sp-item"><div class="sp-label">RC</div>      <div class="sp-val">${d('p_rc')}</div></div>
-        <div class="sp-item"><div class="sp-label">Client</div>  <div class="sp-val">${d('p_client')}</div></div>
-        <div class="sp-item sp-total"><div class="sp-label">Total</div><div class="sp-val">${d('p_total')}</div></div>
-      </div>
-    </div>
-
-    <!-- ═══════════ JOB SECTION ═══════════ -->
     <div class="section-divider"></div>
 
     <div class="sec-header">
-      <div class="sec-icon teal">💼</div>
-      <h2 class="teal">Job</h2>
+      <div class="sec-icon orange">💼</div>
+      <h2 class="orange">Daily Jobs</h2>
       <div class="sec-line"></div>
     </div>
 
-    <!-- Date picker bar -->
-    <div class="job-date-bar">
-      <span class="job-date-label">📅 التاريخ</span>
-      <input type="date" class="job-date-input" id="jobDateInput"/>
-      <div class="job-date-shortcuts">
-        <button class="shortcut-btn" id="btnYesterday" onclick="setJobDate('yesterday')">أمس</button>
-        <button class="shortcut-btn" id="btnToday"     onclick="setJobDate('today')">اليوم</button>
-      </div>
-      <button class="job-load-btn" onclick="loadJobSection()">
-        🔍 عرض
-      </button>
+    <div class="job-controls">
+        <span>عرض أعمال الموظفين ليوم:</span>
+        <input type="date" id="jobDate" value="${DATA.selectedDate}" onchange="updateJobView(this.value)">
     </div>
 
-    <!-- Job results container -->
-    <div id="job-section">
-      <div class="job-loading">
-        <div class="job-spinner"></div>
-        <p style="font-size:.85rem;color:var(--muted)">جاري تحميل بيانات الموظفين...</p>
-      </div>
+    <div class="table-container">
+        <table id="jobTable">${renderJobTable(DATA.selectedDate)}</table>
     </div>
   `;
-
-  // Init date picker with yesterday
-  initJobDatePicker();
+  document.getElementById('app').innerHTML = html;
 }
 
-/* ════════════════════════════════════════════
-   JOB SECTION LOGIC
-════════════════════════════════════════════ */
+function renderJobTable(targetDate) {
+  const dt = DATA.jobRaw;
+  if (!dt) return "<tr><td>No data available</td></tr>";
 
-function getYesterdayStr() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return fmtInputDate(d);
-}
-
-function getTodayStr() {
-  return fmtInputDate(new Date());
-}
-
-function fmtInputDate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-function fmtDisplayDate(dateStr) {
-  // dateStr = "YYYY-MM-DD"  →  nice Arabic display
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('ar-IQ', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-}
-
-function initJobDatePicker() {
-  const inp = document.getElementById('jobDateInput');
-  if (!inp) return;
-  const yesterday = getYesterdayStr();
-  inp.value = yesterday;
-  updateShortcutBtns(yesterday);
-  // Auto-load
-  setTimeout(() => loadJobSection(), 0);
-}
-
-function setJobDate(which) {
-  const inp = document.getElementById('jobDateInput');
-  if (!inp) return;
-  const val = (which === 'today') ? getTodayStr() : getYesterdayStr();
-  inp.value = val;
-  updateShortcutBtns(val);
-  loadJobSection();
-}
-
-function updateShortcutBtns(val) {
-  const btnY = document.getElementById('btnYesterday');
-  const btnT = document.getElementById('btnToday');
-  if (!btnY || !btnT) return;
-  btnY.classList.toggle('active', val === getYesterdayStr());
-  btnT.classList.toggle('active', val === getTodayStr());
-}
-
-function loadJobSection() {
-  const inp = document.getElementById('jobDateInput');
-  const dateStr = inp ? inp.value : getYesterdayStr();
-  updateShortcutBtns(dateStr);
-
-  const sec = document.getElementById('job-section');
-  if (!sec) return;
-  sec.innerHTML = `
-    <div class="job-loading">
-      <div class="job-spinner"></div>
-      <p style="font-size:.85rem;color:var(--muted)">جاري تحميل البيانات...</p>
-    </div>`;
-
-  const q = new google.visualization.Query(
-    `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${encodeURIComponent('job')}&headers=0`
-  );
-  q.send(function(res) {
-    try {
-      if (res.isError()) throw new Error(res.getMessage());
-      const table = res.getDataTable();
-      renderJobData(table, dateStr);
-    } catch(e) {
-      document.getElementById('job-section').innerHTML =
-        `<div class="job-no-data"><div class="job-no-data-icon">⚠️</div><div>تعذر تحميل بيانات الموظفين<br><small style="font-size:.72rem">${e.message||''}</small></div></div>`;
-    }
-  });
-}
-
-/* ────────────────────────────────────────────
-   Normalize any cell value to "YYYY-MM-DD" or null
-──────────────────────────────────────────── */
-function normDateStr(val) {
-  if (val === null || val === undefined || val === '') return null;
-
-  // gviz Date object
-  if (val instanceof Date) {
-    return `${val.getFullYear()}-${String(val.getMonth()+1).padStart(2,'0')}-${String(val.getDate()).padStart(2,'0')}`;
+  const numCols = dt.getNumberOfColumns();
+  const numRows = dt.getNumberOfRows();
+  
+  // استخراج أسماء الموظفين (السطر الأول مدمج كل عمودين)
+  let headerRow1 = "<tr>";
+  let headerRow2 = "<tr>";
+  
+  // نفترض أن العمود A هو التاريخ والعمود B هو العمل للموظف الأول وهكذا
+  // التنسيق: الموظف 1 (A,B)، الموظف 2 (C,D)...
+  for (let j = 0; j < numCols; j += 2) {
+    let empName = dt.getColumnLabel(j) || `Employee ${Math.floor(j/2)+1}`;
+    headerRow1 += `<th colspan="2" class="emp-name">${empName}</th>`;
+    headerRow2 += `<th class="sub-head">التاريخ</th><th class="sub-head">العمل</th>`;
   }
+  headerRow1 += "</tr>";
+  headerRow2 += "</tr>";
 
-  const s = String(val).trim();
+  // تصفية الصفوف بناءً على التاريخ المختار
+  let bodyRows = "";
+  let foundData = false;
 
-  // DD/MM/YYYY  or  D/M/YYYY
-  const m1 = s.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
-  if (m1) return `${m1[3]}-${m1[2].padStart(2,'0')}-${m1[1].padStart(2,'0')}`;
+  for (let i = 0; i < numRows; i++) {
+    let rowHtml = "<tr>";
+    let rowHasMatch = false;
 
-  // YYYY/MM/DD  or  YYYY-MM-DD
-  const m2 = s.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})$/);
-  if (m2) return `${m2[1]}-${m2[2].padStart(2,'0')}-${m2[3].padStart(2,'0')}`;
+    for (let j = 0; j < numCols; j += 2) {
+      let cellDateValue = dt.getValue(i, j);
+      let cellWorkValue = dt.getValue(i, j + 1) || "—";
+      
+      // تحويل تاريخ الخلية لمقارنته
+      let formattedCellDate = "";
+      if (cellDateValue instanceof Date) {
+          formattedCellDate = cellDateValue.toISOString().split('T')[0];
+      }
 
-  // Fallback: try JS Date parse
-  const parsed = new Date(s);
-  if (!isNaN(parsed)) {
-    return `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}-${String(parsed.getDate()).padStart(2,'0')}`;
-  }
-
-  return null;
-}
-
-/* ────────────────────────────────────────────
-   Render job data table
-   Sheet structure (0-indexed rows):
-     Row 0  → Employee names  (col 0, 2, 4 … = name;  col 1, 3, 5 … = null/merge)
-     Row 1  → Column headers  ("التاريخ" / "الأعمال") – skip
-     Row 2+ → data  (even col = date, odd col = work)
-──────────────────────────────────────────── */
-function renderJobData(table, targetDateStr) {
-  const sec = document.getElementById('job-section');
-  if (!table || table.getNumberOfRows() < 2) {
-    sec.innerHTML = `<div class="job-no-data"><div class="job-no-data-icon">📭</div><div>لا توجد بيانات في صفحة job</div></div>`;
-    return;
-  }
-
-  const numCols = table.getNumberOfColumns();
-  const numRows = table.getNumberOfRows();
-
-  // ── 1. Collect employee names from row 0 ──
-  const employees = [];
-  for (let c = 0; c < numCols - 1; c += 2) {
-    const raw = table.getValue(0, c);
-    const name = (raw !== null && raw !== undefined && String(raw).trim() !== '') ? String(raw).trim() : null;
-    if (name) {
-      employees.push({ name, dateCol: c, workCol: c + 1 });
-    }
-  }
-
-  if (employees.length === 0) {
-    sec.innerHTML = `<div class="job-no-data"><div class="job-no-data-icon">👤</div><div>لم يتم العثور على أسماء موظفين في الصف الأول</div></div>`;
-    return;
-  }
-
-  // ── 2. For each employee find rows matching targetDateStr ──
-  //    Data rows start from index 2 (skip row 0 = names, row 1 = headers)
-  const results = employees.map(emp => {
-    const entries = [];
-    for (let r = 2; r < numRows; r++) {
-      const dateVal = table.getValue(r, emp.dateCol);
-      const ds = normDateStr(dateVal);
-      if (!ds) continue;
-      if (ds === targetDateStr) {
-        const workVal = table.getValue(r, emp.workCol);
-        const work = (workVal !== null && workVal !== undefined) ? String(workVal).trim() : '';
-        entries.push({ date: ds, work });
+      if (formattedCellDate === targetDate) {
+          rowHtml += `<td>${formattedCellDate}</td><td>${cellWorkValue}</td>`;
+          rowHasMatch = true;
+      } else {
+          rowHtml += `<td>—</td><td>—</td>`;
       }
     }
-    return { ...emp, entries };
-  });
-
-  // ── 3. Build HTML ──
-  const displayDate = fmtDisplayDate(targetDateStr);
-  const hasAny = results.some(r => r.entries.length > 0);
-
-  let html = `
-    <div class="job-selected-date-banner">
-      📅 &nbsp;
-      <span>يعرض بيانات يوم:</span>
-      &nbsp;${displayDate}
-      ${hasAny ? '' : '&nbsp;·&nbsp;<span style="color:var(--red);font-size:.8rem">لا توجد بيانات لهذا اليوم</span>'}
-    </div>
-    <div class="job-grid">
-  `;
-
-  results.forEach((emp, idx) => {
-    const delay = (idx * 0.06).toFixed(2);
-    html += `
-      <div class="job-card" style="animation-delay:${delay}s">
-        <div class="job-card-head">
-          <div class="job-card-avatar">👤</div>
-          <div class="job-card-name">${escHtml(emp.name)}</div>
-          <div class="job-card-badge">${emp.entries.length} سجل</div>
-        </div>
-        <div class="job-card-body">
-    `;
-
-    if (emp.entries.length === 0) {
-      html += `
-        <div class="job-no-data">
-          <div class="job-no-data-icon">🗓️</div>
-          <div>لا يوجد عمل مسجل لهذا اليوم</div>
-        </div>
-      `;
-    } else {
-      emp.entries.forEach(en => {
-        // Format display date nicely (short)
-        const dParts = en.date.split('-');
-        const shortDate = `${dParts[2]}/${dParts[1]}/${dParts[0]}`;
-        html += `
-          <div class="job-entry" style="border-bottom:1px solid var(--border)">
-            <div class="job-entry-date">📅 ${shortDate}</div>
-            <div class="job-entry-work">${escHtml(en.work) || '<span style="color:var(--muted);font-style:italic">—</span>'}</div>
-          </div>
-        `;
-      });
+    rowHtml += "</tr>";
+    if (rowHasMatch) {
+        bodyRows += rowHtml;
+        foundData = true;
     }
+  }
 
-    html += `</div></div>`;
-  });
+  if (!foundData) {
+      bodyRows = `<tr><td colspan="${numCols}">لا توجد أعمال مسجلة لهذا التاريخ</td></tr>`;
+  }
 
-  html += `</div>`;
-  sec.innerHTML = html;
+  return headerRow1 + headerRow2 + bodyRows;
 }
 
-function escHtml(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+function updateJobView(newDate) {
+    const table = document.getElementById('jobTable');
+    table.innerHTML = renderJobTable(newDate);
 }
 </script>
 </body>
