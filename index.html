@@ -154,6 +154,10 @@
     background:var(--bg);border:1px solid var(--purple);color:var(--text);
     padding:8px 15px;border-radius:8px;outline:none;font-family:inherit;
   }
+  .job-controls input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(65%) sepia(90%) saturate(400%) hue-rotate(180deg) brightness(100%) contrast(100%);
+  }
   .job-grid{
     display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:20px;
   }
@@ -200,7 +204,7 @@
 <div class="container" id="app">
   <div class="loading">
     <div class="spinner"></div>
-    <p>جاري جلب البيانات من السحابة...</p>
+    <p>Data loading...</p>
   </div>
 </div>
 
@@ -366,7 +370,7 @@ function renderUI() {
     </div>
 
     <div class="job-controls">
-      <span style="font-weight:700; color:var(--text)">تاريخ المهام:</span>
+      <span style="font-weight:700; color:var(--text)">Task History :</span>
       <input type="date" id="jobDateInput" value="${getYesterday()}" onchange="renderJobCards(this.value)">
     </div>
 
@@ -387,14 +391,14 @@ function renderJobCards(selectedDate) {
     let empName = table.getColumnLabel(j);
     if (!empName || empName.includes('Column') || empName.trim() === "") continue;
 
-    let todaysWork = "لا توجد أعمال";
+    let todaysWork = "No work";
     
     for (let i = 0; i < numRows; i++) {
       let cellDate = table.getValue(i, j);
       if (cellDate instanceof Date) {
         let formattedDate = formatDateOnly(cellDate);
         if (formattedDate === selectedDate) {
-          todaysWork = (table.getValue(i, j + 1) || "لا توجد أعمال").toString().replace(/\n/g, "<br>");
+          todaysWork = (table.getValue(i, j + 1) || "No work").toString().replace(/\n/g, "<br>");
           break;
         }
       }
