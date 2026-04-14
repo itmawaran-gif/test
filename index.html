@@ -185,10 +185,11 @@ const DATA = {};
 let totalCalls = 0;
 let doneCalls  = 0;
 
-function getYesterday() {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+function formatDateOnly(date){
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
 }
 
 function getValue(sheet, range, key) {
@@ -313,17 +314,22 @@ function renderJobCards(selectedDate) {
     let todaysWork = "لا توجد أعمال";
     
     // البحث عن التاريخ المختار في الصفوف
-    for (let i = 0; i < numRows; i++) {
-      let cellDate = table.getValue(i, j);
-      if (cellDate instanceof Date) {
-        let formattedDate = cellDate.toISOString().split('T')[0];
-        if (formattedDate === selectedDate) {
-          // جلب العمل من العمود التالي مباشرة (j+1) في نفس الصف
-          todaysWork = table.getValue(i, j + 1) || "لا توجد أعمال";
-          break; 
-        }
-      }
+for (let i = 0; i < numRows; i++) {
+  let cellDate = table.getValue(i, j);
+
+  if (cellDate instanceof Date) {
+    let formattedDate = formatDateOnly(cellDate);
+
+    if (formattedDate === selectedDate) {
+
+      todaysWork = (table.getValue(i, j + 1) || "لا توجد أعمال")
+        .toString()
+        .replace(/\n/g, "<br>");
+
+      break;
     }
+  }
+}
 
     cardsHtml += `
       <div class="job-emp-card">
