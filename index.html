@@ -164,16 +164,31 @@
     background-color: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
   }
   .modal-content {
-    background: var(--bg2); margin: 5% auto; padding: 25px; border: 1px solid var(--border2);
+    background: var(--bg2); margin: 3% auto; padding: 25px; border: 1px solid var(--border2);
     border-radius: 16px; width: 95%; max-width: 900px; color: var(--text);
-    animation: fadeUp 0.4s ease; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    animation: fadeUp 0.4s ease; display: flex; flex-direction: column; max-height: 90vh;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   }
-  .close-btn { color: var(--muted); float: left; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1; }
+  .close-btn { color: var(--muted); float: left; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1; margin-bottom: 10px;}
   .close-btn:hover { color: var(--red); }
-  .modal-table { width: 100%; border-collapse: collapse; margin-top: 15px; text-align: right; font-size: 0.95rem; }
+  
+  .table-container {
+    overflow-y: auto; flex: 1; margin-top: 10px; border-radius: 8px;
+    border: 1px solid var(--border2);
+  }
+  .modal-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; }
   .modal-table th, .modal-table td { padding: 12px 15px; border-bottom: 1px solid var(--border2); }
-  .modal-table th { background: rgba(255,255,255,0.03); color: var(--cyan); font-weight: 800; border-bottom: 2px solid var(--border); }
+  
+  /* Sticky Header inside Table */
+  .modal-table th { 
+    position: sticky; top: 0; background: var(--bg3); color: var(--cyan); 
+    font-weight: 800; border-bottom: 2px solid var(--border); z-index: 5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
   .modal-table tr:hover { background: rgba(255,255,255,0.02); }
+  
+  /* Active Ad Color */
+  .ongoing-ad td { color: var(--red); font-weight: 600; }
 
   /* JOB CARDS */
   .job-controls{
@@ -215,7 +230,7 @@
 </head>
 <body>
 
-<header class="header">
+<header class="header" dir="ltr">
   <div class="header-brand">
     <div class="brand-icon">🎬</div>
     <div class="brand-text">
@@ -229,18 +244,20 @@
   </div>
 </header>
 
-<div class="container" id="app">
+<div class="container" id="app" dir="ltr">
   <div class="loading">
     <div class="spinner"></div>
     <p>Data loading...</p>
   </div>
 </div>
 
-<div id="dataModal" class="modal">
+<div id="dataModal" class="modal" dir="ltr">
   <div class="modal-content">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <h3 id="modalTitle" style="margin-bottom: 20px; color: var(--cyan); font-weight: 800; font-size: 1.4rem;"></h3>
-    <div style="overflow-x:auto;">
+    <div>
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 id="modalTitle" style="margin-bottom: 10px; color: var(--cyan); font-weight: 800; font-size: 1.4rem;"></h3>
+    </div>
+    <div class="table-container">
       <table id="modalTable" class="modal-table">
         <thead id="modalThead"></thead>
         <tbody id="modalTbody"></tbody>
@@ -312,19 +329,26 @@ function formatDateOnly(date){
   return `${y}-${m}-${d}`;
 }
 
+// Function to abbreviate numbers (e.g., 1.5M, 15K)
+function formatViews(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return num.toString();
+}
+
 function loadData() {
   // Video & Photo Stats
   getValue("Sheet1","I8",  "vid_this"); getValue("Sheet1","K8",  "vid_prev");
   getValue("Sheet1","I11", "dan_this"); getValue("Sheet1","K11", "dan_prev");
   getValue("Sheet1","I14", "photo_this"); getValue("Sheet1","K14", "photo_prev");
   
-  // Sponsor data (Current & Previous)
+  // Sponsor data
   getValue("Sponsore","H4","s_rymax"); getValue("Sponsore","I4","s_mawaran");
   getValue("Sponsore","J4","s_rc"); getValue("Sponsore","K4","s_client"); getValue("Sponsore","L4","s_total");
   getValue("Sponsore","H8","p_rymax"); getValue("Sponsore","I8","p_mawaran");
   getValue("Sponsore","J8","p_rc"); getValue("Sponsore","K8","p_client"); getValue("Sponsore","L8","p_total");
   
-  // Fetch Full Tables for Modals
+  // Fetch Full Tables
   fetchTableData("Sheet1", "A:H", "sheet1_full");
   fetchTableData("Sponsore", "A:G", "sponsore_full");
   
@@ -332,7 +356,6 @@ function loadData() {
   fetchJobData();
 }
 
-// Helpers for dates
 function getMonthOffset(dateVal) {
   if (!dateVal) return -1;
   let d = dateVal;
@@ -342,21 +365,21 @@ function getMonthOffset(dateVal) {
   }
   const now = new Date();
   const mDiff = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth();
-  return mDiff; // 0 for current month, 1 for previous month
+  return mDiff; 
 }
 
-// Filter data for Video Modal (Sheet1)
+// Filter data for Video Modal
 function filterSheet1(monthOffset, type) {
   const dt = DATA['sheet1_full'];
   let rows = [];
   if (!dt) return rows;
   for (let i = 0; i < dt.getNumberOfRows(); i++) {
-    const dateVal = dt.getValue(i, 0); // Col A
+    const dateVal = dt.getValue(i, 0); 
     if (getMonthOffset(dateVal) === monthOffset) {
-      const proj = dt.getValue(i, 1) || ''; // Col B
-      const page = dt.getValue(i, 5) || ''; // Col F
-      const danyar = dt.getValue(i, 6) || ''; // Col G
-      const kind = dt.getValue(i, 7) || ''; // Col H
+      const proj = dt.getValue(i, 1) || ''; 
+      const page = dt.getValue(i, 5) || ''; 
+      const danyar = dt.getValue(i, 6) || ''; 
+      const kind = dt.getValue(i, 7) || ''; 
 
       let include = false;
       if (type === 'all') include = true;
@@ -364,14 +387,17 @@ function filterSheet1(monthOffset, type) {
       else if (type === 'photo' && kind.toString().toLowerCase().includes('photo')) include = true;
 
       if (include) {
-        rows.push([dateVal ? formatDateOnly(dateVal) : '', proj, page, danyar, kind]);
+        rows.push({
+          cells: [dateVal ? formatDateOnly(dateVal) : '', proj, page, danyar, kind],
+          isOngoing: false // Not applicable for videos
+        });
       }
     }
   }
   return rows;
 }
 
-// Filter data and get sums for Sponsore Modal
+// Filter data and logic for Ongoing Ads in Sponsore
 function getSponsorData(monthOffset, pageFilter) {
   const dt = DATA['sponsore_full'];
   let rows = [];
@@ -379,13 +405,25 @@ function getSponsorData(monthOffset, pageFilter) {
   if (!dt) return {rows, totalRV};
 
   for (let i = 0; i < dt.getNumberOfRows(); i++) {
-    const page = (dt.getValue(i, 0) || '').toString().toLowerCase(); // Col A
-    const site = dt.getValue(i, 1) || ''; // Col B
-    const amount = dt.getValue(i, 2) || 0; // Col C
-    const startDate = dt.getValue(i, 3); // Col D
-    const duration = dt.getValue(i, 4) || ''; // Col E
-    const note = dt.getValue(i, 5) || ''; // Col F
-    const rv = parseFloat(dt.getValue(i, 6)) || 0; // Col G
+    const page = (dt.getValue(i, 0) || '').toString().toLowerCase(); 
+    const site = dt.getValue(i, 1) || ''; 
+    const amount = dt.getValue(i, 2) || 0; 
+    const startDate = dt.getValue(i, 3); 
+    const duration = dt.getValue(i, 4) || ''; 
+    const note = dt.getValue(i, 5) || ''; 
+    const rv = parseFloat(dt.getValue(i, 6)) || 0; 
+
+    // Check if Ongoing
+    let isOngoing = false;
+    if (startDate instanceof Date && duration) {
+        const days = parseInt(duration) || 0;
+        const endDate = new Date(startDate.getTime());
+        endDate.setDate(endDate.getDate() + days);
+        const now = new Date();
+        if (now < endDate) {
+            isOngoing = true; // Ad hasn't finished yet
+        }
+    }
 
     if (getMonthOffset(startDate) === monthOffset) {
       let include = false;
@@ -393,7 +431,10 @@ function getSponsorData(monthOffset, pageFilter) {
       else if (page.includes(pageFilter.toLowerCase())) include = true;
 
       if (include) {
-        rows.push([page.toUpperCase(), site, `$${amount}`, startDate ? formatDateOnly(startDate) : '', duration, note, rv]);
+        rows.push({
+          cells: [page.toUpperCase(), site, `$${amount}`, startDate ? formatDateOnly(startDate) : '', duration, note, rv],
+          isOngoing: isOngoing
+        });
         totalRV += rv;
       }
     }
@@ -403,13 +444,13 @@ function getSponsorData(monthOffset, pageFilter) {
 
 function openVideoModal(monthOffset, type, title) {
   const rows = filterSheet1(monthOffset, type);
-  const headers = ['التاريخ', 'Project', 'Page', 'Danyar', 'النوع'];
+  const headers = ['Date', 'Project', 'Page', 'Danyar', 'Type'];
   renderModal(title, headers, rows);
 }
 
 function openSponsorModal(monthOffset, pageFilter, title) {
   const data = getSponsorData(monthOffset, pageFilter);
-  const headers = ['Page', 'Site', 'Amount', 'Start Date', 'Duration(day)', 'Note', 'Result View'];
+  const headers = ['Page', 'Site', 'Amount', 'Start Date', 'Duration (days)', 'Note', 'Result View'];
   renderModal(title, headers, data.rows);
 }
 
@@ -420,9 +461,12 @@ function renderModal(title, headers, rows) {
   
   let tbodyHtml = '';
   if (rows.length === 0) {
-    tbodyHtml = `<tr><td colspan="${headers.length}" style="text-align:center; padding: 20px;">لا توجد بيانات لهذا الشهر</td></tr>`;
+    tbodyHtml = `<tr><td colspan="${headers.length}" style="text-align:center; padding: 20px; color: var(--muted);">No data available</td></tr>`;
   } else {
-    tbodyHtml = rows.map(r => '<tr>' + r.map(c => `<td>${c}</td>`).join('') + '</tr>').join('');
+    tbodyHtml = rows.map(r => {
+      const rowClass = r.isOngoing ? 'class="ongoing-ad"' : '';
+      return `<tr ${rowClass}>` + r.cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+    }).join('');
   }
   
   document.getElementById('modalTbody').innerHTML = tbodyHtml;
@@ -437,23 +481,23 @@ window.onclick = function(event) {
 }
 
 function renderUI() {
-  const now = new Date().toLocaleString('ar-IQ',{
+  const now = new Date().toLocaleString('en-US',{
     weekday:'short',year:'numeric',month:'short',day:'numeric', hour:'2-digit',minute:'2-digit'
   });
   document.getElementById('updateTime').textContent = now;
 
   // Pre-calculate Result Views for Sponsor Ads
-  const s_rymax_rv = getSponsorData(0, 'rymax').totalRV;
-  const s_mawaran_rv = getSponsorData(0, 'mawaran').totalRV;
-  const s_rc_rv = getSponsorData(0, 'rc').totalRV;
-  const s_client_rv = getSponsorData(0, 'client').totalRV;
-  const s_total_rv = getSponsorData(0, 'all').totalRV;
+  const s_rymax_rv = formatViews(getSponsorData(0, 'rymax').totalRV);
+  const s_mawaran_rv = formatViews(getSponsorData(0, 'mawaran').totalRV);
+  const s_rc_rv = formatViews(getSponsorData(0, 'rc').totalRV);
+  const s_client_rv = formatViews(getSponsorData(0, 'client').totalRV);
+  const s_total_rv = formatViews(getSponsorData(0, 'all').totalRV);
 
-  const p_rymax_rv = getSponsorData(1, 'rymax').totalRV;
-  const p_mawaran_rv = getSponsorData(1, 'mawaran').totalRV;
-  const p_rc_rv = getSponsorData(1, 'rc').totalRV;
-  const p_client_rv = getSponsorData(1, 'client').totalRV;
-  const p_total_rv = getSponsorData(1, 'all').totalRV;
+  const p_rymax_rv = formatViews(getSponsorData(1, 'rymax').totalRV);
+  const p_mawaran_rv = formatViews(getSponsorData(1, 'mawaran').totalRV);
+  const p_rc_rv = formatViews(getSponsorData(1, 'rc').totalRV);
+  const p_client_rv = formatViews(getSponsorData(1, 'client').totalRV);
+  const p_total_rv = formatViews(getSponsorData(1, 'all').totalRV);
 
   document.getElementById('app').innerHTML = `
     <div class="sec-header">
@@ -468,14 +512,14 @@ function renderUI() {
         <div class="compare-card this-m">
           <div class="compare-card-head">
             <span>📅 Edited this month</span>
-            <button class="details-btn" onclick="openVideoModal(0, 'all', 'تفاصيل الفيديوهات - الشهر الحالي')">تفاصيل</button>
+            <button class="details-btn" onclick="openVideoModal(0, 'all', 'Video Details - Current Month')">Details</button>
           </div>
           <div class="compare-card-body"><div class="cc-val">${DATA['vid_this']}</div></div>
         </div>
         <div class="compare-card prev-m">
           <div class="compare-card-head">
             <span>🗓️ Edited Previous month</span>
-            <button class="details-btn" onclick="openVideoModal(1, 'all', 'تفاصيل الفيديوهات - الشهر السابق')">تفاصيل</button>
+            <button class="details-btn" onclick="openVideoModal(1, 'all', 'Video Details - Previous Month')">Details</button>
           </div>
           <div class="compare-card-body"><div class="cc-val">${DATA['vid_prev']}</div></div>
         </div>
@@ -488,14 +532,14 @@ function renderUI() {
         <div class="compare-card this-m">
           <div class="compare-card-head">
             <span>📅 this month By Danyar</span>
-            <button class="details-btn" onclick="openVideoModal(0, 'danyar', 'تفاصيل الفيديوهات (Danyar) - الشهر الحالي')">تفاصيل</button>
+            <button class="details-btn" onclick="openVideoModal(0, 'danyar', 'Videos by Danyar - Current Month')">Details</button>
           </div>
           <div class="compare-card-body"><div class="cc-val">${DATA['dan_this']}</div></div>
         </div>
         <div class="compare-card prev-m">
           <div class="compare-card-head">
             <span>🗓️ Previous month By Danyar</span>
-            <button class="details-btn" onclick="openVideoModal(1, 'danyar', 'تفاصيل الفيديوهات (Danyar) - الشهر السابق')">تفاصيل</button>
+            <button class="details-btn" onclick="openVideoModal(1, 'danyar', 'Videos by Danyar - Previous Month')">Details</button>
           </div>
           <div class="compare-card-body"><div class="cc-val">${DATA['dan_prev']}</div></div>
         </div>
@@ -508,14 +552,14 @@ function renderUI() {
         <div class="compare-card this-m">
           <div class="compare-card-head">
             <span>📅 Photo this month</span>
-            <button class="details-btn" onclick="openVideoModal(0, 'photo', 'تفاصيل الصور (Photo) - الشهر الحالي')">تفاصيل</button>
+            <button class="details-btn" onclick="openVideoModal(0, 'photo', 'Photo Details - Current Month')">Details</button>
           </div>
           <div class="compare-card-body"><div class="cc-val">${DATA['photo_this']}</div></div>
         </div>
         <div class="compare-card prev-m">
           <div class="compare-card-head">
             <span>🗓️ Photo Previous month</span>
-            <button class="details-btn" onclick="openVideoModal(1, 'photo', 'تفاصيل الصور (Photo) - الشهر السابق')">تفاصيل</button>
+            <button class="details-btn" onclick="openVideoModal(1, 'photo', 'Photo Details - Previous Month')">Details</button>
           </div>
           <div class="compare-card-body"><div class="cc-val">${DATA['photo_prev']}</div></div>
         </div>
@@ -526,37 +570,37 @@ function renderUI() {
 
     <div class="sec-header">
       <div class="sec-icon green">📢</div>
-      <h2 class="green">Sponsore Ads</h2>
+      <h2 class="green">Sponsor Ads</h2>
       <div class="sec-line"></div>
     </div>
 
     <div class="sponsor-block sp-this">
       <div class="sponsor-head">
         <span>📅 This Month Total: $${DATA['s_total']}</span>
-        <button class="details-btn" onclick="openSponsorModal(0, 'all', 'التفاصيل الشاملة للإعلانات - الشهر الحالي')">عرض كل التفاصيل</button>
+        <button class="details-btn" onclick="openSponsorModal(0, 'all', 'All Sponsor Details - Current Month')">View All Details</button>
       </div>
       <div class="sponsor-body">
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rymax', 'تفاصيل إعلانات Rymax - الشهر الحالي')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rymax', 'Rymax Ads - Current Month')">
           <div class="sp-label">Rymax</div> 
           <div class="sp-val">$${DATA['s_rymax']}</div>
           <div class="rv-text">👁️ Views: ${s_rymax_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'mawaran', 'تفاصيل إعلانات Mawaran - الشهر الحالي')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'mawaran', 'Mawaran Ads - Current Month')">
           <div class="sp-label">Mawaran</div>
           <div class="sp-val">$${DATA['s_mawaran']}</div>
           <div class="rv-text">👁️ Views: ${s_mawaran_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc', 'تفاصيل إعلانات RC - الشهر الحالي')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc', 'RC Ads - Current Month')">
           <div class="sp-label">RC</div>      
           <div class="sp-val">$${DATA['s_rc']}</div>
           <div class="rv-text">👁️ Views: ${s_rc_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'client', 'تفاصيل إعلانات Client - الشهر الحالي')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'client', 'Client Ads - Current Month')">
           <div class="sp-label">Client</div>  
           <div class="sp-val">$${DATA['s_client']}</div>
           <div class="rv-text">👁️ Views: ${s_client_rv}</div>
         </div>
-        <div class="sp-item sp-total cursor-pointer" onclick="openSponsorModal(0, 'all', 'تفاصيل جميع الإعلانات - الشهر الحالي')">
+        <div class="sp-item sp-total cursor-pointer" onclick="openSponsorModal(0, 'all', 'All Sponsor Details - Current Month')">
           <div class="sp-label">Total</div>
           <div class="sp-val">$${DATA['s_total']}</div>
           <div class="rv-text" style="color:var(--pink);">👁️ Views: ${s_total_rv}</div>
@@ -567,30 +611,30 @@ function renderUI() {
     <div class="sponsor-block sp-prev" style="margin-top:16px;">
       <div class="sponsor-head">
         <span>🗓️ Previous Month Total: $${DATA['p_total']}</span>
-        <button class="details-btn" onclick="openSponsorModal(1, 'all', 'التفاصيل الشاملة للإعلانات - الشهر السابق')">عرض كل التفاصيل</button>
+        <button class="details-btn" onclick="openSponsorModal(1, 'all', 'All Sponsor Details - Previous Month')">View All Details</button>
       </div>
       <div class="sponsor-body">
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rymax', 'تفاصيل إعلانات Rymax - الشهر السابق')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rymax', 'Rymax Ads - Previous Month')">
           <div class="sp-label">Rymax</div> 
           <div class="sp-val">$${DATA['p_rymax']}</div>
           <div class="rv-text">👁️ Views: ${p_rymax_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'mawaran', 'تفاصيل إعلانات Mawaran - الشهر السابق')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'mawaran', 'Mawaran Ads - Previous Month')">
           <div class="sp-label">Mawaran</div>
           <div class="sp-val">$${DATA['p_mawaran']}</div>
           <div class="rv-text">👁️ Views: ${p_mawaran_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc', 'تفاصيل إعلانات RC - الشهر السابق')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc', 'RC Ads - Previous Month')">
           <div class="sp-label">RC</div>      
           <div class="sp-val">$${DATA['p_rc']}</div>
           <div class="rv-text">👁️ Views: ${p_rc_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'client', 'تفاصيل إعلانات Client - الشهر السابق')">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'client', 'Client Ads - Previous Month')">
           <div class="sp-label">Client</div>  
           <div class="sp-val">$${DATA['p_client']}</div>
           <div class="rv-text">👁️ Views: ${p_client_rv}</div>
         </div>
-        <div class="sp-item sp-total cursor-pointer" onclick="openSponsorModal(1, 'all', 'تفاصيل جميع الإعلانات - الشهر السابق')">
+        <div class="sp-item sp-total cursor-pointer" onclick="openSponsorModal(1, 'all', 'All Sponsor Details - Previous Month')">
           <div class="sp-label">Total</div>
           <div class="sp-val">$${DATA['p_total']}</div>
           <div class="rv-text" style="color:var(--pink);">👁️ Views: ${p_total_rv}</div>
@@ -650,7 +694,7 @@ function renderJobCards(selectedDate) {
   }
 
   const container = document.getElementById('jobGridContainer');
-  container.innerHTML = cardsHtml || '<p style="text-align:center; width:100%; color:var(--muted); padding:20px;">لم يتم العثور على موظفين في الملف.</p>';
+  container.innerHTML = cardsHtml || '<p style="text-align:center; width:100%; color:var(--muted); padding:20px;">No employees found.</p>';
 }
 </script>
 </body>
