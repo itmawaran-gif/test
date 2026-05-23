@@ -1,301 +1,676 @@
 <!DOCTYPE html>
-<html lang="ckb" dir="rtl">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سیستەمی وەرگرتنی ئۆتۆمبێل</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007bff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    
-    <!-- خط يدعم الكوردية بشكل ممتاز -->
-    <link href="https://fonts.googleapis.com/css2?family=Readex+Pro&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    
-    <style>
-        body { 
-            font-family: 'Noto Sans Arabic', Tahoma, sans-serif; 
-            text-align: center; 
-            background: #f0f2f5; 
-            padding: 20px; 
-            color: #333; 
-        }
-        .card { 
-            background: white; 
-            padding: 30px 20px; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-            max-width: 400px; 
-            margin: auto; 
-        }
-        h2 { color: #007bff; margin-bottom: 20px; }
-        
-        button { 
-            border: none; 
-            border-radius: 12px; 
-            font-family: 'Noto Sans Arabic', Tahoma, sans-serif;
-            font-weight: bold; 
-            cursor: pointer; 
-            width: 100%; 
-            transition: 0.3s; 
-            color: white;
-        }
-        button:active { transform: scale(0.98); }
-        
-        /* أزرار مخصصة */
-        .btn-primary { background: #007bff; padding: 15px; font-size: 18px; margin: 15px 0; }
-        .btn-danger { background: #dc3545; padding: 25px 15px; font-size: 22px; margin: 10px 0; border-radius: 15px; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3); }
-        .btn-success { background: #28a745; padding: 12px; font-size: 16px; margin: 5px 0; }
-        
-        input { padding: 15px; width: 90%; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; font-family: 'Noto Sans Arabic', sans-serif;}
-        input:focus { border-color: #007bff; }
-        
-        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-top: 15px; background: #000; display: none;}
-        .status { color: #007bff; font-weight: bold; margin-top: 15px; min-height: 24px; }
-        .driver-info { background: #e7f3ff; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; }
-        
-        #traccarOverlay {
-            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 9999; justify-content: center; align-items: center;
-        }
-        #traccarOverlay.show { display: flex; }
-        #traccarPopup {
-            background: white; border-radius: 20px; padding: 35px 25px; max-width: 340px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.3s ease;
-        }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        #traccarPopup h3 { color: #007bff; font-size: 22px; margin-bottom: 10px; }
-        #traccarPopup p { color: #555; font-size: 15px; margin-bottom: 25px; line-height: 1.6; }
-        #openTraccarBtn { background: linear-gradient(135deg, #007bff, #0056cc); padding: 16px 30px; font-size: 18px; box-shadow: 0 5px 15px rgba(0,123,255,0.4); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سیستەمی وەرگرتنی ئۆتۆمبێل</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a56db">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef2f7;
+      min-height: 100vh;
+      padding: 20px 16px 40px;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── CARD ─────────────────────────────────── */
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      box-shadow: 0 4px 6px rgba(0,0,0,.05), 0 12px 32px rgba(0,0,0,.09);
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 22px 24px;
+      margin-top: 8px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a56db;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .card-title .icon { font-size: 22px; }
+
+    /* ── DRIVER BADGE ─────────────────────────── */
+    .driver-badge {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 10px 16px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── BUTTONS ──────────────────────────────── */
+    .btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background .15s;
+    }
+    .btn:active::after { background: rgba(255,255,255,.15); }
+    .btn:active { transform: scale(.97); }
+    .btn:disabled { opacity: .55; pointer-events: none; }
+
+    /* Big return button */
+    .btn-return {
+      padding: 26px 20px;
+      background: linear-gradient(145deg, #ef4444, #b91c1c);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(239,68,68,.38);
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+    .btn-return .r-icon  { font-size: 32px; line-height: 1; }
+    .btn-return .r-label { font-size: 14px; opacity: .9; font-weight: 600; }
+    .btn-return .r-car   { font-size: 30px; font-weight: 900; letter-spacing: 3px; line-height: 1.1; }
+
+    /* Main pickup button */
+    .btn-pickup {
+      padding: 22px 20px;
+      background: linear-gradient(145deg, #1a56db, #1e40af);
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(26,86,219,.38);
+      gap: 4px;
+      font-size: 17px;
+    }
+    .btn-pickup .p-icon  { font-size: 30px; line-height: 1; }
+    .btn-pickup .p-hint  { font-size: 13px; opacity: .85; font-weight: 500; }
+
+    /* Secondary pickup-other button */
+    .btn-other {
+      padding: 15px 20px;
+      background: linear-gradient(145deg, #059669, #047857);
+      color: #fff;
+      box-shadow: 0 5px 14px rgba(5,150,105,.3);
+      font-size: 15px;
+      gap: 3px;
+    }
+
+    /* Inline input confirm */
+    .btn-confirm {
+      padding: 14px;
+      background: linear-gradient(145deg, #1a56db, #1e40af);
+      color: #fff;
+      box-shadow: 0 5px 14px rgba(26,86,219,.3);
+      font-size: 16px;
+      margin-top: 6px;
+      border-radius: 12px;
+    }
+
+    /* Change driver */
+    .btn-ghost {
+      background: none;
+      border: 1px solid #e2e8f0;
+      color: #94a3b8;
+      border-radius: 9px;
+      padding: 8px 18px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 22px;
+      transition: color .2s, border-color .2s;
+    }
+    .btn-ghost:hover { color: #64748b; border-color: #cbd5e1; }
+
+    /* ── INPUT ────────────────────────────────── */
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s;
+      margin: 10px 0 4px;
+    }
+    input[type="text"]:focus { border-color: #1a56db; }
+
+    /* ── CURRENT CAR BOX ──────────────────────── */
+    .car-box {
+      background: linear-gradient(135deg, #fefce8, #fef9c3);
+      border: 2px solid #fde047;
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .car-box-label {
+      font-size: 11px;
+      color: #854d0e;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .car-box-id {
+      font-size: 34px;
+      font-weight: 900;
+      color: #713f12;
+      letter-spacing: 3px;
+      line-height: 1.1;
+    }
+
+    /* ── STATUS MSG ───────────────────────────── */
+    .status {
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-top: 14px;
+      display: none;
+      line-height: 1.5;
+    }
+    .status.show   { display: block; }
+    .status.info   { background: #eff6ff; color: #1e40af; }
+    .status.ok     { background: #f0fdf4; color: #14532d; border: 1px solid #bbf7d0; }
+    .status.err    { background: #fef2f2; color: #7f1d1d; border: 1px solid #fecaca; }
+
+    /* ── LOADING ──────────────────────────────── */
+    .loading-wrap {
+      padding: 32px 16px;
+      color: #94a3b8;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .spinner {
+      width: 30px; height: 30px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #1a56db;
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR STATE ──────────────────────────── */
+    .error-wrap {
+      padding: 24px 16px;
+      color: #ef4444;
+      font-size: 15px;
+      text-align: center;
+    }
+    .btn-retry {
+      margin-top: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+      border-radius: 9px;
+      padding: 9px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* ── QR READER ────────────────────────────── */
+    #reader {
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-top: 16px;
+      background: #000;
+      display: none;
+    }
+
+    /* ── DIVIDER ──────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    /* ── TRACCAR OVERLAY ──────────────────────── */
+    #traccarOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.78);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    #traccarOverlay.show { display: flex; }
+    #traccarPopup {
+      background: #fff;
+      border-radius: 22px;
+      padding: 36px 26px;
+      max-width: 340px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,.3);
+      animation: popIn .28s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(.82); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    #traccarPopup h3 {
+      color: #1a56db;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    #traccarPopup p {
+      color: #64748b;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+  </style>
 </head>
 <body>
 
+<!-- ── Traccar Overlay ───────────────────────────────── -->
 <div id="traccarOverlay" class="show">
-    <div id="traccarPopup">
-        <h3>بەیانی باش</h3>
-        <p><br><strong>ئامادەی بۆ ڕۆژێکی نوێ؟</strong><br></p>
-        <button id="openTraccarBtn" onclick="openTraccar()">باشە</button>
-    </div>
+  <div id="traccarPopup">
+    <h3>بەیانی باش 🌅</h3>
+    <p><strong>ئامادەی بۆ ڕۆژێکی نوێ؟</strong></p>
+    <button class="btn btn-pickup" onclick="openTraccar()" style="padding:15px; font-size:18px; border-radius:14px;">OK</button>
+  </div>
 </div>
 
-<div class="card" id="app">
-    <h2>سیستەمی وەرگرتنی ئۆتۆمبێل</h2>
-    
-    <div id="nameSection" style="display:none;">
-        <p>بەخێربێن، تکایە ناوی خۆت بنووسە:</p>
-        <input type="text" id="driverNameInput" placeholder="ناوی تەواوی شۆفێر">
-        <button class="btn-primary" onclick="saveName()">چوونەژوورەوە</button>
+<!-- ── Main Card ─────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">
+    <span class="icon">🚗</span>
+    سیستەمی وەرگرتنی ئۆتۆمبێل
+  </div>
+
+  <!-- Name Section -->
+  <div id="nameSection" style="display:none;">
+    <p style="color:#64748b; margin-bottom:4px;">بەخێربێن، تکایە ناوی خۆت بنووسە:</p>
+    <input type="text" id="driverNameInput" placeholder="ناوی تەواوی شۆفێر">
+    <button class="btn btn-confirm" onclick="saveName()">تأكيد ✓</button>
+  </div>
+
+  <!-- Main Section -->
+  <div id="mainSection" style="display:none;">
+    <div class="driver-badge">
+      <span>👤</span>
+      <span id="driverBadge"></span>
     </div>
-    
-    <div id="mainSection" style="display:none;">
-        <div class="driver-info" id="driverDisplayName"></div>
-        <p class="status" id="statusMsg"></p>
-        
-        <div id="reader"></div>
-        <div id="actionButtons"></div>
-        
-        <button onclick="clearUser()" style="background:none; color:#888; font-size:14px; margin-top:20px; box-shadow:none;">گۆڕینی شۆفێر (تغيير السائق)</button>
+
+    <!-- Dynamic action area (loading / noTrip / onTrip / error) -->
+    <div id="actionArea"></div>
+
+    <!-- QR Reader -->
+    <div id="reader"></div>
+
+    <!-- Status message -->
+    <div id="statusMsg" class="status"></div>
+
+    <!-- Change driver -->
+    <div style="text-align:center;">
+      <button class="btn-ghost" onclick="clearUser()">تغيير السائق</button>
     </div>
+  </div>
 </div>
 
 <script>
-    let driverName = localStorage.getItem('driverName');
-    let currentActiveCar = null;
-    let scanMode = ''; // 'start', 'end', or 'switch'
-    let html5QrCode = null;
+// ══════════════════════════════════════════════════════
+//  CONFIG — استبدل هذا الرابط برابط السكريبت الجديد بعد النشر
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYW6quIkSJYwE1ArT7dCFz_ybgMz-XnX-C_4ZcW2ZOQcXTmH6Gz7JS3tazhCZdJQQV/exec';
 
-    // ضع رابط الـ Web App الخاص بك هنا
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbxYW6quIkSJYwE1ArT7dCFz_ybgMz-XnX-C_4ZcW2ZOQcXTmH6Gz7JS3tazhCZdJQQV/exec';
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let driverName   = localStorage.getItem('driverName');
+let currentCarId = null;   // السيارة المفتوحة من السيرفر
+let scanPurpose  = null;   // 'start' | 'startAndEnd'
+let qrScanner    = null;
+let isBusy       = false;
 
-    function checkTraccarPopup() {
-        const today = new Date().toDateString();
-        const lastShown = localStorage.getItem('traccarLastShown');
-        if (lastShown === today) {
-            document.getElementById('traccarOverlay').classList.remove('show');
-        }
+// ══════════════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════════════
+
+/** وقت بدون leading zeros: "23-5-2026, 14:07:03" */
+function getNow() {
+  const d = new Date();
+  return `${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}, ` +
+         `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function $(id) { return document.getElementById(id); }
+
+// ══════════════════════════════════════════════════════
+//  API — كل الطلبات GET حتى يمكن قراءة الرد (CORS)
+// ══════════════════════════════════════════════════════
+async function apiCall(params) {
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
+  const resp = await fetch(url, { redirect: 'follow' });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  return resp.json();
+}
+
+// ══════════════════════════════════════════════════════
+//  TRACCAR
+// ══════════════════════════════════════════════════════
+function checkTraccarPopup() {
+  if (localStorage.getItem('traccarLastShown') === new Date().toDateString()) {
+    $('traccarOverlay').classList.remove('show');
+  }
+}
+
+function openTraccar() {
+  localStorage.setItem('traccarLastShown', new Date().toDateString());
+  $('traccarOverlay').classList.remove('show');
+  const f = document.createElement('iframe');
+  f.style.display = 'none';
+  f.src = 'org.traccar.client://';
+  document.body.appendChild(f);
+  setTimeout(() => f.remove(), 2000);
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+window.onload = () => {
+  checkTraccarPopup();
+  if (!driverName) {
+    $('nameSection').style.display = 'block';
+  } else {
+    showMain();
+  }
+};
+
+function saveName() {
+  const name = $('driverNameInput').value.trim();
+  if (!name) { alert('تکایە ناوەکە بنووسن'); return; }
+  localStorage.setItem('driverName', name);
+  driverName = name;
+  showMain();
+}
+
+function showMain() {
+  $('nameSection').style.display = 'none';
+  $('mainSection').style.display = 'block';
+  $('driverBadge').textContent = 'السائق: ' + driverName;
+  refreshState();
+}
+
+// ══════════════════════════════════════════════════════
+//  SERVER CHECK — يفحص كل الشيتات، صف 2 فقط (أحدث إدخال)
+// ══════════════════════════════════════════════════════
+async function refreshState() {
+  stopScanner();
+  clearStatus();
+  renderLoading();
+
+  try {
+    const res = await apiCall({ action: 'check', driver: driverName });
+    if (res.hasOpen) {
+      currentCarId = res.carId;
+      renderOnTrip();
+    } else {
+      currentCarId = null;
+      renderNoTrip();
     }
+  } catch (err) {
+    currentCarId = null;
+    renderConnError();
+  }
+}
 
-    function openTraccar() {
-        localStorage.setItem('traccarLastShown', new Date().toDateString());
-        document.getElementById('traccarOverlay').classList.remove('show');
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = 'org.traccar.client://';
-        document.body.appendChild(iframe);
-        setTimeout(() => document.body.removeChild(iframe), 2000);
+// ══════════════════════════════════════════════════════
+//  UI RENDERS
+// ══════════════════════════════════════════════════════
+function setActionArea(html) {
+  $('actionArea').innerHTML = html;
+}
+
+function renderLoading() {
+  setActionArea(`
+    <div class="loading-wrap">
+      <div class="spinner"></div>
+      <span>جاري التحقق من السيارات...</span>
+    </div>`);
+}
+
+function renderNoTrip() {
+  setActionArea(`
+    <button class="btn btn-pickup" onclick="startScan('start')">
+      <span class="p-icon">🚗</span>
+      <span>وەرگرتنی ئۆتۆمبێل</span>
+      <span class="p-hint">Scan QR</span>
+    </button>`);
+}
+
+function renderOnTrip() {
+  setActionArea(`
+    <div class="car-box">
+      <div class="car-box-label">ئۆتۆمبێلی ئێستا · السيارة الحالية</div>
+      <div class="car-box-id">${esc(currentCarId)}</div>
+    </div>
+
+    <button class="btn btn-return" id="btnReturn" onclick="doReturn()">
+      <span class="r-icon">🔑</span>
+      <span class="r-label">گەڕاندنەوەی ئۆتۆمبێل</span>
+      <span class="r-car">${esc(currentCarId)}</span>
+    </button>
+
+    <div class="divider">یان · أو</div>
+
+    <button class="btn btn-other" id="btnOther" onclick="startScan('startAndEnd')">
+      🚗 وەرگرتنی ئۆتۆمبێلی تر
+    </button>`);
+}
+
+function renderConnError() {
+  setActionArea(`
+    <div class="error-wrap">
+      ❌ تەکنەیە دووبارە هەوڵ بدە
+      <br>
+      <button class="btn-retry" onclick="refreshState()">🔄 إعادة المحاولة</button>
+    </div>`);
+}
+
+// ══════════════════════════════════════════════════════
+//  ACTIONS
+// ══════════════════════════════════════════════════════
+
+/** تسليم السيارة الحالية (بدون QR — نعرف الاسم مسبقاً) */
+async function doReturn() {
+  if (isBusy) return;
+  setBusy(true);
+  showStatus('داتاکان تۆمار دەکرێن...', 'info');
+
+  try {
+    const res = await apiCall({ action: 'end', carId: currentCarId, time: getNow() });
+    if (res.success) {
+      showStatus(`✅  تم تسليم سيارة ${currentCarId} بنجاح`, 'ok');
+      setTimeout(refreshState, 1700);
+    } else {
+      showStatus('❌  ' + (res.error || 'خطأ غير معروف'), 'err');
+      setBusy(false);
     }
+  } catch (e) {
+    showStatus('❌  خطأ في الاتصال بالسيرفر', 'err');
+    setBusy(false);
+  }
+}
 
-    window.onload = () => {
-        checkTraccarPopup();
-        if (!driverName) {
-            document.getElementById('nameSection').style.display = 'block';
-        } else {
-            showMain();
-            checkServerStatus();
-        }
-    };
+/** فتح الكاميرا لمسح QR */
+function startScan(purpose) {
+  if (isBusy) return;
+  scanPurpose = purpose;
+  const readerEl = $('reader');
+  readerEl.style.display = 'block';
+  showStatus('جاري فتح الكاميرا...', 'info');
 
-    function saveName() {
-        let name = document.getElementById('driverNameInput').value.trim();
-        if (name) {
-            localStorage.setItem('driverName', name);
-            driverName = name;
-            showMain();
-            checkServerStatus();
-        } else {
-            alert("تکایە ناوەکە بنووسن");
-        }
+  stopScanner();
+  qrScanner = new Html5Qrcode('reader');
+  qrScanner.start(
+    { facingMode: 'environment' },
+    { fps: 10, qrbox: { width: 230, height: 230 } },
+    (decoded) => {
+      qrScanner.stop().finally(() => {
+        readerEl.style.display = 'none';
+        qrScanner = null;
+        handleScanned(decoded.trim());
+      });
     }
+  ).catch(() => {
+    alert('خطأ في الكاميرا. تأكد من منح الإذن.');
+    readerEl.style.display = 'none';
+    clearStatus();
+  });
+}
 
-    function showMain() {
-        document.getElementById('nameSection').style.display = 'none';
-        document.getElementById('mainSection').style.display = 'block';
-        document.getElementById('driverDisplayName').innerText = "شۆفێر: " + driverName;
+async function handleScanned(carId) {
+  if (scanPurpose === 'start') {
+    await doStart(carId);
+  } else {
+    await doEndAndStart(carId);
+  }
+}
+
+/** استلام سيارة جديدة (لا توجد سيارة مفتوحة) */
+async function doStart(carId) {
+  setBusy(true);
+  showStatus('داتاکان تۆمار دەکرێن...', 'info');
+  try {
+    const res = await apiCall({ action: 'start', carId, driver: driverName, time: getNow() });
+    if (res.success) {
+      showStatus(`✅  تم استلام سيارة ${carId} بنجاح`, 'ok');
+      setTimeout(refreshState, 1700);
+    } else {
+      showStatus('❌  ' + (res.error || 'خطأ غير معروف'), 'err');
+      setBusy(false);
     }
+  } catch (e) {
+    showStatus('❌  خطأ في الاتصال بالسيرفر', 'err');
+    setBusy(false);
+  }
+}
 
-    // جلب حالة السيارة للسائق الحالي من السيرفر
-    async function checkServerStatus() {
-        document.getElementById('statusMsg').innerText = "چاوەڕێ بکە، زانیارییەکان وەردەگیرێن...";
-        document.getElementById('statusMsg').style.color = "#007bff";
-        document.getElementById('actionButtons').innerHTML = ''; // تفريغ الأزرار
-
-        try {
-            let response = await fetch(scriptURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: "check_status", driverName: driverName })
-            });
-            let result = await response.json();
-            
-            document.getElementById('statusMsg').innerText = "";
-            currentActiveCar = result.activeCar; // سيكون null إذا لم يكن هناك سيارة
-            buildUI();
-            
-        } catch (err) {
-            document.getElementById('statusMsg').innerText = "کێشە لە پەیوەندی هەیە ❌";
-            document.getElementById('statusMsg').style.color = "#dc3545";
-        }
+/** تسليم القديمة + استلام الجديدة في عملية واحدة */
+async function doEndAndStart(newCarId) {
+  setBusy(true);
+  showStatus('داتاکان تۆمار دەکرێن...', 'info');
+  try {
+    const res = await apiCall({
+      action   : 'endAndStart',
+      oldCarId : currentCarId,
+      newCarId,
+      driver   : driverName,
+      time     : getNow()
+    });
+    if (res.success) {
+      showStatus(`✅  تسليم ${currentCarId} + استلام ${newCarId} بنجاح`, 'ok');
+      setTimeout(refreshState, 1800);
+    } else {
+      showStatus('❌  ' + (res.error || 'خطأ غير معروف'), 'err');
+      setBusy(false);
     }
+  } catch (e) {
+    showStatus('❌  خطأ في الاتصال بالسيرفر', 'err');
+    setBusy(false);
+  }
+}
 
-    // بناء الأزرار بناءً على الرد من السيرفر
-    function buildUI() {
-        const btnContainer = document.getElementById('actionButtons');
-        btnContainer.innerHTML = ''; 
+// ══════════════════════════════════════════════════════
+//  STATUS / BUSY / SCANNER UTILS
+// ══════════════════════════════════════════════════════
+function showStatus(msg, type) {
+  const el = $('statusMsg');
+  el.textContent = msg;
+  el.className = 'status show ' + type;
+}
+function clearStatus() {
+  $('statusMsg').className = 'status';
+}
 
-        if (currentActiveCar) {
-            // زر التسليم الكبير
-            const returnBtn = document.createElement('button');
-            returnBtn.className = "btn-danger";
-            returnBtn.innerText = "گەڕاندنەوەی: " + currentActiveCar;
-            returnBtn.onclick = () => startScan('end');
-            
-            // زر تبديل سيارة صغير
-            const switchBtn = document.createElement('button');
-            switchBtn.className = "btn-success";
-            switchBtn.innerText = "وەرگرتنی ئۆتۆمبێلێکی تر";
-            switchBtn.onclick = () => startScan('switch');
+function setBusy(val) {
+  isBusy = val;
+  $('actionArea').querySelectorAll('.btn').forEach(b => b.disabled = val);
+}
 
-            btnContainer.appendChild(returnBtn);
-            btnContainer.appendChild(switchBtn);
-        } else {
-            // زر الاستلام العادي
-            const startBtn = document.createElement('button');
-            startBtn.className = "btn-primary";
-            startBtn.innerText = "وەرگرتنی ئۆتۆمبێل (Scan QR)";
-            startBtn.onclick = () => startScan('start');
-            btnContainer.appendChild(startBtn);
-        }
+function stopScanner() {
+  if (qrScanner) {
+    qrScanner.stop().catch(() => {});
+    qrScanner = null;
+    $('reader').style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  CHANGE DRIVER
+// ══════════════════════════════════════════════════════
+function clearUser() {
+  const pw = prompt('تکایە وشەی نهێنی بنووسە:');
+  if (pw === 'Mm19941994Mm') {
+    if (confirm('آیا دڵنیایت لە سڕینەوەی ناوی شۆفێر؟')) {
+      localStorage.clear();
+      location.reload();
     }
+  } else if (pw !== null) {
+    alert('وشەی نهێنی هەڵەیە!');
+  }
+}
 
-    function startScan(mode) {
-        scanMode = mode;
-        document.getElementById('reader').style.display = 'block';
-        document.getElementById('statusMsg').innerText = "کامێرا دەکرێتەوە...";
-        document.getElementById('statusMsg').style.color = "#007bff";
-        
-        if(!html5QrCode) {
-            html5QrCode = new Html5Qrcode("reader");
-        }
-        
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-        html5QrCode.start({ facingMode: "environment" }, config,
-            (decodedText) => {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('reader').style.display = 'none';
-                    processScan(decodedText);
-                });
-            }
-        ).catch(err => {
-            alert("کێشە لە کامێرا هەیە، دڵنیابە لە پێدانی مۆڵەت");
-            document.getElementById('reader').style.display = 'none';
-        });
-    }
-
-    function processScan(scannedCarId) {
-        // حماية: إذا كان المستخدم يريد تسليم سيارته الحالية، نتأكد أنه قام بمسح كودها الصحيح
-        if (scanMode === 'end' && scannedCarId !== currentActiveCar) {
-            alert("کۆدی هەڵەیە! ئەمە ئۆتۆمبێلی: " + currentActiveCar + " نییە.");
-            return;
-        }
-
-        const now = new Date().toLocaleString('en-GB', {
-            year: 'numeric', month: 'numeric', day: 'numeric',
-            hour: '2-digit', minute: '2-digit', second: '2-digit',
-            hour12: false
-        }).replace(/\//g, '-');
-        
-        document.getElementById('statusMsg').innerText = "داتاکان تۆمار دەکرێن، چاوەڕێ بکە...";
-        document.getElementById('statusMsg').style.color = "#007bff";
-        document.getElementById('actionButtons').innerHTML = ''; // إخفاء الأزرار أثناء التحميل
-        
-        let payload = { time: now, driverName: driverName, action: scanMode };
-        
-        if (scanMode === 'end') {
-            payload.carId = scannedCarId;
-        } else if (scanMode === 'switch') {
-            payload.oldCarId = currentActiveCar; // السيارة القديمة للإغلاق
-            payload.carId = scannedCarId;        // السيارة الجديدة للفتح
-        } else {
-            payload.carId = scannedCarId; // استلام عادي
-        }
-
-        fetch(scriptURL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        }).then(res => res.json())
-          .then(data => {
-              if(data.success) {
-                  document.getElementById('statusMsg').innerText = "تەواو بەسەرکەوتوویی تۆمارکرا ✅";
-                  document.getElementById('statusMsg').style.color = "#28a745";
-                  // إعادة فحص الحالة من السيرفر لبناء الواجهة من جديد
-                  setTimeout(checkServerStatus, 1500); 
-              } else {
-                  throw new Error(data.error);
-              }
-          }).catch(err => {
-              document.getElementById('statusMsg').innerText = "هەڵە ڕوویدا ❌";
-              document.getElementById('statusMsg').style.color = "#dc3545";
-              buildUI(); // إعادة إظهار الأزرار السابقة
-          });
-    }
-
-    function clearUser() {
-        let password = prompt("تکایە وشەی نهێنی بنووسە:");
-        if (password === "Mm19941994Mm") {
-            if(confirm("ئایا دڵنیایت لە سڕینەوەی زانیارییەکانی شۆفێر؟")) {
-                localStorage.clear();
-                location.reload();
-            }
-        } else if (password !== null) {
-            alert("وشەی نهێنی هەڵەیە!");
-        }
-    }
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-        });
-    }
+// ══════════════════════════════════════════════════════
+//  SERVICE WORKER
+// ══════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
