@@ -1,530 +1,301 @@
 <!DOCTYPE html>
-<html lang="ku" dir="rtl">
+<html lang="ckb" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>سیستەمی وەرگرتنی ئۆتۆمبێل</title>
-
-<link rel="manifest" href="manifest.json">
-
-<meta name="theme-color" content="#007bff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-<script src="https://unpkg.com/html5-qrcode"></script>
-
-<style>
-
-body{
-    font-family:'Segoe UI',Tahoma;
-    background:#f0f2f5;
-    padding:20px;
-    text-align:center;
-    color:#333;
-}
-
-.card{
-    background:white;
-    max-width:420px;
-    margin:auto;
-    padding:30px 20px;
-    border-radius:25px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.1);
-}
-
-h2{
-    color:#007bff;
-    margin-bottom:20px;
-}
-
-button{
-    border:none;
-    border-radius:15px;
-    cursor:pointer;
-    width:100%;
-    transition:0.3s;
-    font-weight:bold;
-}
-
-button:active{
-    transform:scale(0.98);
-}
-
-input{
-    width:90%;
-    padding:15px;
-    border-radius:12px;
-    border:2px solid #ddd;
-    font-size:16px;
-    outline:none;
-    margin:10px 0;
-}
-
-input:focus{
-    border-color:#007bff;
-}
-
-#reader{
-    width:100%;
-    overflow:hidden;
-    border-radius:15px;
-    margin-top:15px;
-    background:black;
-}
-
-.status{
-    margin-top:15px;
-    font-weight:bold;
-    color:#28a745;
-    min-height:24px;
-}
-
-.driver-info{
-    background:#e7f3ff;
-    padding:12px;
-    border-radius:12px;
-    margin-bottom:20px;
-    font-weight:bold;
-}
-
-#actionBtn{
-    background:#dc3545;
-    color:white;
-    font-size:24px;
-    padding:25px;
-    margin-bottom:15px;
-}
-
-#newCarBtn{
-    background:#28a745;
-    color:white;
-    font-size:16px;
-    padding:14px;
-    display:none;
-}
-
-#changeDriverBtn{
-    background:none;
-    color:#888;
-    font-size:14px;
-    margin-top:20px;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سیستەمی وەرگرتنی ئۆتۆمبێل</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- خط يدعم الكوردية بشكل ممتاز -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <style>
+        body { 
+            font-family: 'Noto Sans Arabic', Tahoma, sans-serif; 
+            text-align: center; 
+            background: #f0f2f5; 
+            padding: 20px; 
+            color: #333; 
+        }
+        .card { 
+            background: white; 
+            padding: 30px 20px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            max-width: 400px; 
+            margin: auto; 
+        }
+        h2 { color: #007bff; margin-bottom: 20px; }
+        
+        button { 
+            border: none; 
+            border-radius: 12px; 
+            font-family: 'Noto Sans Arabic', Tahoma, sans-serif;
+            font-weight: bold; 
+            cursor: pointer; 
+            width: 100%; 
+            transition: 0.3s; 
+            color: white;
+        }
+        button:active { transform: scale(0.98); }
+        
+        /* أزرار مخصصة */
+        .btn-primary { background: #007bff; padding: 15px; font-size: 18px; margin: 15px 0; }
+        .btn-danger { background: #dc3545; padding: 25px 15px; font-size: 22px; margin: 10px 0; border-radius: 15px; box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3); }
+        .btn-success { background: #28a745; padding: 12px; font-size: 16px; margin: 5px 0; }
+        
+        input { padding: 15px; width: 90%; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; font-family: 'Noto Sans Arabic', sans-serif;}
+        input:focus { border-color: #007bff; }
+        
+        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-top: 15px; background: #000; display: none;}
+        .status { color: #007bff; font-weight: bold; margin-top: 15px; min-height: 24px; }
+        .driver-info { background: #e7f3ff; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-weight: bold; }
+        
+        #traccarOverlay {
+            display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 9999; justify-content: center; align-items: center;
+        }
+        #traccarOverlay.show { display: flex; }
+        #traccarPopup {
+            background: white; border-radius: 20px; padding: 35px 25px; max-width: 340px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.3s ease;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #traccarPopup h3 { color: #007bff; font-size: 22px; margin-bottom: 10px; }
+        #traccarPopup p { color: #555; font-size: 15px; margin-bottom: 25px; line-height: 1.6; }
+        #openTraccarBtn { background: linear-gradient(135deg, #007bff, #0056cc); padding: 16px 30px; font-size: 18px; box-shadow: 0 5px 15px rgba(0,123,255,0.4); }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
-
-<h2>سیستەمی ئۆتۆمبێل</h2>
-
-<div id="nameSection" style="display:none;">
-
-<p>تکایە ناوی خۆت بنووسە</p>
-
-<input
-    type="text"
-    id="driverNameInput"
-    placeholder="ناوی تەواوی شۆفێر">
-
-<button
-    style="background:#007bff;color:white;padding:15px;font-size:18px;"
-    onclick="saveName()">
-
-    بەردەوامبوون
-
-</button>
-
+<div id="traccarOverlay" class="show">
+    <div id="traccarPopup">
+        <h3>بەیانی باش</h3>
+        <p><br><strong>ئامادەی بۆ ڕۆژێکی نوێ؟</strong><br></p>
+        <button id="openTraccarBtn" onclick="openTraccar()">باشە</button>
+    </div>
 </div>
 
-<div id="mainSection" style="display:none;">
-
-<div
-    class="driver-info"
-    id="driverDisplayName">
-</div>
-
-<div
-    id="reader"
-    style="display:none;">
-</div>
-
-<button
-    id="actionBtn"
-    onclick="startScan()">
-
-    وەرگرتنی ئۆتۆمبێل
-
-</button>
-
-<button
-    id="newCarBtn"
-    onclick="startNewCarFlow()">
-
-    وەرگرتنی ئۆتۆمبێلی تر
-
-</button>
-
-<p
-    class="status"
-    id="statusMsg">
-</p>
-
-<button
-    id="changeDriverBtn"
-    onclick="clearUser()">
-
-    گۆڕینی شۆفێر
-
-</button>
-
-</div>
-
+<div class="card" id="app">
+    <h2>سیستەمی وەرگرتنی ئۆتۆمبێل</h2>
+    
+    <div id="nameSection" style="display:none;">
+        <p>بەخێربێن، تکایە ناوی خۆت بنووسە:</p>
+        <input type="text" id="driverNameInput" placeholder="ناوی تەواوی شۆفێر">
+        <button class="btn-primary" onclick="saveName()">چوونەژوورەوە</button>
+    </div>
+    
+    <div id="mainSection" style="display:none;">
+        <div class="driver-info" id="driverDisplayName"></div>
+        <p class="status" id="statusMsg"></p>
+        
+        <div id="reader"></div>
+        <div id="actionButtons"></div>
+        
+        <button onclick="clearUser()" style="background:none; color:#888; font-size:14px; margin-top:20px; box-shadow:none;">گۆڕینی شۆفێر (تغيير السائق)</button>
+    </div>
 </div>
 
 <script>
+    let driverName = localStorage.getItem('driverName');
+    let currentActiveCar = null;
+    let scanMode = ''; // 'start', 'end', or 'switch'
+    let html5QrCode = null;
 
-const scriptURL =
-'https://script.google.com/macros/s/AKfycbwqwC_sRKH_NK8JALTOukX5nWd5VY_F1ghi9MzKvLqZVfKTeqy8jVmwqlc9iVlHGmtI/exec';
+    // ضع رابط الـ Web App الخاص بك هنا
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxYW6quIkSJYwE1ArT7dCFz_ybgMz-XnX-C_4ZcW2ZOQcXTmH6Gz7JS3tazhCZdJQQV/exec';
 
-let driverName =
-localStorage.getItem('driverName');
-
-let isOnTrip = false;
-
-let currentCarId = null;
-
-window.onload = () => {
-
-    if(!driverName){
-
-        document
-        .getElementById('nameSection')
-        .style.display = 'block';
-
-    }else{
-
-        showMain();
-    }
-};
-
-function saveName(){
-
-    let name =
-    document
-    .getElementById('driverNameInput')
-    .value
-    .trim();
-
-    if(name){
-
-        localStorage
-        .setItem('driverName',name);
-
-        driverName = name;
-
-        showMain();
-
-    }else{
-
-        alert('تکایە ناوەکە بنووسە');
-    }
-}
-
-function showMain(){
-
-    document
-    .getElementById('nameSection')
-    .style.display='none';
-
-    document
-    .getElementById('mainSection')
-    .style.display='block';
-
-    document
-    .getElementById('driverDisplayName')
-    .innerText =
-    'شۆفێر: ' + driverName;
-
-    checkOpenTrip();
-}
-
-async function checkOpenTrip(){
-
-    document
-    .getElementById('statusMsg')
-    .innerText =
-    'جاری پشکنینی ئۆتۆمبێل...';
-
-    try{
-
-        const response =
-        await fetch(scriptURL,{
-
-            method:'POST',
-
-            headers:{
-                'Content-Type':'application/json'
-            },
-
-            body:JSON.stringify({
-
-                action:'checkOpenTrip',
-
-                driverName:driverName
-            })
-        });
-
-        const result =
-        await response.json();
-
-        if(result.success){
-
-            isOnTrip =
-            result.isOnTrip;
-
-            currentCarId =
-            result.carId || null;
+    function checkTraccarPopup() {
+        const today = new Date().toDateString();
+        const lastShown = localStorage.getItem('traccarLastShown');
+        if (lastShown === today) {
+            document.getElementById('traccarOverlay').classList.remove('show');
         }
-
-        updateUI();
-
-        document
-        .getElementById('statusMsg')
-        .innerText='';
-
-    }catch(err){
-
-        console.log(err);
-
-        document
-        .getElementById('statusMsg')
-        .innerText =
-        'هەڵە لە پەیوەندی';
     }
-}
 
-function updateUI(){
-
-    const btn =
-    document.getElementById('actionBtn');
-
-    const newBtn =
-    document.getElementById('newCarBtn');
-
-    if(isOnTrip){
-
-        btn.innerText =
-        'گەڕاندنەوەی ئۆتۆمبێل\n' +
-        currentCarId;
-
-        btn.style.background =
-        '#dc3545';
-
-        newBtn.style.display =
-        'block';
-
-    }else{
-
-        btn.innerText =
-        'وەرگرتنی ئۆتۆمبێل';
-
-        btn.style.background =
-        '#007bff';
-
-        newBtn.style.display =
-        'none';
+    function openTraccar() {
+        localStorage.setItem('traccarLastShown', new Date().toDateString());
+        document.getElementById('traccarOverlay').classList.remove('show');
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = 'org.traccar.client://';
+        document.body.appendChild(iframe);
+        setTimeout(() => document.body.removeChild(iframe), 2000);
     }
-}
 
-function startNewCarFlow(){
-
-    startScan(true);
-}
-
-function startScan(isNewCar=false){
-
-    document
-    .getElementById('reader')
-    .style.display='block';
-
-    document
-    .getElementById('statusMsg')
-    .innerText =
-    'جاری کردنەوەی کامێرا...';
-
-    const html5QrCode =
-    new Html5Qrcode("reader");
-
-    const config = {
-
-        fps:10,
-
-        qrbox:{
-            width:250,
-            height:250
+    window.onload = () => {
+        checkTraccarPopup();
+        if (!driverName) {
+            document.getElementById('nameSection').style.display = 'block';
+        } else {
+            showMain();
+            checkServerStatus();
         }
     };
 
-    html5QrCode.start(
+    function saveName() {
+        let name = document.getElementById('driverNameInput').value.trim();
+        if (name) {
+            localStorage.setItem('driverName', name);
+            driverName = name;
+            showMain();
+            checkServerStatus();
+        } else {
+            alert("تکایە ناوەکە بنووسن");
+        }
+    }
 
-        { facingMode:"environment" },
+    function showMain() {
+        document.getElementById('nameSection').style.display = 'none';
+        document.getElementById('mainSection').style.display = 'block';
+        document.getElementById('driverDisplayName').innerText = "شۆفێر: " + driverName;
+    }
 
-        config,
+    // جلب حالة السيارة للسائق الحالي من السيرفر
+    async function checkServerStatus() {
+        document.getElementById('statusMsg').innerText = "چاوەڕێ بکە، زانیارییەکان وەردەگیرێن...";
+        document.getElementById('statusMsg').style.color = "#007bff";
+        document.getElementById('actionButtons').innerHTML = ''; // تفريغ الأزرار
 
-        (decodedText)=>{
-
-            sendData(decodedText,isNewCar);
-
-            html5QrCode.stop().then(()=>{
-
-                document
-                .getElementById('reader')
-                .style.display='none';
+        try {
+            let response = await fetch(scriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: "check_status", driverName: driverName })
             });
+            let result = await response.json();
+            
+            document.getElementById('statusMsg').innerText = "";
+            currentActiveCar = result.activeCar; // سيكون null إذا لم يكن هناك سيارة
+            buildUI();
+            
+        } catch (err) {
+            document.getElementById('statusMsg').innerText = "کێشە لە پەیوەندی هەیە ❌";
+            document.getElementById('statusMsg').style.color = "#dc3545";
         }
+    }
 
-    ).catch(err=>{
+    // بناء الأزرار بناءً على الرد من السيرفر
+    function buildUI() {
+        const btnContainer = document.getElementById('actionButtons');
+        btnContainer.innerHTML = ''; 
 
-        alert('هەڵە لە کامێرا');
+        if (currentActiveCar) {
+            // زر التسليم الكبير
+            const returnBtn = document.createElement('button');
+            returnBtn.className = "btn-danger";
+            returnBtn.innerText = "گەڕاندنەوەی: " + currentActiveCar;
+            returnBtn.onclick = () => startScan('end');
+            
+            // زر تبديل سيارة صغير
+            const switchBtn = document.createElement('button');
+            switchBtn.className = "btn-success";
+            switchBtn.innerText = "وەرگرتنی ئۆتۆمبێلێکی تر";
+            switchBtn.onclick = () => startScan('switch');
 
-        document
-        .getElementById('reader')
-        .style.display='none';
-    });
-}
-
-async function sendData(carId,isNewCar=false){
-
-    const now =
-    new Date()
-    .toLocaleString('en-GB',{
-
-        year:'numeric',
-        month:'2-digit',
-        day:'2-digit',
-
-        hour:'2-digit',
-        minute:'2-digit',
-        second:'2-digit',
-
-        hour12:false
-
-    }).replace(/\//g,'-');
-
-    document
-    .getElementById('statusMsg')
-    .innerText =
-    'جاری تۆمارکردنی داتا...';
-
-    try{
-
-        let action = 'startTrip';
-
-        if(isOnTrip && !isNewCar){
-
-            action = 'endTrip';
+            btnContainer.appendChild(returnBtn);
+            btnContainer.appendChild(switchBtn);
+        } else {
+            // زر الاستلام العادي
+            const startBtn = document.createElement('button');
+            startBtn.className = "btn-primary";
+            startBtn.innerText = "وەرگرتنی ئۆتۆمبێل (Scan QR)";
+            startBtn.onclick = () => startScan('start');
+            btnContainer.appendChild(startBtn);
         }
+    }
 
-        const response =
-        await fetch(scriptURL,{
-
-            method:'POST',
-
-            headers:{
-                'Content-Type':'application/json'
-            },
-
-            body:JSON.stringify({
-
-                action:action,
-
-                driverName:driverName,
-
-                carId:carId,
-
-                oldCarId:currentCarId,
-
-                time:now
-            })
-        });
-
-        const result =
-        await response.json();
-
-        if(result.success){
-
-            if(action == 'endTrip'){
-
-                isOnTrip = false;
-
-                currentCarId = null;
-
-            }else{
-
-                isOnTrip = true;
-
-                currentCarId = carId;
+    function startScan(mode) {
+        scanMode = mode;
+        document.getElementById('reader').style.display = 'block';
+        document.getElementById('statusMsg').innerText = "کامێرا دەکرێتەوە...";
+        document.getElementById('statusMsg').style.color = "#007bff";
+        
+        if(!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
+        }
+        
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        html5QrCode.start({ facingMode: "environment" }, config,
+            (decodedText) => {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('reader').style.display = 'none';
+                    processScan(decodedText);
+                });
             }
+        ).catch(err => {
+            alert("کێشە لە کامێرا هەیە، دڵنیابە لە پێدانی مۆڵەت");
+            document.getElementById('reader').style.display = 'none';
+        });
+    }
 
-            updateUI();
-
-            document
-            .getElementById('statusMsg')
-            .innerText =
-            result.message + ' ✅';
-
-        }else{
-
-            document
-            .getElementById('statusMsg')
-            .innerText =
-            result.message;
+    function processScan(scannedCarId) {
+        // حماية: إذا كان المستخدم يريد تسليم سيارته الحالية، نتأكد أنه قام بمسح كودها الصحيح
+        if (scanMode === 'end' && scannedCarId !== currentActiveCar) {
+            alert("کۆدی هەڵەیە! ئەمە ئۆتۆمبێلی: " + currentActiveCar + " نییە.");
+            return;
         }
 
-    }catch(err){
-
-        console.log(err);
-
-        document
-        .getElementById('statusMsg')
-        .innerText =
-        'هەڵە لە پەیوەندی ❌';
-    }
-}
-
-function clearUser(){
-
-    let password =
-    prompt('تکایە وشەی نهێنی بنووسە');
-
-    if(password === 'Mm19941994Mm'){
-
-        if(confirm('دڵنیایت لە سڕینەوەی زانیارییەکان؟')){
-
-            localStorage.clear();
-
-            location.reload();
+        const now = new Date().toLocaleString('en-GB', {
+            year: 'numeric', month: 'numeric', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', second: '2-digit',
+            hour12: false
+        }).replace(/\//g, '-');
+        
+        document.getElementById('statusMsg').innerText = "داتاکان تۆمار دەکرێن، چاوەڕێ بکە...";
+        document.getElementById('statusMsg').style.color = "#007bff";
+        document.getElementById('actionButtons').innerHTML = ''; // إخفاء الأزرار أثناء التحميل
+        
+        let payload = { time: now, driverName: driverName, action: scanMode };
+        
+        if (scanMode === 'end') {
+            payload.carId = scannedCarId;
+        } else if (scanMode === 'switch') {
+            payload.oldCarId = currentActiveCar; // السيارة القديمة للإغلاق
+            payload.carId = scannedCarId;        // السيارة الجديدة للفتح
+        } else {
+            payload.carId = scannedCarId; // استلام عادي
         }
 
-    }else if(password !== null){
-
-        alert('وشەی نهێنی هەڵەیە');
+        fetch(scriptURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        }).then(res => res.json())
+          .then(data => {
+              if(data.success) {
+                  document.getElementById('statusMsg').innerText = "تەواو بەسەرکەوتوویی تۆمارکرا ✅";
+                  document.getElementById('statusMsg').style.color = "#28a745";
+                  // إعادة فحص الحالة من السيرفر لبناء الواجهة من جديد
+                  setTimeout(checkServerStatus, 1500); 
+              } else {
+                  throw new Error(data.error);
+              }
+          }).catch(err => {
+              document.getElementById('statusMsg').innerText = "هەڵە ڕوویدا ❌";
+              document.getElementById('statusMsg').style.color = "#dc3545";
+              buildUI(); // إعادة إظهار الأزرار السابقة
+          });
     }
-}
 
-if('serviceWorker' in navigator){
+    function clearUser() {
+        let password = prompt("تکایە وشەی نهێنی بنووسە:");
+        if (password === "Mm19941994Mm") {
+            if(confirm("ئایا دڵنیایت لە سڕینەوەی زانیارییەکانی شۆفێر؟")) {
+                localStorage.clear();
+                location.reload();
+            }
+        } else if (password !== null) {
+            alert("وشەی نهێنی هەڵەیە!");
+        }
+    }
 
-    window.addEventListener('load',()=>{
-
-        navigator.serviceWorker
-        .register('sw.js')
-        .catch(err=>console.log(err));
-    });
-}
-
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
+        });
+    }
 </script>
-
 </body>
 </html>
