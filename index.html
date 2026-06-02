@@ -1,3 +1,8 @@
+إليك الكود المحدث. لقد قمت بفصل قسم **RC** وجعله يظهر في صف فرعي (أسفل الأقسام الرئيسية مباشرة) يحتوي على 4 أعمدة: **المجموع (RC Total) على اليسار**، وإلى يمينه الأقسام الثلاثة الجديدة **(RC Erbil, RC Baghdad, RC Diyala)** بنفس التصميم والتفاصيل (المبالغ والمشاهدات) للشهرين الحالي والسابق.
+
+البيانات (المبالغ والمشاهدات) للأقسام الثلاثة يتم حسابها وجلبها برمجياً وبشكل تلقائي من جدول `sponsore_full` بناءً على اسم الصفحة (RC Erbil, RC Baghdad, RC Diyala).
+
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -135,7 +140,11 @@
   }
   .sponsor-block.sp-this .sponsor-head{background:rgba(0,230,118,.08);color:var(--green);}
   .sponsor-block.sp-prev .sponsor-head{background:rgba(255,179,71,.08); color:var(--amber);}
-  .sponsor-body{display:grid;grid-template-columns:repeat(5,1fr);padding:22px 24px;gap:8px;}
+  
+  /* تم التعديل إلى 4 أعمدة في السطر الأول، والسطر الثاني لأقسام RC */
+  .sponsor-body{display:grid;grid-template-columns:repeat(4,1fr);padding:22px 24px 16px;gap:8px;}
+  .sponsor-rc-row{display:grid;grid-template-columns:repeat(4,1fr);padding:16px 24px 22px;gap:8px;background:rgba(0,0,0,0.15);border-top:1px solid var(--border);}
+  
   .sp-item{text-align:center;padding:12px 4px; border-radius: 12px;}
   .sp-label{font-size:.9rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
   .sp-val{font-family:'Bebas Neue','Cairo',sans-serif;font-size:2.8rem;line-height:1;letter-spacing:.04em;}
@@ -222,39 +231,10 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
   @media(max-width:700px){
-    .compare-row, .sponsor-body, .job-grid{grid-template-columns:1fr;}
+    .compare-row, .sponsor-body, .sponsor-rc-row, .job-grid{grid-template-columns:1fr;}
     .header{padding:14px 18px;}
     .cc-val{font-size:3rem;}
   }
-  .rc-mini-grid{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-top:10px;
-  align-items:flex-end; /* يخليها على اليمين */
-}
-
-.rc-mini{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  width:100%;
-  padding:6px 10px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid var(--border);
-  font-size:0.85rem;
-  color:var(--text);
-}
-
-.rc-mini span{
-  font-weight:700;
-}
-
-.rc-mini .val{
-  font-family:'Bebas Neue','Cairo',sans-serif;
-  color:var(--cyan);
-}
 </style>
 </head>
 <body>
@@ -431,7 +411,8 @@ function getSponsorData(monthOffset, pageFilter) {
   const dt = DATA['sponsore_full'];
   let rows = [];
   let totalRV = 0;
-  if (!dt) return {rows, totalRV};
+  let totalAmount = 0; // Added variable to track amount for dynamically fetched sections
+  if (!dt) return {rows, totalRV, totalAmount};
 
   for (let i = 0; i < dt.getNumberOfRows(); i++) {
     const page = (dt.getValue(i, 0) || '').toString().toLowerCase(); 
@@ -464,49 +445,15 @@ function getSponsorData(monthOffset, pageFilter) {
 
       if (include) {
         rows.push({
-          // هنا تم وضع الرقم المختصر rvFormatted بدلاً من الرقم الخام
           cells: [page.toUpperCase(), site, `$${amount}`, startDate ? formatDateOnly(startDate) : '', duration, note, rvFormatted],
           isOngoing: isOngoing
         });
         totalRV += rvRaw;
+        totalAmount += parseFloat(amount) || 0;
       }
     }
   }
-  return {rows, totalRV};
-}
-
-// دالة العرض المحدثة مع الملاحظة الحمراء
-function renderModal(title, headers, rows) {
-  document.getElementById('modalTitle').innerText = title;
-  
-  // إزالة أي ملاحظة سابقة قبل الإضافة
-  const existingNote = document.getElementById('modalNote');
-  if (existingNote) existingNote.remove();
-
-  let noteHtml = '';
-  // إظهار الملاحظة فقط في جداول الإعلانات (التي تحتوي على عمود المدة)
-  if (headers.includes('Duration (days)')) {
-    noteHtml = `<p id="modalNote" style="color: var(--red); font-size: 0.75rem; margin-bottom: 10px; font-weight: 600;">
-                * Rows in red indicate that the advertisement is still active (Ongoing).
-                </p>`;
-    document.getElementById('modalTitle').insertAdjacentHTML('afterend', noteHtml);
-  }
-
-  let theadHtml = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-  document.getElementById('modalThead').innerHTML = theadHtml;
-  
-  let tbodyHtml = '';
-  if (rows.length === 0) {
-    tbodyHtml = `<tr><td colspan="${headers.length}" style="text-align:center; padding: 20px; color: var(--muted);">No data available</td></tr>`;
-  } else {
-    tbodyHtml = rows.map(r => {
-      const rowClass = r.isOngoing ? 'class="ongoing-ad"' : '';
-      return `<tr ${rowClass}>` + r.cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
-    }).join('');
-  }
-  
-  document.getElementById('modalTbody').innerHTML = tbodyHtml;
-  document.getElementById('dataModal').style.display = 'block';
+  return {rows, totalRV, totalAmount};
 }
 
 function openVideoModal(monthOffset, type, title) {
@@ -575,18 +522,45 @@ function renderUI() {
   });
   document.getElementById('updateTime').textContent = now;
 
-  // Pre-calculate Result Views for Sponsor Ads
+  const fmtAmt = (amt) => Number.isInteger(amt) ? amt : amt.toFixed(2);
+
+  // Pre-calculate Result Views & Amounts for Sponsor Ads (Current Month)
   const s_rymax_rv = formatViews(getSponsorData(0, 'rymax').totalRV);
   const s_mawaran_rv = formatViews(getSponsorData(0, 'mawaran').totalRV);
   const s_rc_rv = formatViews(getSponsorData(0, 'rc').totalRV);
   const s_client_rv = formatViews(getSponsorData(0, 'client').totalRV);
   const s_total_rv = formatViews(getSponsorData(0, 'all').totalRV);
 
+  const rc_erbil_data_0 = getSponsorData(0, 'rc erbil');
+  const s_rc_erbil_amt = fmtAmt(rc_erbil_data_0.totalAmount);
+  const s_rc_erbil_rv = formatViews(rc_erbil_data_0.totalRV);
+
+  const rc_baghdad_data_0 = getSponsorData(0, 'rc baghdad');
+  const s_rc_baghdad_amt = fmtAmt(rc_baghdad_data_0.totalAmount);
+  const s_rc_baghdad_rv = formatViews(rc_baghdad_data_0.totalRV);
+
+  const rc_diyala_data_0 = getSponsorData(0, 'rc diyala');
+  const s_rc_diyala_amt = fmtAmt(rc_diyala_data_0.totalAmount);
+  const s_rc_diyala_rv = formatViews(rc_diyala_data_0.totalRV);
+
+  // Pre-calculate Result Views & Amounts for Sponsor Ads (Previous Month)
   const p_rymax_rv = formatViews(getSponsorData(1, 'rymax').totalRV);
   const p_mawaran_rv = formatViews(getSponsorData(1, 'mawaran').totalRV);
   const p_rc_rv = formatViews(getSponsorData(1, 'rc').totalRV);
   const p_client_rv = formatViews(getSponsorData(1, 'client').totalRV);
   const p_total_rv = formatViews(getSponsorData(1, 'all').totalRV);
+
+  const rc_erbil_data_1 = getSponsorData(1, 'rc erbil');
+  const p_rc_erbil_amt = fmtAmt(rc_erbil_data_1.totalAmount);
+  const p_rc_erbil_rv = formatViews(rc_erbil_data_1.totalRV);
+
+  const rc_baghdad_data_1 = getSponsorData(1, 'rc baghdad');
+  const p_rc_baghdad_amt = fmtAmt(rc_baghdad_data_1.totalAmount);
+  const p_rc_baghdad_rv = formatViews(rc_baghdad_data_1.totalRV);
+
+  const rc_diyala_data_1 = getSponsorData(1, 'rc diyala');
+  const p_rc_diyala_amt = fmtAmt(rc_diyala_data_1.totalAmount);
+  const p_rc_diyala_rv = formatViews(rc_diyala_data_1.totalRV);
 
   document.getElementById('app').innerHTML = `
     <div class="sec-header">
@@ -679,29 +653,6 @@ function renderUI() {
           <div class="sp-val">$${DATA['s_mawaran']}</div>
           <div class="rv-text">👁️ Views: ${s_mawaran_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc', 'RC Ads - Current Month')">
-  <div class="sp-label">RC</div>      
-  <div class="sp-val">$${DATA['s_rc']}</div>
-
-  <div class="rc-mini-grid">
-
-    <div class="rc-mini">
-      <span>Current</span>
-      <div class="val">$${DATA['s_rc']}</div>
-    </div>
-
-    <div class="rc-mini">
-      <span>Previous</span>
-      <div class="val">$${DATA['p_rc']}</div>
-    </div>
-
-    <div class="rc-mini">
-      <span>Views</span>
-      <div class="val">${s_rc_rv}</div>
-    </div>
-
-  </div>
-</div>
         <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'client', 'Client Ads - Current Month')">
           <div class="sp-label">Client</div>  
           <div class="sp-val">$${DATA['s_client']}</div>
@@ -711,6 +662,29 @@ function renderUI() {
           <div class="sp-label">Total</div>
           <div class="sp-val">$${DATA['s_total']}</div>
           <div class="rv-text" style="color:var(--pink);">👁️ Views: ${s_total_rv}</div>
+        </div>
+      </div>
+      
+      <div class="sponsor-rc-row">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc', 'RC Total Ads - Current Month')">
+          <div class="sp-label">RC Total</div>      
+          <div class="sp-val">$${DATA['s_rc']}</div>
+          <div class="rv-text">👁️ Views: ${s_rc_rv}</div>
+        </div>
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc erbil', 'RC Erbil Ads - Current Month')">
+          <div class="sp-label">RC Erbil</div>
+          <div class="sp-val">$${s_rc_erbil_amt}</div>
+          <div class="rv-text">👁️ Views: ${s_rc_erbil_rv}</div>
+        </div>
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc baghdad', 'RC Baghdad Ads - Current Month')">
+          <div class="sp-label">RC Baghdad</div>
+          <div class="sp-val">$${s_rc_baghdad_amt}</div>
+          <div class="rv-text">👁️ Views: ${s_rc_baghdad_rv}</div>
+        </div>
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc diyala', 'RC Diyala Ads - Current Month')">
+          <div class="sp-label">RC Diyala</div>
+          <div class="sp-val">$${s_rc_diyala_amt}</div>
+          <div class="rv-text">👁️ Views: ${s_rc_diyala_rv}</div>
         </div>
       </div>
     </div>
@@ -731,11 +705,6 @@ function renderUI() {
           <div class="sp-val">$${DATA['p_mawaran']}</div>
           <div class="rv-text">👁️ Views: ${p_mawaran_rv}</div>
         </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc', 'RC Ads - Previous Month')">
-          <div class="sp-label">RC</div>      
-          <div class="sp-val">$${DATA['p_rc']}</div>
-          <div class="rv-text">👁️ Views: ${p_rc_rv}</div>
-        </div>
         <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'client', 'Client Ads - Previous Month')">
           <div class="sp-label">Client</div>  
           <div class="sp-val">$${DATA['p_client']}</div>
@@ -745,6 +714,29 @@ function renderUI() {
           <div class="sp-label">Total</div>
           <div class="sp-val">$${DATA['p_total']}</div>
           <div class="rv-text" style="color:var(--pink);">👁️ Views: ${p_total_rv}</div>
+        </div>
+      </div>
+
+      <div class="sponsor-rc-row">
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc', 'RC Total Ads - Previous Month')">
+          <div class="sp-label">RC Total</div>      
+          <div class="sp-val">$${DATA['p_rc']}</div>
+          <div class="rv-text">👁️ Views: ${p_rc_rv}</div>
+        </div>
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc erbil', 'RC Erbil Ads - Previous Month')">
+          <div class="sp-label">RC Erbil</div>
+          <div class="sp-val">$${p_rc_erbil_amt}</div>
+          <div class="rv-text">👁️ Views: ${p_rc_erbil_rv}</div>
+        </div>
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc baghdad', 'RC Baghdad Ads - Previous Month')">
+          <div class="sp-label">RC Baghdad</div>
+          <div class="sp-val">$${p_rc_baghdad_amt}</div>
+          <div class="rv-text">👁️ Views: ${p_rc_baghdad_rv}</div>
+        </div>
+        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc diyala', 'RC Diyala Ads - Previous Month')">
+          <div class="sp-label">RC Diyala</div>
+          <div class="sp-val">$${p_rc_diyala_amt}</div>
+          <div class="rv-text">👁️ Views: ${p_rc_diyala_rv}</div>
         </div>
       </div>
     </div>
@@ -806,3 +798,5 @@ function renderJobCards(selectedDate) {
 </script>
 </body>
 </html>
+
+```
