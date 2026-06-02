@@ -1,8 +1,4 @@
-إليك الكود المحدث. لقد قمت بفصل قسم **RC** وجعله يظهر في صف فرعي (أسفل الأقسام الرئيسية مباشرة) يحتوي على 4 أعمدة: **المجموع (RC Total) على اليسار**، وإلى يمينه الأقسام الثلاثة الجديدة **(RC Erbil, RC Baghdad, RC Diyala)** بنفس التصميم والتفاصيل (المبالغ والمشاهدات) للشهرين الحالي والسابق.
 
-البيانات (المبالغ والمشاهدات) للأقسام الثلاثة يتم حسابها وجلبها برمجياً وبشكل تلقائي من جدول `sponsore_full` بناءً على اسم الصفحة (RC Erbil, RC Baghdad, RC Diyala).
-
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -141,11 +137,10 @@
   .sponsor-block.sp-this .sponsor-head{background:rgba(0,230,118,.08);color:var(--green);}
   .sponsor-block.sp-prev .sponsor-head{background:rgba(255,179,71,.08); color:var(--amber);}
   
-  /* تم التعديل إلى 4 أعمدة في السطر الأول، والسطر الثاني لأقسام RC */
-  .sponsor-body{display:grid;grid-template-columns:repeat(4,1fr);padding:22px 24px 16px;gap:8px;}
-  .sponsor-rc-row{display:grid;grid-template-columns:repeat(4,1fr);padding:16px 24px 22px;gap:8px;background:rgba(0,0,0,0.15);border-top:1px solid var(--border);}
+  /* رجعنا إلى 5 أعمدة مثل السابق */
+  .sponsor-body{display:grid;grid-template-columns:repeat(5,1fr);padding:22px 24px;gap:8px;}
   
-  .sp-item{text-align:center;padding:12px 4px; border-radius: 12px;}
+  .sp-item{text-align:center;padding:12px 4px; border-radius: 12px; height: 100%;}
   .sp-label{font-size:.9rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
   .sp-val{font-family:'Bebas Neue','Cairo',sans-serif;font-size:2.8rem;line-height:1;letter-spacing:.04em;}
   .sp-this .sp-val{color:var(--green);text-shadow:0 0 18px rgba(0,230,118,.3);}
@@ -231,7 +226,7 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
   @media(max-width:700px){
-    .compare-row, .sponsor-body, .sponsor-rc-row, .job-grid{grid-template-columns:1fr;}
+    .compare-row, .sponsor-body, .job-grid{grid-template-columns:1fr;}
     .header{padding:14px 18px;}
     .cc-val{font-size:3rem;}
   }
@@ -423,10 +418,8 @@ function getSponsorData(monthOffset, pageFilter) {
     const note = dt.getValue(i, 5) || ''; 
     const rvRaw = parseFloat(dt.getValue(i, 6)) || 0; 
 
-    // اختصار رقم المشاهدات داخل الجدول (K/M)
     const rvFormatted = formatViews(rvRaw);
 
-    // التحقق إذا كان الإعلان مستمراً
     let isOngoing = false;
     if (startDate instanceof Date && duration) {
         const days = parseInt(duration) || 0;
@@ -471,9 +464,7 @@ function openSponsorModal(monthOffset, pageFilter, title) {
 function renderModal(title, headers, rows) {
   document.getElementById('modalTitle').innerText = title;
   
-  // Header of the modal with an added note for ongoing ads
   let noteHtml = '';
-  // Only show the note if we are in the Sponsor modal and there are rows
   if (headers.includes('Duration (days)')) {
     noteHtml = `<p style="color: var(--red); font-size: 0.75rem; margin-bottom: 10px; font-weight: 600; letter-spacing: 0.02em;">
                 * Rows in red indicate that the advertisement period has not yet expired (Ongoing Ad).
@@ -493,10 +484,9 @@ function renderModal(title, headers, rows) {
     }).join('');
   }
   
-  // Inject the note before the table container
   const tableContainer = document.querySelector('.table-container');
   const existingNote = document.getElementById('modalNote');
-  if (existingNote) existingNote.remove(); // Clear old note if exists
+  if (existingNote) existingNote.remove(); 
   
   if (noteHtml) {
     const noteElement = document.createElement('div');
@@ -524,7 +514,7 @@ function renderUI() {
 
   const fmtAmt = (amt) => Number.isInteger(amt) ? amt : amt.toFixed(2);
 
-  // Pre-calculate Result Views & Amounts for Sponsor Ads (Current Month)
+  // Current Month pre-calculations
   const s_rymax_rv = formatViews(getSponsorData(0, 'rymax').totalRV);
   const s_mawaran_rv = formatViews(getSponsorData(0, 'mawaran').totalRV);
   const s_rc_rv = formatViews(getSponsorData(0, 'rc').totalRV);
@@ -533,17 +523,14 @@ function renderUI() {
 
   const rc_erbil_data_0 = getSponsorData(0, 'rc erbil');
   const s_rc_erbil_amt = fmtAmt(rc_erbil_data_0.totalAmount);
-  const s_rc_erbil_rv = formatViews(rc_erbil_data_0.totalRV);
 
   const rc_baghdad_data_0 = getSponsorData(0, 'rc baghdad');
   const s_rc_baghdad_amt = fmtAmt(rc_baghdad_data_0.totalAmount);
-  const s_rc_baghdad_rv = formatViews(rc_baghdad_data_0.totalRV);
 
   const rc_diyala_data_0 = getSponsorData(0, 'rc diyala');
   const s_rc_diyala_amt = fmtAmt(rc_diyala_data_0.totalAmount);
-  const s_rc_diyala_rv = formatViews(rc_diyala_data_0.totalRV);
 
-  // Pre-calculate Result Views & Amounts for Sponsor Ads (Previous Month)
+  // Previous Month pre-calculations
   const p_rymax_rv = formatViews(getSponsorData(1, 'rymax').totalRV);
   const p_mawaran_rv = formatViews(getSponsorData(1, 'mawaran').totalRV);
   const p_rc_rv = formatViews(getSponsorData(1, 'rc').totalRV);
@@ -552,15 +539,12 @@ function renderUI() {
 
   const rc_erbil_data_1 = getSponsorData(1, 'rc erbil');
   const p_rc_erbil_amt = fmtAmt(rc_erbil_data_1.totalAmount);
-  const p_rc_erbil_rv = formatViews(rc_erbil_data_1.totalRV);
 
   const rc_baghdad_data_1 = getSponsorData(1, 'rc baghdad');
   const p_rc_baghdad_amt = fmtAmt(rc_baghdad_data_1.totalAmount);
-  const p_rc_baghdad_rv = formatViews(rc_baghdad_data_1.totalRV);
 
   const rc_diyala_data_1 = getSponsorData(1, 'rc diyala');
   const p_rc_diyala_amt = fmtAmt(rc_diyala_data_1.totalAmount);
-  const p_rc_diyala_rv = formatViews(rc_diyala_data_1.totalRV);
 
   document.getElementById('app').innerHTML = `
     <div class="sec-header">
@@ -648,43 +632,45 @@ function renderUI() {
           <div class="sp-val">$${DATA['s_rymax']}</div>
           <div class="rv-text">👁️ Views: ${s_rymax_rv}</div>
         </div>
+        
         <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'mawaran', 'Mawaran Ads - Current Month')">
           <div class="sp-label">Mawaran</div>
           <div class="sp-val">$${DATA['s_mawaran']}</div>
           <div class="rv-text">👁️ Views: ${s_mawaran_rv}</div>
         </div>
+        
+        <div class="sp-item" style="padding: 8px 4px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid transparent; transition: 0.3s;">
+          <div class="cursor-pointer" onclick="openSponsorModal(0, 'rc', 'RC Total Ads - Current Month')" style="flex:1;">
+            <div class="sp-label" style="margin-bottom: 4px;">RC Total</div>      
+            <div class="sp-val" style="font-size: 2.2rem;">$${DATA['s_rc']}</div>
+            <div class="rv-text" style="margin-top: 4px; font-size: 0.8rem;">👁️ Views: ${s_rc_rv}</div>
+          </div>
+          <div style="display:flex; justify-content:space-evenly; border-top:1px solid var(--border2); margin-top:8px; padding-top:8px;">
+             <div class="cursor-pointer" onclick="openSponsorModal(0, 'rc erbil', 'RC Erbil Ads - Current Month')" style="padding: 2px;">
+                <div style="font-size:0.65rem; color:var(--muted); font-weight:700;">ERBIL</div>
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--cyan);">$${s_rc_erbil_amt}</div>
+             </div>
+             <div class="cursor-pointer" onclick="openSponsorModal(0, 'rc baghdad', 'RC Baghdad Ads - Current Month')" style="padding: 2px; border-left: 1px solid var(--border2); border-right: 1px solid var(--border2);">
+                <div style="font-size:0.65rem; color:var(--muted); font-weight:700;">BAGHDAD</div>
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--cyan);">$${s_rc_baghdad_amt}</div>
+             </div>
+             <div class="cursor-pointer" onclick="openSponsorModal(0, 'rc diyala', 'RC Diyala Ads - Current Month')" style="padding: 2px;">
+                <div style="font-size:0.65rem; color:var(--muted); font-weight:700;">DIYALA</div>
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--cyan);">$${s_rc_diyala_amt}</div>
+             </div>
+          </div>
+        </div>
+
         <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'client', 'Client Ads - Current Month')">
           <div class="sp-label">Client</div>  
           <div class="sp-val">$${DATA['s_client']}</div>
           <div class="rv-text">👁️ Views: ${s_client_rv}</div>
         </div>
+        
         <div class="sp-item sp-total cursor-pointer" onclick="openSponsorModal(0, 'all', 'All Sponsor Details - Current Month')">
           <div class="sp-label">Total</div>
           <div class="sp-val">$${DATA['s_total']}</div>
           <div class="rv-text" style="color:var(--pink);">👁️ Views: ${s_total_rv}</div>
-        </div>
-      </div>
-      
-      <div class="sponsor-rc-row">
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc', 'RC Total Ads - Current Month')">
-          <div class="sp-label">RC Total</div>      
-          <div class="sp-val">$${DATA['s_rc']}</div>
-          <div class="rv-text">👁️ Views: ${s_rc_rv}</div>
-        </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc erbil', 'RC Erbil Ads - Current Month')">
-          <div class="sp-label">RC Erbil</div>
-          <div class="sp-val">$${s_rc_erbil_amt}</div>
-          <div class="rv-text">👁️ Views: ${s_rc_erbil_rv}</div>
-        </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc baghdad', 'RC Baghdad Ads - Current Month')">
-          <div class="sp-label">RC Baghdad</div>
-          <div class="sp-val">$${s_rc_baghdad_amt}</div>
-          <div class="rv-text">👁️ Views: ${s_rc_baghdad_rv}</div>
-        </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(0, 'rc diyala', 'RC Diyala Ads - Current Month')">
-          <div class="sp-label">RC Diyala</div>
-          <div class="sp-val">$${s_rc_diyala_amt}</div>
-          <div class="rv-text">👁️ Views: ${s_rc_diyala_rv}</div>
         </div>
       </div>
     </div>
@@ -700,43 +686,45 @@ function renderUI() {
           <div class="sp-val">$${DATA['p_rymax']}</div>
           <div class="rv-text">👁️ Views: ${p_rymax_rv}</div>
         </div>
+        
         <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'mawaran', 'Mawaran Ads - Previous Month')">
           <div class="sp-label">Mawaran</div>
           <div class="sp-val">$${DATA['p_mawaran']}</div>
           <div class="rv-text">👁️ Views: ${p_mawaran_rv}</div>
         </div>
+        
+        <div class="sp-item" style="padding: 8px 4px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid transparent; transition: 0.3s;">
+          <div class="cursor-pointer" onclick="openSponsorModal(1, 'rc', 'RC Total Ads - Previous Month')" style="flex:1;">
+            <div class="sp-label" style="margin-bottom: 4px;">RC Total</div>      
+            <div class="sp-val" style="font-size: 2.2rem;">$${DATA['p_rc']}</div>
+            <div class="rv-text" style="margin-top: 4px; font-size: 0.8rem;">👁️ Views: ${p_rc_rv}</div>
+          </div>
+          <div style="display:flex; justify-content:space-evenly; border-top:1px solid var(--border2); margin-top:8px; padding-top:8px;">
+             <div class="cursor-pointer" onclick="openSponsorModal(1, 'rc erbil', 'RC Erbil Ads - Previous Month')" style="padding: 2px;">
+                <div style="font-size:0.65rem; color:var(--muted); font-weight:700;">ERBIL</div>
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--cyan);">$${p_rc_erbil_amt}</div>
+             </div>
+             <div class="cursor-pointer" onclick="openSponsorModal(1, 'rc baghdad', 'RC Baghdad Ads - Previous Month')" style="padding: 2px; border-left: 1px solid var(--border2); border-right: 1px solid var(--border2);">
+                <div style="font-size:0.65rem; color:var(--muted); font-weight:700;">BAGHDAD</div>
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--cyan);">$${p_rc_baghdad_amt}</div>
+             </div>
+             <div class="cursor-pointer" onclick="openSponsorModal(1, 'rc diyala', 'RC Diyala Ads - Previous Month')" style="padding: 2px;">
+                <div style="font-size:0.65rem; color:var(--muted); font-weight:700;">DIYALA</div>
+                <div style="font-family:'Bebas Neue',sans-serif; font-size:1.1rem; color:var(--cyan);">$${p_rc_diyala_amt}</div>
+             </div>
+          </div>
+        </div>
+
         <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'client', 'Client Ads - Previous Month')">
           <div class="sp-label">Client</div>  
           <div class="sp-val">$${DATA['p_client']}</div>
           <div class="rv-text">👁️ Views: ${p_client_rv}</div>
         </div>
+        
         <div class="sp-item sp-total cursor-pointer" onclick="openSponsorModal(1, 'all', 'All Sponsor Details - Previous Month')">
           <div class="sp-label">Total</div>
           <div class="sp-val">$${DATA['p_total']}</div>
           <div class="rv-text" style="color:var(--pink);">👁️ Views: ${p_total_rv}</div>
-        </div>
-      </div>
-
-      <div class="sponsor-rc-row">
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc', 'RC Total Ads - Previous Month')">
-          <div class="sp-label">RC Total</div>      
-          <div class="sp-val">$${DATA['p_rc']}</div>
-          <div class="rv-text">👁️ Views: ${p_rc_rv}</div>
-        </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc erbil', 'RC Erbil Ads - Previous Month')">
-          <div class="sp-label">RC Erbil</div>
-          <div class="sp-val">$${p_rc_erbil_amt}</div>
-          <div class="rv-text">👁️ Views: ${p_rc_erbil_rv}</div>
-        </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc baghdad', 'RC Baghdad Ads - Previous Month')">
-          <div class="sp-label">RC Baghdad</div>
-          <div class="sp-val">$${p_rc_baghdad_amt}</div>
-          <div class="rv-text">👁️ Views: ${p_rc_baghdad_rv}</div>
-        </div>
-        <div class="sp-item cursor-pointer" onclick="openSponsorModal(1, 'rc diyala', 'RC Diyala Ads - Previous Month')">
-          <div class="sp-label">RC Diyala</div>
-          <div class="sp-val">$${p_rc_diyala_amt}</div>
-          <div class="rv-text">👁️ Views: ${p_rc_diyala_rv}</div>
         </div>
       </div>
     </div>
