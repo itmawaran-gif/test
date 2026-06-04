@@ -1,281 +1,667 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>أقرب وكلاء رايماكس</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
+:root{
+  --red:#cc0000;
+  --red-dark:#990000;
+  --red-light:#ff2222;
+  --blue:#003087;
+  --blue-dark:#001f5a;
+  --gold:#d4a017;
+  --white:#ffffff;
+  --gray-light:#f4f4f6;
+  --gray:#888;
+  --shadow:0 8px 32px rgba(0,0,0,.15);
+  --radius:16px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
-font-family:tahoma;
-background:#f5f5f5;
-padding:15px;
+  font-family:'Cairo',tahoma,sans-serif;
+  background:var(--gray-light);
+  min-height:100vh;
+  overflow-x:hidden;
 }
 
+/* ═══════════════════════════════
+   SPLASH SCREEN
+═══════════════════════════════ */
+#splash{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(145deg,var(--blue-dark) 0%,var(--blue) 50%,var(--red-dark) 100%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+  transition:opacity .7s ease, visibility .7s ease;
+}
+#splash.hide{
+  opacity:0;
+  visibility:hidden;
+}
+
+.splash-logo-wrap{
+  position:relative;
+  margin-bottom:28px;
+}
+.splash-logo{
+  width:160px;
+  height:160px;
+  object-fit:contain;
+  border-radius:20px;
+  animation:logoPop .6s cubic-bezier(.34,1.56,.64,1) both;
+  filter:drop-shadow(0 8px 24px rgba(0,0,0,.4));
+}
+/* Fallback ring if no logo */
+.splash-logo-fallback{
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--red),var(--red-dark));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:52px;
+  font-weight:900;
+  color:#fff;
+  letter-spacing:-2px;
+  animation:logoPop .6s cubic-bezier(.34,1.56,.64,1) both;
+  box-shadow:0 0 0 8px rgba(255,255,255,.1);
+  display:none;
+}
+
+.splash-title{
+  color:#fff;
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:8px;
+  letter-spacing:.5px;
+  animation:fadeUp .5s .3s both;
+  text-align:center;
+}
+.splash-sub{
+  color:rgba(255,255,255,.6);
+  font-size:14px;
+  margin-bottom:48px;
+  animation:fadeUp .5s .4s both;
+  text-align:center;
+}
+
+/* Animated loader */
+.loader-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  animation:fadeUp .5s .5s both;
+}
+.loader-dots{
+  display:flex;
+  gap:10px;
+}
+.loader-dots span{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#fff;
+  animation:dotBounce 1.2s ease-in-out infinite;
+}
+.loader-dots span:nth-child(1){animation-delay:0s;}
+.loader-dots span:nth-child(2){animation-delay:.18s;background:var(--red-light);}
+.loader-dots span:nth-child(3){animation-delay:.36s;}
+.loader-dots span:nth-child(4){animation-delay:.54s;background:var(--red-light);}
+
+.loader-text{
+  color:rgba(255,255,255,.75);
+  font-size:13px;
+  letter-spacing:.5px;
+}
+
+/* GPS pulse ring */
+.gps-ring{
+  position:relative;
+  width:48px;
+  height:48px;
+  margin-bottom:4px;
+}
+.gps-ring::before,.gps-ring::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  border:2px solid rgba(255,255,255,.4);
+  animation:ringPulse 2s ease-out infinite;
+}
+.gps-ring::after{animation-delay:.7s;}
+.gps-icon{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+
+/* ═══════════════════════════════
+   MAIN APP
+═══════════════════════════════ */
+#app{
+  max-width:480px;
+  margin:0 auto;
+  padding:0 0 30px;
+  opacity:0;
+  transform:translateY(16px);
+  transition:opacity .6s ease, transform .6s ease;
+}
+#app.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* Header */
+.app-header{
+  background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue) 60%,var(--red) 100%);
+  padding:24px 20px 28px;
+  position:relative;
+  overflow:hidden;
+}
+.app-header::before{
+  content:'';
+  position:absolute;
+  top:-40px;right:-40px;
+  width:160px;height:160px;
+  border-radius:50%;
+  background:rgba(255,255,255,.06);
+}
+.app-header::after{
+  content:'';
+  position:absolute;
+  bottom:-30px;left:30px;
+  width:100px;height:100px;
+  border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+
+.header-inner{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  position:relative;
+  z-index:1;
+}
+.header-logo{
+  width:56px;
+  height:56px;
+  object-fit:contain;
+  border-radius:10px;
+  flex-shrink:0;
+  filter:drop-shadow(0 2px 8px rgba(0,0,0,.3));
+}
+.header-logo-fallback{
+  width:56px;height:56px;
+  border-radius:10px;
+  background:rgba(255,255,255,.15);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  font-weight:900;
+  color:#fff;
+  flex-shrink:0;
+}
+.header-text h1{
+  color:#fff;
+  font-size:18px;
+  font-weight:800;
+  line-height:1.3;
+}
+.header-text p{
+  color:rgba(255,255,255,.7);
+  font-size:12px;
+  margin-top:2px;
+}
+
+.location-badge{
+  margin:12px 20px 0;
+  position:relative;
+  z-index:1;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,.12);
+  backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:20px;
+  padding:5px 12px;
+  color:rgba(255,255,255,.85);
+  font-size:12px;
+}
+.location-badge .dot{
+  width:7px;height:7px;
+  border-radius:50%;
+  background:#4ade80;
+  box-shadow:0 0 0 3px rgba(74,222,128,.3);
+  animation:glow 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+
+/* Section title */
+.section-label{
+  padding:20px 20px 10px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--gray);
+  letter-spacing:.8px;
+  text-transform:uppercase;
+}
+
+/* Cards */
 .card{
-background:#fff;
-padding:15px;
-margin-bottom:15px;
-border-radius:12px;
-box-shadow:0 2px 10px rgba(0,0,0,.1);
+  background:#fff;
+  margin:0 16px 14px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  animation:cardIn .5s cubic-bezier(.34,1.2,.64,1) both;
+  border:1px solid rgba(0,0,0,.04);
+}
+.card:nth-child(1){animation-delay:.05s;}
+.card:nth-child(2){animation-delay:.15s;}
+.card:nth-child(3){animation-delay:.25s;}
+
+.card-rank{
+  background:linear-gradient(90deg,var(--blue-dark),var(--blue));
+  color:#fff;
+  padding:8px 16px;
+  font-size:12px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.card-rank.first{background:linear-gradient(90deg,var(--red-dark),var(--red));}
+.rank-badge{
+  background:rgba(255,255,255,.2);
+  border-radius:20px;
+  padding:2px 10px;
+  font-size:11px;
 }
 
-.name{
-font-size:20px;
-font-weight:bold;
-margin-bottom:10px;
+.card-body{
+  padding:16px;
+}
+.dealer-name{
+  font-size:17px;
+  font-weight:800;
+  color:#1a1a2e;
+  margin-bottom:10px;
+  line-height:1.4;
+}
+.info-row{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  margin-bottom:8px;
+  color:#444;
+  font-size:13px;
+  line-height:1.5;
+}
+.info-icon{
+  font-size:15px;
+  flex-shrink:0;
+  margin-top:1px;
 }
 
-.address{
-margin-bottom:10px;
+.distance-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  background:linear-gradient(90deg,var(--red),var(--red-light));
+  color:#fff;
+  border-radius:20px;
+  padding:4px 12px;
+  font-size:12px;
+  font-weight:700;
+  margin-top:4px;
+  box-shadow:0 2px 8px rgba(204,0,0,.3);
 }
 
-.phone{
-margin-bottom:10px;
+.card-actions{
+  display:flex;
+  gap:8px;
+  padding:12px 16px 16px;
+  border-top:1px solid #f0f0f0;
 }
-
-.buttons{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-}
-
 .btn{
-padding:10px 15px;
-border:none;
-border-radius:8px;
-text-decoration:none;
-color:#fff;
-cursor:pointer;
+  flex:1;
+  padding:11px 8px;
+  border:none;
+  border-radius:10px;
+  text-decoration:none;
+  color:#fff;
+  cursor:pointer;
+  font-family:'Cairo',tahoma,sans-serif;
+  font-size:13px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  transition:transform .15s, box-shadow .15s, filter .15s;
+  position:relative;
+  overflow:hidden;
 }
-
-.call{
-background:#28a745;
+.btn:active{transform:scale(.95);}
+.btn::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,.15);
+  opacity:0;
+  transition:opacity .15s;
 }
+.btn:hover::after{opacity:1;}
 
-.whatsapp{
-background:#25d366;
+.btn-call{background:linear-gradient(135deg,#1a9e4a,#28a745);box-shadow:0 3px 10px rgba(40,167,69,.3);}
+.btn-wa{background:linear-gradient(135deg,#128c7e,#25d366);box-shadow:0 3px 10px rgba(37,211,102,.3);}
+.btn-map{background:linear-gradient(135deg,var(--blue-dark),var(--blue));box-shadow:0 3px 10px rgba(0,48,135,.3);}
+
+/* Error / empty */
+.status-box{
+  margin:40px 20px;
+  background:#fff;
+  border-radius:var(--radius);
+  padding:32px 24px;
+  text-align:center;
+  box-shadow:var(--shadow);
 }
+.status-icon{font-size:48px;margin-bottom:12px;}
+.status-title{font-size:16px;font-weight:700;color:#333;margin-bottom:6px;}
+.status-msg{font-size:13px;color:var(--gray);line-height:1.6;}
 
-.map{
-background:#007bff;
+/* Animations */
+@keyframes logoPop{
+  from{opacity:0;transform:scale(.5);}
+  to{opacity:1;transform:scale(1);}
 }
-
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes dotBounce{
+  0%,60%,100%{transform:translateY(0);}
+  30%{transform:translateY(-12px);}
+}
+@keyframes ringPulse{
+  0%{transform:scale(1);opacity:.8;}
+  100%{transform:scale(2.4);opacity:0;}
+}
+@keyframes glow{
+  0%,100%{box-shadow:0 0 0 3px rgba(74,222,128,.3);}
+  50%{box-shadow:0 0 0 6px rgba(74,222,128,.15);}
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(20px) scale(.97);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
 </style>
-
 </head>
-
 <body>
 
-<h2>أقرب وكلاء زيوت رايماكس</h2>
+<!-- ═══════════ SPLASH ═══════════ -->
+<div id="splash">
+  <div class="splash-logo-wrap">
+    <img class="splash-logo" src="logo.png" alt="Reimax"
+      onerror="this.style.display='none';document.querySelector('.splash-logo-fallback').style.display='flex'">
+    <div class="splash-logo-fallback">R</div>
+  </div>
+  <div class="splash-title" id="splashTitle">أقرب وكلاء زيوت رايماكس</div>
+  <div class="splash-sub" id="splashSub">جاري تحديد موقعك...</div>
+  <div class="loader-wrap">
+    <div class="gps-ring">
+      <div class="gps-icon">📍</div>
+    </div>
+    <div class="loader-dots">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="loader-text" id="loaderText">يرجى السماح بالوصول إلى الموقع</div>
+  </div>
+</div>
 
-<div id="results">
-جاري تحديد الموقع...
+<!-- ═══════════ APP ═══════════ -->
+<div id="app">
+  <div class="app-header">
+    <div class="header-inner">
+      <img class="header-logo" src="logo.png" alt="Reimax"
+        onerror="this.style.display='none';document.querySelector('.header-logo-fallback').style.display='flex'">
+      <div class="header-logo-fallback">R</div>
+      <div class="header-text">
+        <h1 id="headerTitle">أقرب وكلاء زيوت رايماكس</h1>
+        <p id="headerSub">نتائج مرتبة حسب المسافة</p>
+      </div>
+    </div>
+    <div class="location-badge">
+      <span class="dot"></span>
+      <span id="locationLabel">تم تحديد موقعك</span>
+    </div>
+  </div>
+
+  <div class="section-label" id="sectionLabel">أقرب ٣ وكلاء</div>
+  <div id="results"></div>
 </div>
 
 <script>
+const API_URL = "https://script.google.com/macros/s/AKfycby9AXIUB6H96VD2WtjJk_58mmrdogzH3kobbUyMd3TF9WNcdavAuvnAC4SSQqijPtsy/exec";
 
-const API_URL="https://script.google.com/macros/s/AKfycby9AXIUB6H96VD2WtjJk_58mmrdogzH3kobbUyMd3TF9WNcdavAuvnAC4SSQqijPtsy/exec";
+/* ─── Kurdistan governorate bounding boxes ─── */
+const KURDISTAN_BOUNDS = [
+  // Erbil / Hewlêr
+  { minLat:35.5, maxLat:37.4, minLng:43.2, maxLng:46.3 },
+  // Sulaymaniyah / Silêmanî
+  { minLat:34.5, maxLat:36.4, minLng:44.8, maxLng:46.6 },
+  // Duhok / Duhok
+  { minLat:36.5, maxLat:37.8, minLng:42.2, maxLng:44.2 },
+];
 
-let userLat;
-let userLng;
-
-navigator.geolocation.getCurrentPosition(
-
-async function(pos){
-
-userLat=pos.coords.latitude;
-userLng=pos.coords.longitude;
-
-loadData();
-
-},
-
-function(){
-
-document.getElementById("results").innerHTML=
-"يرجى السماح بالوصول إلى الموقع";
-
+function isKurdistan(lat, lng) {
+  return KURDISTAN_BOUNDS.some(b =>
+    lat >= b.minLat && lat <= b.maxLat &&
+    lng >= b.minLng && lng <= b.maxLng
+  );
 }
 
-);
+/* ─── Translations ─── */
+const T = {
+  ar: {
+    pageTitle:   "أقرب وكلاء زيوت رايماكس",
+    splashSub:   "جاري تحديد موقعك...",
+    loaderText:  "يرجى السماح بالوصول إلى الموقع",
+    headerSub:   "نتائج مرتبة حسب المسافة",
+    locLabel:    "تم تحديد موقعك",
+    sectionLabel:"أقرب ٣ وكلاء",
+    nearest:     ["الأقرب","الثاني","الثالث"],
+    distance:    "المسافة",
+    km:          "كم",
+    call:        "اتصال",
+    whatsapp:    "واتساب",
+    map:         "الخريطة",
+    errTitle:    "تعذر تحديد الموقع",
+    errMsg:      "يرجى السماح بالوصول إلى الموقع الجغرافي من إعدادات المتصفح.",
+    loading:     "جاري تحميل البيانات...",
+  },
+  ku: {
+    pageTitle:   "نزیکترین نوێنەرەکانی ئەڵقەی رایماکس",
+    splashSub:   "شوێنەکەت دادەنرێت...",
+    loaderText:  "تکایە ڕێگە بدە بە دەستڕاگەیشتن بە شوێن",
+    headerSub:   "ئەنجامەکان بەپێی دووری ڕیزبەندکراوە",
+    locLabel:    "شوێنەکەت دیاری کرا",
+    sectionLabel:"نزیکترین ٣ نوێنەر",
+    nearest:     ["نزیکترین","دووەم","سێیەم"],
+    distance:    "دووری",
+    km:          "کم",
+    call:        "پەیوەندی",
+    whatsapp:    "واتساپ",
+    map:         "نەخشە",
+    errTitle:    "شوێن دیاری نەکرا",
+    errMsg:      "تکایە ڕێگە بدە بە دەستڕاگەیشتن بە شوێنی جوگرافی لە ڕێکخستنەکانی براوزەر.",
+    loading:     "داتاکان بارکراون...",
+  }
+};
 
-function distance(lat1,lon1,lat2,lon2){
+let lang = "ar";
+let userLat, userLng;
 
-const R=6371;
+function t(key){ return T[lang][key] || T.ar[key]; }
 
-const dLat=(lat2-lat1)*Math.PI/180;
-const dLon=(lon2-lon1)*Math.PI/180;
+function applyLang(){
+  document.documentElement.lang = lang === "ku" ? "ckb" : "ar";
+  document.documentElement.dir = "rtl";
+  document.getElementById("splashTitle").textContent = t("pageTitle");
+  document.getElementById("splashSub").textContent   = t("splashSub");
+  document.getElementById("loaderText").textContent  = t("loaderText");
+  document.getElementById("headerTitle").textContent = t("pageTitle");
+  document.getElementById("headerSub").textContent   = t("headerSub");
+  document.getElementById("locationLabel").textContent = t("locLabel");
+  document.getElementById("sectionLabel").textContent  = t("sectionLabel");
+  document.title = t("pageTitle");
+}
 
-const a=
-Math.sin(dLat/2)*Math.sin(dLat/2)+
-Math.cos(lat1*Math.PI/180)*
-Math.cos(lat2*Math.PI/180)*
-Math.sin(dLon/2)*Math.sin(dLon/2);
+function distance(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a =
+    Math.sin(dLat/2)*Math.sin(dLat/2)+
+    Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+    Math.sin(dLon/2)*Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
 
-const c=2*Math.atan2(
-Math.sqrt(a),
-Math.sqrt(1-a)
-);
+function showApp(){
+  document.getElementById("splash").classList.add("hide");
+  const app = document.getElementById("app");
+  app.classList.add("show");
+}
 
-return R*c;
-
+function showError(){
+  document.getElementById("results").innerHTML = `
+    <div class="status-box">
+      <div class="status-icon">📍</div>
+      <div class="status-title">${t("errTitle")}</div>
+      <div class="status-msg">${t("errMsg")}</div>
+    </div>`;
+  showApp();
 }
 
 async function loadData(){
-
-const response=await fetch(API_URL);
-const dealers=await response.json();
-
-dealers.forEach(d=>{
-
-d.distance=distance(
-userLat,
-userLng,
-parseFloat(d.lat),
-parseFloat(d.lng)
-);
-
-});
-
-dealers.sort((a,b)=>a.distance-b.distance);
-
-const nearest=dealers.slice(0,3);
-
-render(nearest);
-
+  document.getElementById("loaderText").textContent = t("loading");
+  try{
+    const res   = await fetch(API_URL);
+    const dealers = await res.json();
+    dealers.forEach(d => {
+      d.distance = distance(userLat, userLng, parseFloat(d.lat), parseFloat(d.lng));
+    });
+    dealers.sort((a,b)=>a.distance-b.distance);
+    render(dealers.slice(0, 3));
+  } catch(e){
+    document.getElementById("results").innerHTML = `
+      <div class="status-box">
+        <div class="status-icon">⚠️</div>
+        <div class="status-title">خطأ في التحميل</div>
+        <div class="status-msg">${e.message}</div>
+      </div>`;
+  }
+  showApp();
 }
 
 function render(list){
-
-let html="";
-
-list.forEach(item=>{
-
-const clientMap=
-`https://maps.google.com/?q=${item.lat},${item.lng}`;
-
-html+=`
-
-<div class="card">
-
-<div class="name">
-${item.name}
-</div>
-
-<div class="address">
-${item.address}
-</div>
-
-<div class="phone">
-${item.phone}
-</div>
-
-<div>
-المسافة:
-${item.distance.toFixed(1)}
-كم
-</div>
-
-<br>
-
-<div class="buttons">
-
-<a
-class="btn call"
-href="tel:${item.phone}"
-onclick="saveAction('Call',this)"
-data-name="${item.name}"
-data-phone="${item.phone}"
-data-address="${item.address}"
-data-lat="${item.lat}"
-data-lng="${item.lng}"
->
-اتصال
-</a>
-
-<a
-class="btn whatsapp"
-href="https://wa.me/${item.phone}"
-target="_blank"
-onclick="saveAction('WhatsApp',this)"
-data-name="${item.name}"
-data-phone="${item.phone}"
-data-address="${item.address}"
-data-lat="${item.lat}"
-data-lng="${item.lng}"
->
-واتساب
-</a>
-
-<a
-class="btn map"
-href="${clientMap}"
-target="_blank"
-onclick="saveAction('Map',this)"
-data-name="${item.name}"
-data-phone="${item.phone}"
-data-address="${item.address}"
-data-lat="${item.lat}"
-data-lng="${item.lng}"
->
-الخريطة
-</a>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-document.getElementById("results").innerHTML=html;
-
+  const rankLabels = t("nearest");
+  let html = "";
+  list.forEach((item, i) => {
+    const mapUrl = `https://maps.google.com/?q=${item.lat},${item.lng}`;
+    const rankClass = i === 0 ? "card-rank first" : "card-rank";
+    const rankIcon  = i === 0 ? "🏆" : i === 1 ? "🥈" : "🥉";
+    html += `
+    <div class="card">
+      <div class="${rankClass}">
+        <span>${rankIcon} ${rankLabels[i]}</span>
+        <span class="rank-badge">${t("distance")}: ${item.distance.toFixed(1)} ${t("km")}</span>
+      </div>
+      <div class="card-body">
+        <div class="dealer-name">${item.name}</div>
+        <div class="info-row">
+          <span class="info-icon">📍</span>
+          <span>${item.address}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">📞</span>
+          <span>${item.phone}</span>
+        </div>
+        <div class="distance-pill">
+          📡 ${item.distance.toFixed(1)} ${t("km")}
+        </div>
+      </div>
+      <div class="card-actions">
+        <a class="btn btn-call"
+          href="tel:${item.phone}"
+          onclick="saveAction('Call',${JSON.stringify({name:item.name,phone:item.phone,address:item.address,lat:item.lat,lng:item.lng}).replace(/"/g,'&quot;')})"
+        >📞 ${t("call")}</a>
+        <a class="btn btn-wa"
+          href="https://wa.me/${item.phone}"
+          target="_blank"
+          onclick="saveAction('WhatsApp',${JSON.stringify({name:item.name,phone:item.phone,address:item.address,lat:item.lat,lng:item.lng}).replace(/"/g,'&quot;')})"
+        >💬 ${t("whatsapp")}</a>
+        <a class="btn btn-map"
+          href="${mapUrl}"
+          target="_blank"
+          onclick="saveAction('Map',${JSON.stringify({name:item.name,phone:item.phone,address:item.address,lat:item.lat,lng:item.lng}).replace(/"/g,'&quot;')})"
+        >🗺 ${t("map")}</a>
+      </div>
+    </div>`;
+  });
+  document.getElementById("results").innerHTML = html;
 }
 
-function saveAction(action,el){
-
-const clientLat=el.dataset.lat;
-const clientLng=el.dataset.lng;
-
-const data={
-
-action:action,
-
-name:el.dataset.name,
-
-phone:el.dataset.phone,
-
-address:el.dataset.address,
-
-clientLat:clientLat,
-clientLng:clientLng,
-
-userLat:userLat,
-userLng:userLng,
-
-clientMap:
-`https://maps.google.com/?q=${clientLat},${clientLng}`,
-
-userMap:
-`https://maps.google.com/?q=${userLat},${userLng}`
-
-};
-
-fetch(API_URL,{
-method:"POST",
-body:JSON.stringify(data)
-});
-
+function saveAction(action, item){
+  const data = {
+    action,
+    name:      item.name,
+    phone:     item.phone,
+    address:   item.address,
+    clientLat: item.lat,
+    clientLng: item.lng,
+    userLat,
+    userLng,
+    clientMap: `https://maps.google.com/?q=${item.lat},${item.lng}`,
+    userMap:   `https://maps.google.com/?q=${userLat},${userLng}`
+  };
+  fetch(API_URL, { method:"POST", body:JSON.stringify(data) });
 }
 
+/* ─── Boot ─── */
+navigator.geolocation.getCurrentPosition(
+  async pos => {
+    userLat = pos.coords.latitude;
+    userLng = pos.coords.longitude;
+    lang = isKurdistan(userLat, userLng) ? "ku" : "ar";
+    applyLang();
+    await loadData();
+  },
+  () => {
+    applyLang();
+    showError();
+  },
+  { timeout: 10000 }
+);
 </script>
-
 </body>
-
 </html>
