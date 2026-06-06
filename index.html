@@ -49,17 +49,24 @@ html,body{height:100%;overflow:hidden;font-family:'Cairo',tahoma,sans-serif;}
 .loader-text{color:rgba(255,255,255,.7);font-size:13px;}
 
 /* LAYOUT */
-#app{display:flex;flex-direction:column;height:100%;opacity:0;transition:opacity .6s ease;}
+#app{display:flex;flex-direction:column;height:100%;opacity:0;transition:opacity .6s ease;position:relative;}
 #app.show{opacity:1;}
-#map{flex:1;z-index:1;}
+#map{position:absolute;inset:0;z-index:1;}
 
-/* BOTTOM SHEET */
+/* BOTTOM SHEET — floating over map, max 40% */
 #sheet{
-  position:fixed;bottom:0;left:0;right:0;
-  height:42%;min-height:280px;max-height:70%;
-  background:#fff;border-radius:22px 22px 0 0;
-  box-shadow:0 -6px 40px rgba(0,0,0,.2);
-  z-index:1000;display:flex;flex-direction:column;
+  position:absolute;
+  bottom:0;left:0;right:0;
+  height:40%;
+  min-height:260px;
+  max-height:40%;
+  background:#fff;
+  border-radius:22px 22px 0 0;
+  box-shadow:0 -6px 40px rgba(0,0,0,.25);
+  z-index:1000;
+  display:flex;
+  flex-direction:column;
+  transition:height .2s ease;
 }
 .sheet-handle{width:40px;height:4px;background:#ddd;border-radius:4px;margin:10px auto 0;flex-shrink:0;cursor:grab;}
 .sheet-header{
@@ -76,7 +83,7 @@ html,body{height:100%;overflow:hidden;font-family:'Cairo',tahoma,sans-serif;}
 .cards-wrap::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px;}
 
 /* CARD */
-.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.1);border:1.5px solid #f0f0f0;animation:cardIn .45s cubic-bezier(.34,1.2,.64,1) both;}
+.card{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(0,0,0,.1);border:1.5px solid #f0f0f0;animation:cardIn .45s cubic-bezier(.34,1.2,.64,1) both;flex-shrink:0;}
 .card:nth-child(1){animation-delay:.05s;}
 .card:nth-child(2){animation-delay:.15s;}
 .card:nth-child(3){animation-delay:.25s;}
@@ -107,7 +114,7 @@ html,body{height:100%;overflow:hidden;font-family:'Cairo',tahoma,sans-serif;}
 .btn-wa{background:linear-gradient(135deg,#128c7e,#25d366);box-shadow:0 2px 8px rgba(37,211,102,.3);}
 .btn-map{background:linear-gradient(135deg,var(--blue-dark),var(--blue));box-shadow:0 2px 8px rgba(0,48,135,.3);}
 
-.rc-note{margin:0 0 4px;padding:7px 10px;background:#fff3e0;border-radius:8px;border-right:3px solid #ff9800;font-size:11px;color:#e65100;font-weight:600;}
+.rc-note{margin:0 0 4px;padding:7px 10px;background:#fff3e0;border-radius:8px;border-right:3px solid #ff9800;font-size:11px;color:#e65100;font-weight:600;flex-shrink:0;}
 
 /* STATUS */
 .status-box{padding:24px;text-align:center;}
@@ -162,7 +169,7 @@ html,body{height:100%;overflow:hidden;font-family:'Cairo',tahoma,sans-serif;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwwtJ11_qAdc8oLtdgzUl932ROS4ClgKSdzhM7ui_baHWdjsSpnLuRDhJVSOVRq0NmX/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbw52x2-Pzz1ByI_TDdiuqjX_h_1l_bd04XuJiKBauz5PAMCLmtyzOaoKJmFTeGTJBXq/exec";
 const MAX_DEALER_DIST = 50;
 
 /* Kurdistan bounds */
@@ -251,8 +258,10 @@ function addDealerMarker(item,idx,isRC){
 }
 
 function fitBounds(items){
+  /* leave bottom 40% of screen for the sheet */
+  const sheetH=window.innerHeight*0.40;
   const pts=[[userLat,userLng]].concat(items.map(d=>[parseFloat(d.lat),parseFloat(d.lng)]));
-  leafMap.fitBounds(pts,{padding:[60,60]});
+  leafMap.fitBounds(pts,{paddingBottomRight:[40,sheetH+20],paddingTopLeft:[60,60]});
 }
 
 /* ── Build card HTML ── */
@@ -298,7 +307,11 @@ function renderRC(rc){
   el("sheetTitle").textContent=t("sheetTitleRC");
   addDealerMarker(rc,0,true);
   fitBounds([rc]);
-  const mapUrl=rc.gmapProfile||"https://maps.google.com/?q="+rc.lat+","+rc.lng;
+
+  /* Use gmapProfile as the map URL if it exists, otherwise fallback to coordinates */
+  const mapUrl=(rc.gmapProfile&&rc.gmapProfile.trim().length>0)
+    ? rc.gmapProfile.trim()
+    : "https://maps.google.com/?q="+rc.lat+","+rc.lng;
 
   /* RC branch card */
   let html='<div class="rc-note">⚠️ '+t("noDealer")+'</div>';
@@ -306,8 +319,21 @@ function renderRC(rc){
 
   /* Company card — use companyPhone if available */
   const cPhone=rc.companyPhone||rc.phone;
-  const cItem={name:rc.companyName||rc.name, phone:cPhone, address:rc.companyAddress||rc.address, lat:rc.lat, lng:rc.lng};
+  const cItem={
+    name:rc.companyName||rc.name,
+    phone:cPhone,
+    address:rc.companyAddress||rc.address,
+    lat:rc.lat,
+    lng:rc.lng,
+    gmapProfile:rc.gmapProfile
+  };
   ITEMS["rc1"]=cItem;
+
+  /* Company card map URL also uses gmapProfile */
+  const cMapUrl=(rc.gmapProfile&&rc.gmapProfile.trim().length>0)
+    ? rc.gmapProfile.trim()
+    : "https://maps.google.com/?q="+rc.lat+","+rc.lng;
+
   html+='<div class="card">'
     +'<div class="card-rank purple"><span>📋 '+t("rcCard")+'</span></div>'
     +'<div class="card-body">'
@@ -318,7 +344,7 @@ function renderRC(rc){
     +'<div class="card-actions">'
     +'<a class="btn btn-call" href="tel:'+cleanPhone(cItem.phone)+'" data-key="rc1" data-act="Call">📞 '+t("call")+'</a>'
     +'<a class="btn btn-wa" href="'+waUrl(cItem.phone)+'" target="_blank" data-key="rc1" data-act="WhatsApp">💬 '+t("wa")+'</a>'
-    +'<a class="btn btn-map" href="'+mapUrl+'" target="_blank" data-key="rc1" data-act="Map">🗺 '+t("map")+'</a>'
+    +'<a class="btn btn-map" href="'+cMapUrl+'" target="_blank" data-key="rc1" data-act="Map">🗺 '+t("map")+'</a>'
     +'</div>'
     +'</div>';
 
@@ -391,8 +417,14 @@ function loadData(){
 /* ── Save action ── */
 function saveAction(action, item){
   var d={
-    action:action, name:item.name, phone:item.phone, address:item.address,
-    clientLat:item.lat, clientLng:item.lng, userLat:userLat, userLng:userLng,
+    action:action,
+    name:item.name,
+    phone:item.phone,
+    address:item.address,
+    clientLat:item.lat,
+    clientLng:item.lng,
+    userLat:userLat,
+    userLng:userLng,
     distanceKm:dist(userLat,userLng,parseFloat(item.lat),parseFloat(item.lng)).toFixed(2),
     clientMap:"https://maps.google.com/?q="+item.lat+","+item.lng,
     userMap:"https://maps.google.com/?q="+userLat+","+userLng
@@ -400,15 +432,19 @@ function saveAction(action, item){
   fetch(API_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(d)}).catch(function(){});
 }
 
-/* ── Sheet drag ── */
+/* ── Sheet drag (expand up to 80%, shrink to 20%) ── */
 (function(){
   var sheet=el("sheet"), startY, startH;
   var handle=sheet.querySelector(".sheet-handle");
-  handle.addEventListener("touchstart",function(e){startY=e.touches[0].clientY;startH=sheet.offsetHeight;},{passive:true});
+  handle.addEventListener("touchstart",function(e){
+    startY=e.touches[0].clientY;
+    startH=sheet.offsetHeight;
+  },{passive:true});
   handle.addEventListener("touchmove",function(e){
     var dy=startY-e.touches[0].clientY;
-    var newH=Math.min(Math.max(startH+dy,180),window.innerHeight*.85);
+    var newH=Math.min(Math.max(startH+dy,180),window.innerHeight*0.80);
     sheet.style.height=newH+"px";
+    sheet.style.maxHeight=newH+"px";
     leafMap&&leafMap.invalidateSize();
   },{passive:true});
 })();
