@@ -162,7 +162,7 @@ html,body{height:100%;overflow:hidden;font-family:'Cairo',tahoma,sans-serif;}
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbz7SGMpTNB4DjCIi7u5wf6qKKDBD5VaLXhLf5juB9WRUtqnZXk97EK6fvjj2P5noFHO/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwwtJ11_qAdc8oLtdgzUl932ROS4ClgKSdzhM7ui_baHWdjsSpnLuRDhJVSOVRq0NmX/exec";
 const MAX_DEALER_DIST = 50;
 
 /* Kurdistan bounds */
@@ -372,7 +372,9 @@ function loadData(){
     var dealers=[], rcBranches=[];
     raw.forEach(function(d){
       d.distance=dist(userLat,userLng,parseFloat(d.lat),parseFloat(d.lng));
-      if(d.isRC) rcBranches.push(d);
+      /* RC = explicitly flagged true OR has a non-empty gmapProfile */
+      var isRC=(d.isRC===true||d.isRC==="true")||(typeof d.gmapProfile==="string"&&d.gmapProfile.trim().length>0);
+      if(isRC) rcBranches.push(d);
       else dealers.push(d);
     });
     dealers.sort(function(a,b){return a.distance-b.distance;});
