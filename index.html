@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>أقرب وكلاء رايماكس</title>
+<title>Rymax</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -18,7 +17,7 @@
   --radius:16px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex Pro',tahoma,sans-serif;}
+html,body{height:100%;overflow:hidden;font-family:'Cairo',tahoma,sans-serif;}
 
 /* SPLASH */
 #splash{
@@ -35,7 +34,7 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex
   background:linear-gradient(135deg,var(--red),var(--red-dark));
   align-items:center;justify-content:center;font-size:48px;font-weight:900;color:#fff;
   animation:logoPop .6s cubic-bezier(.34,1.56,.64,1) both;display:none;}
-.splash-title{color:#fff;font-size:21px;font-weight:700;margin:20px 0 6px;text-align:center;padding:0 20px;animation:fadeUp .5s .3s both;line-height:1.5;letter-spacing:0.01em;}
+.splash-title{color:#fff;font-size:20px;font-weight:700;margin:20px 0 6px;text-align:center;padding:0 20px;animation:fadeUp .5s .3s both;}
 .splash-sub{color:rgba(255,255,255,.6);font-size:13px;margin-bottom:44px;animation:fadeUp .5s .4s both;}
 .loader-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;animation:fadeUp .5s .5s both;}
 .gps-ring{position:relative;width:48px;height:48px;margin-bottom:4px;}
@@ -47,14 +46,14 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex
 .loader-dots span:nth-child(2){animation-delay:.18s;background:var(--red-light);}
 .loader-dots span:nth-child(3){animation-delay:.36s;}
 .loader-dots span:nth-child(4){animation-delay:.54s;background:var(--red-light);}
-.loader-text{color:rgba(255,255,255,.7);font-size:13px;line-height:1.6;}
+.loader-text{color:rgba(255,255,255,.7);font-size:13px;}
 
 /* LAYOUT */
 #app{display:flex;flex-direction:column;height:100%;opacity:0;transition:opacity .6s ease;position:relative;}
 #app.show{opacity:1;}
 #map{position:absolute;inset:0;z-index:1;}
 
-/* BOTTOM SHEET — floating over map, max 50% */
+/* BOTTOM SHEET — floating over map, max 40% */
 #sheet{
   position:absolute;
   bottom:0;left:0;right:0;
@@ -76,7 +75,7 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex
   border-radius:18px 18px 0 0;flex-shrink:0;
   display:flex;align-items:center;justify-content:space-between;
 }
-.sheet-title{color:#fff;font-size:14px;font-weight:600;letter-spacing:0.02em;}
+.sheet-title{color:#fff;font-size:14px;font-weight:700;}
 .loc-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.9);font-size:11px;}
 .loc-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 3px rgba(74,222,128,.3);animation:glow 2s ease-in-out infinite;flex-shrink:0;}
 .cards-wrap{flex:1;overflow-y:auto;padding:10px 12px 16px;display:flex;flex-direction:column;gap:10px;}
@@ -90,14 +89,14 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex
 .card:nth-child(3){animation-delay:.25s;}
 .card:nth-child(4){animation-delay:.35s;}
 
-.card-rank{background:linear-gradient(90deg,var(--blue-dark),var(--blue));color:#fff;padding:6px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.03em;display:flex;align-items:center;justify-content:space-between;}
+.card-rank{background:linear-gradient(90deg,var(--blue-dark),var(--blue));color:#fff;padding:6px 12px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
 .card-rank.gold{background:linear-gradient(90deg,#b8860b,#d4a017);}
 .card-rank.purple{background:linear-gradient(90deg,#5a0080,#9c27b0);}
 .dist-badge{background:rgba(255,255,255,.2);border-radius:20px;padding:2px 8px;font-size:10px;}
 
 .card-body{padding:10px 12px 8px;display:flex;flex-direction:column;gap:5px;}
-.dealer-name{font-size:15px;font-weight:700;color:#1a1a2e;line-height:1.5;}
-.info-row{display:flex;align-items:flex-start;gap:6px;color:#555;font-size:12.5px;line-height:1.7;}
+.dealer-name{font-size:15px;font-weight:800;color:#1a1a2e;line-height:1.3;}
+.info-row{display:flex;align-items:flex-start;gap:6px;color:#555;font-size:12px;line-height:1.4;}
 .info-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
 
 /* ACTIONS */
@@ -105,7 +104,7 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex
 .btn{
   flex:1;padding:9px 4px;border:none;border-radius:9px;
   text-decoration:none;color:#fff !important;cursor:pointer;
-  font-family:'IBM Plex Sans Arabic','Readex Pro',tahoma,sans-serif;font-size:12px;font-weight:700;
+  font-family:'Cairo',tahoma,sans-serif;font-size:12px;font-weight:700;
   display:flex;align-items:center;justify-content:center;gap:4px;
   transition:transform .15s,opacity .15s;
   -webkit-tap-highlight-color:transparent;
@@ -170,7 +169,7 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans Arabic','Readex
 </div>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbz7SGMpTNB4DjCIi7u5wf6qKKDBD5VaLXhLf5juB9WRUtqnZXk97EK6fvjj2P5noFHO/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxhkyGbOGBplIaNiZK1hhJhHzLn9HS8jQXWwTWrrnwUOw8l-3hM7Rl8bjYStvDUHJNo/exec";
 const MAX_DEALER_DIST = 50;
 
 /* Kurdistan bounds */
@@ -196,16 +195,16 @@ const T={
     rcCard:"بطاقة الشركة",userLoc:"موقعك",
   },
   ku:{
-    pageTitle:"نزیکترین نوێنەرەکانی رایماکس",splashSub:"شوێنەکەت دادەنرێت...",
-    loaderText:"تکایە ڕێگە بدە بە دەستڕاگەیشتن بە شوێن",locLabel:"شوێنەکەت دیاری کرا",
-    sheetTitle:"نزیکترین ٣ نوێنەر",sheetTitleRC:"نزیکترین لقی RC",
+    pageTitle:"نزیکترین بریکارەکانی ڕۆنی ڕایماکس",splashSub:"لە دیاریکردنی شوێنەکەتداین...",
+    loaderText:"تکایە ڕێگەی دەستگەیشتن بە شوێنەکەت بدە",locLabel:"شوێنەکەت دیاریکرا",
+    sheetTitle:"نزیکترین ٣ بریکار",sheetTitleRC:"نزیکترین لقی RC",
     nearest:["نزیکترین","دووەم","سێیەم"],km:"کم",
-    call:"پەیوەندی",wa:"واتساپ",map:"نەخشە",
-    errTitle:"شوێن دیاری نەکرا",errMsg:"تکایە ڕێگە بدە بە دەستڕاگەیشتن بە شوێنی جوگرافی.",
-    loading:"داتاکان بارکراون...",
-    noDealer:"هیچ نوێنەرێک نزیک نییە (ناو ٥٠ کم)",rcNote:"نزیکترین لقی RC نیشان دەدرێت",
-    waMsg:"سڵاو , من لە ڕێگەی سیستەمی کۆمپانیای ماوران (رایماکس) پەیوەندیت پێوە دەکەم",
-    rcCard:"کارتی کۆمپانیا",userLoc:"شوێنی من",
+    call:"پەیوەندی",wa:"واتساب",map:"نەخشە",
+    errTitle:"نەتوانرا شوێن دیاری بکرێت",errMsg:"تکایە ڕێگەی دەستگەیشتن بە هەڵکەوتەی جوگرافی بدە.",
+    loading:"داتاکان باردەکرێن...",
+    noDealer:"هیچ بریکارێک لە نزیکەوە نییە (لە چوارچێوەی 50 کم)",rcNote:"نزیکترین لقی RC پیشان دەدات",
+    waMsg:"سڵاو، من لە ڕێگەی سیستەمی کۆمپانیای ماوران (ڕایماکس) تایبەت بە نزیکترین کڕیارەوە پەیوەندیت پێوە دەکەم",
+    rcCard:"کارتی کۆمپانیا",userLoc:"شوێنەکەت",
   }
 };
 
@@ -259,7 +258,7 @@ function addDealerMarker(item,idx,isRC){
 }
 
 function fitBounds(items){
-  /* leave bottom 50% of screen for the sheet */
+  /* leave bottom 40% of screen for the sheet */
   const sheetH=window.innerHeight*0.50;
   const pts=[[userLat,userLng]].concat(items.map(d=>[parseFloat(d.lat),parseFloat(d.lng)]));
   leafMap.fitBounds(pts,{paddingBottomRight:[40,sheetH+20],paddingTopLeft:[60,60]});
