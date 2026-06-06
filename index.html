@@ -381,9 +381,12 @@ function renderRC(rc){
         <div class="info-row"><span class="info-icon">📞</span><span>${rc.companyPhone||rc.phone}</span></div>
       </div>
       <div class="card-actions">
-        <a class="btn btn-map" href="${mapUrl}" target="_blank" style="flex:none;padding:9px 20px;">
-          🗺 ${t("map")}
-        </a>
+        <a class="btn btn-call" href="tel:${rc.companyPhone||rc.phone}"
+          onclick="saveAction('Call',${safeJson(rc)})">📞 ${t("call")}</a>
+        <a class="btn btn-wa" href="${waUrl(rc.companyPhone||rc.phone)}" target="_blank"
+          onclick="saveAction('WhatsApp',${safeJson(rc)})">💬 ${t("wa")}</a>
+        <a class="btn btn-map" href="${mapUrl}" target="_blank"
+          onclick="saveAction('Map',${safeJson(rc)})">🗺 ${t("map")}</a>
       </div>
     </div>`;
   el("results").innerHTML=html;
