@@ -288,51 +288,24 @@ localStorage.setItem(
 employeeInput.value
 );
 
-const data = {
+const formData = new FormData();
 
-employee:
-employeeInput.value,
+formData.append("employee", employeeInput.value);
+formData.append("customer", document.getElementById("customer").value);
+formData.append("phone", document.getElementById("phone").value);
+formData.append("customerType", document.getElementById("customerType").value);
+formData.append("city", document.getElementById("city").value);
+formData.append("carType", document.getElementById("carType").value);
+formData.append("carModel", document.getElementById("carModel").value);
+formData.append("product", document.getElementById("product").value);
+formData.append("purchased", document.getElementById("purchased").value);
+formData.append("source", document.getElementById("source").value);
+formData.append("customerStatus", document.getElementById("customerStatus").value);
+formData.append("note", document.getElementById("note").value);
 
-customer:
-document.getElementById("customer").value,
-
-phone:
-document.getElementById("phone").value,
-
-customerType:
-document.getElementById("customerType").value,
-
-city:
-document.getElementById("city").value,
-
-carType:
-document.getElementById("carType").value,
-
-carModel:
-document.getElementById("carModel").value,
-
-product:
-document.getElementById("product").value,
-
-purchased:
-document.getElementById("purchased").value,
-
-source:
-document.getElementById("source").value,
-
-customerStatus:
-document.getElementById("customerStatus").value,
-
-note:
-document.getElementById("note").value
-
-};
-
-try{
-
-const response = await fetch(WEBAPP_URL,{
-  method:"POST",
-  body:JSON.stringify(data)
+const response = await fetch(WEBAPP_URL, {
+  method: "POST",
+  body: formData
 });
 
 const result =
