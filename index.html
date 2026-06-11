@@ -269,24 +269,16 @@ document
 
 e.preventDefault();
 
-const btn =
-document.getElementById("submitBtn");
+const btn = document.getElementById("submitBtn");
+const loading = document.getElementById("loading");
 
-const loading =
-document.getElementById("loading");
+try {
 
 btn.disabled = true;
+btn.innerHTML = "⏳ چاوەڕێ بکە...";
+loading.style.display = "block";
 
-btn.innerHTML =
-"⏳ چاوەڕێ بکە...";
-
-loading.style.display =
-"block";
-
-localStorage.setItem(
-"employee",
-employeeInput.value
-);
+localStorage.setItem("employee", employeeInput.value);
 
 const formData = new FormData();
 
@@ -308,14 +300,11 @@ const response = await fetch(WEBAPP_URL, {
   body: formData
 });
 
-const result =
-await response.json();
+const result = await response.text();
 
-if(result.success){
+if(result === "OK"){
 
-alert(
-"✅ زانیارییەکان بە سەرکەوتوویی تۆمار کران"
-);
+alert("✅ تۆمارکرا");
 
 location.reload();
 
@@ -325,21 +314,17 @@ alert("هەڵەیەک ڕوویدا");
 
 }
 
-}catch(error){
+} catch(error){
 
-alert(
-"کێشەی پەیوەندی بە سێرڤەرەوە"
-);
+alert("کێشەی پەیوەندی بە سێرڤەرەوە");
 
-}
+} finally {
 
 btn.disabled = false;
+btn.innerHTML = "تۆمارکردن";
+loading.style.display = "none";
 
-btn.innerHTML =
-"تۆمارکردن";
-
-loading.style.display =
-"none";
+}
 
 });
 
