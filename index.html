@@ -1,15 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="ku" dir="rtl">
+
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>تۆمارکردنی سەردانی کڕیاران</title>
-
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.png">
+<title>RC Service</title>
 
 <style>
 
@@ -25,7 +22,7 @@ padding:20px;
 }
 
 .container{
-max-width:800px;
+max-width:700px;
 margin:auto;
 background:white;
 padding:25px;
@@ -45,20 +42,13 @@ margin-top:12px;
 font-weight:bold;
 }
 
-input,
-select,
-textarea{
+select{
 width:100%;
 padding:12px;
 margin-top:5px;
 border:1px solid #ddd;
 border-radius:8px;
 font-size:15px;
-}
-
-textarea{
-height:100px;
-resize:vertical;
 }
 
 button{
@@ -75,13 +65,12 @@ cursor:pointer;
 
 button:disabled{
 background:#888;
-cursor:not-allowed;
 }
 
 .loading{
 display:none;
-margin-top:15px;
 text-align:center;
+margin-top:15px;
 font-weight:bold;
 color:#0066cc;
 }
@@ -98,103 +87,115 @@ color:red;
 
 <div class="container">
 
-<h1>📊 تۆمارکردنی سەردانی کڕیاران</h1>
+<h1>🚗 RC Service</h1>
 
-<form id="customerForm">
+<form id="serviceForm">
 
 <label>
-ناوی کارمەند
+ناوچە
 <span class="required">*</span>
 </label>
-<input id="employee" required>
 
-<label>ناوی کڕیار</label>
-<input id="customer">
+<select id="area" required>
 
-<label>ژمارەی مۆبایل</label>
-<input id="phone">
+<option value="">هەڵبژێرە</option>
+
+<option>عەنکاوە</option>
+<option>بەحرکە</option>
+<option>شەقڵاوە</option>
+<option>زانیاری</option>
+<option>ڕۆناکى</option>
+<option>هیوا</option>
+<option>کۆڵان</option>
+<option>مامۆستایان</option>
+<option>کەسنەزان</option>
+<option>ئیمپایەر</option>
+<option>دەوروبەری هەولێر</option>
+<option>پارێزگاکانی کوردستان</option>
+<option>باشووری عێراق</option>
+
+</select>
+
+<label>
+جۆری ئۆتۆمبێل
+<span class="required">*</span>
+</label>
+
+<select id="carType" required>
+
+<option value="">هەڵبژێرە</option>
+
+<option>یابانی</option>
+<option>کۆری</option>
+<option>ئەمەریکی</option>
+<option>چینی</option>
+<option>ئەوروپی</option>
+<option>تر</option>
+
+</select>
+
+<label>
+ساڵی مۆدێل
+<span class="required">*</span>
+</label>
+
+<select id="carYear" required>
+<option value="">هەڵبژێرە</option>
+</select>
+
+<label>
+خزمەتگوزاری
+<span class="required">*</span>
+</label>
+
+<select id="service" required>
+
+<option value="">هەڵبژێرە</option>
+
+<option>گۆڕینی ڕۆن و فلتەر</option>
+<option>ڕۆنی گیر</option>
+<option>ڕۆنی دیفرەنسیال</option>
+<option>پشکنینی ئۆتۆمبێل</option>
+<option>گۆڕینی برێک</option>
+<option>باتری</option>
+<option>شلەی ساردکەرەوە</option>
+<option>گازی ساردکەرەوە</option>
+<option>خزمەتگوزاری تر</option>
+
+</select>
+
+<label>
+پلەی ڕۆن
+<span class="required">*</span>
+</label>
+
+<select id="oilGrade" required>
+
+<option value="">هەڵبژێرە</option>
+
+<option>0W20</option>
+<option>5W20</option>
+<option>5W30</option>
+<option>5W40</option>
+<option>10W30</option>
+<option>10W40</option>
+<option>15W40</option>
+<option>تر</option>
+
+</select>
 
 <label>
 جۆری کڕیار
 <span class="required">*</span>
 </label>
+
 <select id="customerType" required>
-<option value="">هەڵبژێرە</option>
-<option>خاوەن ئۆتۆمبێل</option>
-<option>وەرشە</option>
-<option>فرۆشگای ڕۆن</option>
-<option>ڤێتەر</option>
-<option>کۆمپانیا</option>
-</select>
-
-<label>
-شار
-<span class="required">*</span>
-</label>
-
-<select id="city" required>
 
 <option value="">هەڵبژێرە</option>
 
-<optgroup label="هەرێمی کوردستان">
-<option>هەولێر</option>
-<option>سلێمانی</option>
-<option>دهۆک</option>
-<option>هەڵەبجە</option>
-</optgroup>
+<option>نوێ</option>
+<option>هەمیشەیی</option>
 
-<optgroup label="عێراق">
-<option>بەغدا</option>
-<option>کەرکووک</option>
-<option>موسڵ</option>
-<option>بەسرە</option>
-<option>کەربەلا</option>
-<option>نەجەف</option>
-<option>واسیط</option>
-<option>دیالە</option>
-<option>سامەڕا</option>
-<option>میسان</option>
-<option>ناسیریە</option>
-<option>بابڵ</option>
-<option>ئەنبار</option>
-<option>سەلاحەدین</option>
-<option>موثەنا</option>
-<option>قادسیە</option>
-</optgroup>
-
-</select>
-
-<label>جۆری ئۆتۆمبێل</label>
-<input id="carType">
-
-<label>مۆدێل</label>
-<select id="carModel">
-<option value="">هەڵبژێرە</option>
-</select>
-
-<label>
-داواکراوی سەرەکی
-<span class="required">*</span>
-</label>
-
-<select id="product" required>
-<option value="">هەڵبژێرە</option>
-<option>ڕۆنی كاز</option>
-<option>ڕۆنی بانزين</option>
-<option>فلتەر</option>
-<option>ڕۆن و فلتەر</option>
-<option>بەرهەمەکانی تر</option>
-</select>
-
-<label>
-کڕینی کرد؟
-<span class="required">*</span>
-</label>
-
-<select id="purchased" required>
-<option value="">هەڵبژێرە</option>
-<option>بەڵێ</option>
-<option>نەخێر</option>
 </select>
 
 <label>
@@ -203,28 +204,16 @@ color:red;
 </label>
 
 <select id="source" required>
+
 <option value="">هەڵبژێرە</option>
-<option>کڕیاری هەمیشەیی</option>
-<option>سۆشیال میدیا</option>
-<option>ڤێتەر</option>
-<option>هاوڕێ</option>
-<option>مندووب</option>
+
 <option>گەڕان لە گۆگڵ</option>
+<option>هاوڕێ</option>
+<option>ڤێتەر</option>
+<option>سۆشیال میدیا</option>
+<option>کڕیاری هەمیشەیی</option>
+
 </select>
-
-<label>
-کڕیاری نوێ یان هەمیشەیی؟
-  <span class="required">*</span>
-</label>
-
-<select id="customerStatus" required>
-<option value="">هەڵبژێرە</option>
-<option>نوێ</option>
-<option>هەمیشەیی</option>
-</select>
-
-<label>تێبینی</label>
-<textarea id="note"></textarea>
 
 <button id="submitBtn" type="submit">
 تۆمارکردن
@@ -241,18 +230,9 @@ color:red;
 <script>
 
 const WEBAPP_URL =
-"https://script.google.com/macros/s/AKfycbwe5uPpIMNm6nZRaLlSaciZxnoIlwwLEEF0fOLo_EqHRP_tNp-vtEMtaa7RdoklBxqp/exec";
+"https://script.google.com/macros/s/AKfycbxfEiD5eaPxv2uo6MXfVkRYY_f2zfVIWRNf_8KZvqSnCHrxxOXyD_WNKWObzu08WybU/exec";
 
-const employeeInput =
-document.getElementById("employee");
-
-employeeInput.value =
-localStorage.getItem("employee") || "";
-
-const modelSelect =
-document.getElementById("carModel");
-
-for(let year = new Date().getFullYear(); year >= 1980; year--){
+for(let year = new Date().getFullYear(); year >= 2000; year--){
 
 const option =
 document.createElement("option");
@@ -260,45 +240,71 @@ document.createElement("option");
 option.value = year;
 option.textContent = year;
 
-modelSelect.appendChild(option);
+document
+.getElementById("carYear")
+.appendChild(option);
 
 }
 
 document
-.getElementById("customerForm")
+.getElementById("serviceForm")
 .addEventListener("submit", async function(e){
 
 e.preventDefault();
 
-const btn = document.getElementById("submitBtn");
-const loading = document.getElementById("loading");
+const btn =
+document.getElementById("submitBtn");
 
-try {
+const loading =
+document.getElementById("loading");
+
+try{
 
 btn.disabled = true;
-btn.innerHTML = "⏳ چاوەڕێ بکە...";
 loading.style.display = "block";
-
-localStorage.setItem("employee", employeeInput.value);
 
 const formData = new FormData();
 
-formData.append("employee", employeeInput.value);
-formData.append("customer", document.getElementById("customer").value);
-formData.append("phone", document.getElementById("phone").value);
-formData.append("customerType", document.getElementById("customerType").value);
-formData.append("city", document.getElementById("city").value);
-formData.append("carType", document.getElementById("carType").value);
-formData.append("carModel", document.getElementById("carModel").value);
-formData.append("product", document.getElementById("product").value);
-formData.append("purchased", document.getElementById("purchased").value);
-formData.append("source", document.getElementById("source").value);
-formData.append("customerStatus", document.getElementById("customerStatus").value);
-formData.append("note", document.getElementById("note").value);
+formData.append(
+"area",
+document.getElementById("area").value
+);
 
-const response = await fetch(WEBAPP_URL, {
-  method: "POST",
-  body: formData
+formData.append(
+"carType",
+document.getElementById("carType").value
+);
+
+formData.append(
+"carYear",
+document.getElementById("carYear").value
+);
+
+formData.append(
+"service",
+document.getElementById("service").value
+);
+
+formData.append(
+"oilGrade",
+document.getElementById("oilGrade").value
+);
+
+formData.append(
+"customerType",
+document.getElementById("customerType").value
+);
+
+formData.append(
+"source",
+document.getElementById("source").value
+);
+
+const response = await fetch(
+WEBAPP_URL,
+{
+method:"POST",
+body:formData
 });
 
 const result = await response.text();
@@ -311,18 +317,19 @@ location.reload();
 
 }else{
 
-alert("هەڵەیەک ڕوویدا");
+alert("❌ هەڵەیەک ڕوویدا");
 
 }
 
-} catch(error){
+}catch(err){
 
-alert("کێشەی پەیوەندی بە سێرڤەرەوە");
+alert("❌ کێشەی پەیوەندی");
 
-} finally {
+}
+
+finally{
 
 btn.disabled = false;
-btn.innerHTML = "تۆمارکردن";
 loading.style.display = "none";
 
 }
