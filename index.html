@@ -1663,8 +1663,69 @@ async function sendSingleNotifWa(carId){
   } catch(e){ toast(t.error,'error'); }
 }
 async function sendBulkNotif(){
-  toast(T[lang].sent,'success');
-  closeModal('modal-notif');
+  const t=T[lang];
+  if(!firebaseReady){ toast(t.error,'error'); return; }
+  const customMsg=document.getElementById('notif-msg-txt').value.trim();
+  try{
+    const snap=await db.collection('cars').get();
+    const cars=[];
+    snap.forEach(d=>cars.push({id:d.id,...d.data()}));
+    const today_ms=new Date().setHours(0,0,0,0);
+    const filtered=cars.filter(c=>{
+      if(!c.user_phone) return false;
+      if(notifFilter==='all') return true;
+      if(notifFilter==='oil'){
+        return !!c.oilNextKm;
+      }
+      if(notifFilter==='annual'){
+        if(!c.annualExpiry) return false;
+        const exp=new Date(c.annualExpiry).setHours(0,0,0,0);
+        const diff=Math.round((exp-today_ms)/86400000);
+        return diff<=30;
+      }
+      return false;
+    });
+    if(!filtered.length){ toast(t.maintNoData,'error'); return; }
+
+    let sentCount=0;
+    await Promise.all(filtered.map(async c=>{
+      try{
+        let msgAr='', msgKu='', msgEn='';
+        if(customMsg){
+          msgAr=customMsg; msgKu=customMsg; msgEn=customMsg;
+        } else if(notifFilter==='annual'){
+          msgAr = `مركز ${center?center.name:'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName||''} قاربت على الانتهاء 📅`;
+          msgKu = `ناوەندی ${center?center.name:'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName||''} نزیکە لە بەسەرچوون 📅`;
+          msgEn = `${center?center.name:'RC'} reminds you that the registration for your ${c.carName||''} is expiring soon 📅`;
+        } else {
+          msgAr = `مركز ${center?center.name:'RC'} يُذكركم بصيانة سيارتكم ${c.carName||''} 🔧`;
+          msgKu = `ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ پاراستنەوەی سەیارەکەت ${c.carName||''} 🔧`;
+          msgEn = `${center?center.name:'RC'} reminds you about maintenance for your ${c.carName||''} 🔧`;
+        }
+        await db.collection('notifications').add({
+          user_phone: c.user_phone,
+          car_id: c.id,
+          car_name: c.carName||'',
+          type: notifFilter==='annual'?'annual':(notifFilter==='oil'?'oil':'general'),
+          item: '',
+          next_km: c.oilNextKm||'',
+          center_name: center?center.name:'RC',
+          msg_ar: msgAr,
+          msg_ku: msgKu,
+          msg_en: msgEn,
+          read: false,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        sentCount++;
+      } catch(e){ console.error('sendBulkNotif item error:', e); }
+    }));
+
+    toast(`${t.sent} (${sentCount})`,'success');
+    closeModal('modal-notif');
+  } catch(e){
+    console.error('sendBulkNotif error:', e);
+    toast(t.error,'error');
+  }
 }
 function openNotifModal(){
   const t=T[lang];
