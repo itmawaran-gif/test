@@ -1877,8 +1877,8 @@ async function pushNotifToFirestore(car, type, itemName, nextKm){
     } else {
       const item = getMaintItem(type==='maint'&&itemName ? (MAINT_ITEMS.find(m=>m.nameAr===itemName||m.nameKu===itemName||m.nameEn===itemName)||{}).key||itemName : itemName);
       const iname = item ? (typeof item==='object'?item.nameAr:item) : itemName;
-      msgAr = `مركز ${center?center.name:'RC'} يُذكركم بصيانة ${iname||''} لسيارتكم ${car.carName||''} 🔧`;
-      msgKu = `ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ پاراستنەوەی ${iname||''} بۆ سەیارەکەت ${car.carName||''} 🔧`;
+      msgAr = `مركز ${center?center.name:'RC'}  تم عمل صيانة ${iname||''} لسيارتكم ${car.carName||''} 🔧`;
+      msgKu = `ناوەندی ${center?center.name:'RC'} کاری چاککردنەوە ئەنجامدرا ${iname||''} بۆ سەیارەکەت ${car.carName||''} 🔧`;
       msgEn = `${center?center.name:'RC'} reminds you about ${iname||''} maintenance on your ${car.carName||''} 🔧`;
     }
     await db.collection('notifications').add({
