@@ -1823,7 +1823,7 @@ async function pushNotifToFirestore(car, type, itemName, nextKm){
   } catch(e){ console.error('pushNotifToFirestore:', e); }
 }
   /* ─── إرسال FCM عبر Apps Script ─── */
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyZY-4oeGRr36YTaGcw6imijlbL58EGWI9If2_WiNdTuDRbY3UkI5YRqjzQUINuaI7X/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyb7hi30nwg7_roHKTuKSZX1bUejXACwPUoGBxEQ7YrIBtw9mqiPrXiH34oxVpg8GOx/exec";
 
 async function sendFCMDirect(userPhone, type, itemName, nextKm, car) {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ضع")) return;
