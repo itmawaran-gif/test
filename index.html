@@ -1722,73 +1722,88 @@ async function sendBulkNotif() {
 
     if (!filtered.length) { toast(t.maintNoData, 'error'); return; }
 
-    // أظهر مؤشر التحميل
-    toast('جاري الإرسال...', '');
-    let sentCount = 0;
-    let failCount = 0;
-
-    // أرسل لكل عميل واحد بعد الآخر
-    for (const c of filtered) {
-      try {
-        // ── 1. بناء الرسائل ──
-        let msgAr = '', msgKu = '', msgEn = '';
-        if (customMsg) {
-          msgAr = customMsg; msgKu = customMsg; msgEn = customMsg;
-        } else if (notifFilter === 'annual') {
-          msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName || ''} قاربت على الانتهاء 📅`;
-          msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName || ''} نزیکە لە بەسەرچوون 📅`;
-          msgEn = `${center ? center.name : 'RC'} reminds you that the registration for your ${c.carName || ''} is expiring soon 📅`;
-        } else if (notifFilter === 'oil') {
-          msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بتغيير زيت سيارتكم ${c.carName || ''} عند ${c.oilNextKm || '—'} كم 🔧`;
-          msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName || ''} لە ${c.oilNextKm || '—'} کم 🔧`;
-          msgEn = `${center ? center.name : 'RC'} reminds you to change oil on your ${c.carName || ''} at ${c.oilNextKm || '—'} km 🔧`;
-        } else {
-          msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بصيانة سيارتكم ${c.carName || ''} 🔧`;
-          msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ پاراستنەوەی سەیارەکەت ${c.carName || ''} 🔧`;
-          msgEn = `${center ? center.name : 'RC'} reminds you about maintenance for your ${c.carName || ''} 🔧`;
-        }
-
-        // ── 2. احفظ في Firestore ──
-        await db.collection('notifications').add({
-          user_phone: c.user_phone,
-          car_id: c.id,
-          car_name: c.carName || '',
-          type: notifFilter === 'annual' ? 'annual' : notifFilter === 'oil' ? 'oil' : 'general',
-          item: '',
-          next_km: c.oilNextKm || '',
-          center_name: center ? center.name : 'RC',
-          msg_ar: msgAr,
-          msg_ku: msgKu,
-          msg_en: msgEn,
-          read: false,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        });
-
-        // ── 3. أرسل FCM للهاتف ──
-        const notifBody = customMsg || msgAr;
-        await sendFCMToPhone(c.user_phone, center ? center.name : 'RC Service', notifBody, {
-          type: notifFilter,
-          car_name: c.carName || ''
-        });
-
-        sentCount++;
-
-      } catch (e) {
-        console.error('sendBulkNotif item error:', c.carName, e);
-        failCount++;
-      }
-
-      // انتظر 300ms بين كل إرسال لتجنب الحد الأقصى
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-
-    toast(`${t.sent} (${sentCount})${failCount > 0 ? ` ❌${failCount}` : ''}`, 'success');
+    // ── أغلق الـ modal وأظهر toast فوراً بدون انتظار ──
     closeModal('modal-notif');
+    toast(`📤 جاري الإرسال لـ ${filtered.length} عميل...`, '');
+
+    // ── ابدأ الإرسال في الخلفية بدون await ──
+    sendBulkInBackground(filtered, customMsg);
 
   } catch (e) {
     console.error('sendBulkNotif error:', e);
     toast(t.error, 'error');
   }
+}
+
+// ── تعمل في الخلفية بدون انتظار ──
+async function sendBulkInBackground(filtered, customMsg) {
+  const t = T[lang];
+  let sentCount = 0;
+  let failCount = 0;
+  const total = filtered.length;
+
+  for (const c of filtered) {
+    try {
+      let msgAr = '', msgKu = '', msgEn = '';
+
+      if (customMsg) {
+        msgAr = customMsg; msgKu = customMsg; msgEn = customMsg;
+      } else if (notifFilter === 'annual') {
+        msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName || ''} قاربت على الانتهاء 📅`;
+        msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName || ''} نزیکە لە بەسەرچوون 📅`;
+        msgEn = `${center ? center.name : 'RC'} reminds you that the registration for your ${c.carName || ''} is expiring soon 📅`;
+      } else if (notifFilter === 'oil') {
+        msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بتغيير زيت سيارتكم ${c.carName || ''} عند ${c.oilNextKm || '—'} كم 🔧`;
+        msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName || ''} لە ${c.oilNextKm || '—'} کم 🔧`;
+        msgEn = `${center ? center.name : 'RC'} reminds you to change oil on your ${c.carName || ''} at ${c.oilNextKm || '—'} km 🔧`;
+      } else {
+        msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بصيانة سيارتكم ${c.carName || ''} 🔧`;
+        msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ پاراستنەوەی سەیارەکەت ${c.carName || ''} 🔧`;
+        msgEn = `${center ? center.name : 'RC'} reminds you about maintenance for your ${c.carName || ''} 🔧`;
+      }
+
+      // حفظ في Firestore
+      await db.collection('notifications').add({
+        user_phone: c.user_phone,
+        car_id: c.id,
+        car_name: c.carName || '',
+        type: notifFilter === 'annual' ? 'annual' : notifFilter === 'oil' ? 'oil' : 'general',
+        item: '',
+        next_km: c.oilNextKm || '',
+        center_name: center ? center.name : 'RC',
+        msg_ar: msgAr, msg_ku: msgKu, msg_en: msgEn,
+        read: false,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // إرسال FCM
+      await sendFCMToPhone(
+        c.user_phone,
+        center ? center.name : 'RC Service',
+        customMsg || msgAr,
+        {type: notifFilter, car_name: c.carName || ''}
+      );
+
+      sentCount++;
+
+      // حدّث toast كل 5 عملاء
+      if (sentCount % 5 === 0) {
+        toast(`📤 ${sentCount}/${total} تم الإرسال...`, '');
+      }
+
+    } catch (e) {
+      console.error('Background send error:', c.carName, e);
+      failCount++;
+    }
+
+    // انتظر 200ms بين كل إرسال
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+
+  // إظهار النتيجة النهائية
+  const msg = `✅ تم الإرسال: ${sentCount}${failCount > 0 ? ` | ❌ فشل: ${failCount}` : ''}`;
+  toast(msg, 'success');
+  console.log('Bulk send complete:', msg);
 }
 function openNotifModal(){
   const t=T[lang];
