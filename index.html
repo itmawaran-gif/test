@@ -813,7 +813,7 @@ const T = {
     nextOilDiff:d=>`بعد ${d.toLocaleString('ar')} كم`,
     sbEditCenter:'تعديل بيانات المركز', today:'اليوم', currency:'د.ع',
     months:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
-    notifOilMsg:(car,km,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} يُذكركم بأن سيارتكم ${car.name} (${car.plateNumber||''}) تحتاج إلى تغيير زيت على مسافة ${km} كم.\nنحن بخدمتكم 🔧`,
+    notifOilMsg:(car,km,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} تم تغير ${car.name} (${car.plateNumber||''}) الكيلومتر القادم ${km} كم.\nنحن بخدمتكم 🔧`,
     notifMaintMsg:(car,item,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} لقد تم تغيير ${item} لسيارتكم ${car.name}.\nشكرا لثقتكم 🔧`,
   },
   ku:{
@@ -867,7 +867,7 @@ const T = {
     nextOilDiff:d=>`دوای ${d.toLocaleString()} کم`,
     sbEditCenter:'گۆڕینی زانیارییەکانی ناوەند', today:'ئەمڕۆ', currency:'د.ع',
     months:['ژانویە','فێبریوار','مارس','ئەپریل','مایس','حوزەیران','تەممووز','ئاب','ئەیلوول','تشرینی یەکەم','تشرینی دووەم','کانوونی دووەم'],
-    notifOilMsg:(car,km,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} بیرت خستەوە کە سەیارەکەت ${car.name} پێویستی بە گۆڕینی ڕۆن هەیە لە ${km} کم.\nسوپاس بۆ متمانەتان 🔧`,
+    notifOilMsg:(car,km,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${car.name} کیلۆمەتری داهاتوو ${km} کم.\nسوپاس بۆ متمانەتان 🔧`,
     notifMaintMsg:(car,item,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${item} بۆ سەیارەکەت ${car.name}.\nسوپاس بۆ متمانەتان 🔧`,
   },
   en:{
