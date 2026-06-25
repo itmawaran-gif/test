@@ -1649,84 +1649,134 @@ async function updateNotifTargets(){
     </div>`).join('');
   } catch(e){ listEl.innerHTML=''; }
 }
-async function sendSingleNotifWa(carId){
-  if(!firebaseReady) return;
-  const t=T[lang];
-  try{
-    const doc=await db.collection('cars').doc(carId).get();
-    if(!doc.exists) return;
-    const c={id:doc.id,...doc.data()};
-    let owner={name:'—',phone:c.user_phone||''};
-    if(c.user_phone){ const ud=await db.collection('users').doc(c.user_phone).get(); if(ud.exists){ const u=ud.data(); owner.name=u.name||'—'; } }
-    const customMsg=document.getElementById('notif-msg-txt').value.trim();
-    const msg=customMsg||t.notifOilMsg({carName:c.carName,plateNumber:c.plateNumber||'',ownerName:owner.name},c.oilNextKm||'—',center?center.name:'RC');
-    const phone=(c.user_phone||'').replace(/\D/g,'');
-    if(phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
-  } catch(e){ toast(t.error,'error'); }
+async function sendSingleNotifWa(carId) {
+  if (!firebaseReady) return;
+  const t = T[lang];
+  try {
+    const doc = await db.collection('cars').doc(carId).get();
+    if (!doc.exists) return;
+    const c = {id: doc.id, ...doc.data()};
+    let owner = {name: '—', phone: c.user_phone || ''};
+    if (c.user_phone) {
+      const ud = await db.collection('users').doc(c.user_phone).get();
+      if (ud.exists) { const u = ud.data(); owner.name = u.name || '—'; }
+    }
+    const customMsg = document.getElementById('notif-msg-txt').value.trim();
+    const msg = customMsg || t.notifOilMsg(
+      {carName: c.carName, plateNumber: c.plateNumber || '', ownerName: owner.name},
+      c.oilNextKm || '—',
+      center ? center.name : 'RC'
+    );
+    const phone = (c.user_phone || '').replace(/\D/g, '');
+
+    // فتح واتساب
+    if (phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+
+    // ── أضف: إرسال FCM أيضاً ──
+    if (c.user_phone) {
+      await sendFCMToPhone(
+        c.user_phone,
+        center ? center.name : 'RC Service',
+        customMsg || (c.carName + ' — ' + (t.nfOil || 'تذكير صيانة')),
+        {type: notifFilter, car_name: c.carName || ''}
+      );
+    }
+
+  } catch (e) {
+    toast(t.error, 'error');
+  }
 }
-async function sendBulkNotif(){
-  const t=T[lang];
-  if(!firebaseReady){ toast(t.error,'error'); return; }
-  const customMsg=document.getElementById('notif-msg-txt').value.trim();
-  try{
-    const snap=await db.collection('cars').get();
-    const cars=[];
-    snap.forEach(d=>cars.push({id:d.id,...d.data()}));
-    const today_ms=new Date().setHours(0,0,0,0);
-    const filtered=cars.filter(c=>{
-      if(!c.user_phone) return false;
-      if(notifFilter==='all') return true;
-      if(notifFilter==='oil'){
-        return !!c.oilNextKm;
-      }
-      if(notifFilter==='annual'){
-        if(!c.annualExpiry) return false;
-        const exp=new Date(c.annualExpiry).setHours(0,0,0,0);
-        const diff=Math.round((exp-today_ms)/86400000);
-        return diff<=30;
+async function sendBulkNotif() {
+  const t = T[lang];
+  if (!firebaseReady) { toast(t.error, 'error'); return; }
+  const customMsg = document.getElementById('notif-msg-txt').value.trim();
+
+  try {
+    const snap = await db.collection('cars').get();
+    const cars = [];
+    snap.forEach(d => cars.push({id: d.id, ...d.data()}));
+    const today_ms = new Date().setHours(0, 0, 0, 0);
+
+    const filtered = cars.filter(c => {
+      if (!c.user_phone) return false;
+      if (notifFilter === 'all') return true;
+      if (notifFilter === 'oil') return !!c.oilNextKm;
+      if (notifFilter === 'annual') {
+        if (!c.annualExpiry) return false;
+        const exp = new Date(c.annualExpiry).setHours(0, 0, 0, 0);
+        return Math.round((exp - today_ms) / 86400000) <= 30;
       }
       return false;
     });
-    if(!filtered.length){ toast(t.maintNoData,'error'); return; }
 
-    let sentCount=0;
-    await Promise.all(filtered.map(async c=>{
-      try{
-        let msgAr='', msgKu='', msgEn='';
-        if(customMsg){
-          msgAr=customMsg; msgKu=customMsg; msgEn=customMsg;
-        } else if(notifFilter==='annual'){
-          msgAr = `مركز ${center?center.name:'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName||''} قاربت على الانتهاء 📅`;
-          msgKu = `ناوەندی ${center?center.name:'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName||''} نزیکە لە بەسەرچوون 📅`;
-          msgEn = `${center?center.name:'RC'} reminds you that the registration for your ${c.carName||''} is expiring soon 📅`;
+    if (!filtered.length) { toast(t.maintNoData, 'error'); return; }
+
+    // أظهر مؤشر التحميل
+    toast('جاري الإرسال...', '');
+    let sentCount = 0;
+    let failCount = 0;
+
+    // أرسل لكل عميل واحد بعد الآخر
+    for (const c of filtered) {
+      try {
+        // ── 1. بناء الرسائل ──
+        let msgAr = '', msgKu = '', msgEn = '';
+        if (customMsg) {
+          msgAr = customMsg; msgKu = customMsg; msgEn = customMsg;
+        } else if (notifFilter === 'annual') {
+          msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName || ''} قاربت على الانتهاء 📅`;
+          msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName || ''} نزیکە لە بەسەرچوون 📅`;
+          msgEn = `${center ? center.name : 'RC'} reminds you that the registration for your ${c.carName || ''} is expiring soon 📅`;
+        } else if (notifFilter === 'oil') {
+          msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بتغيير زيت سيارتكم ${c.carName || ''} عند ${c.oilNextKm || '—'} كم 🔧`;
+          msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName || ''} لە ${c.oilNextKm || '—'} کم 🔧`;
+          msgEn = `${center ? center.name : 'RC'} reminds you to change oil on your ${c.carName || ''} at ${c.oilNextKm || '—'} km 🔧`;
         } else {
-          msgAr = `مركز ${center?center.name:'RC'} يُذكركم بصيانة سيارتكم ${c.carName||''} 🔧`;
-          msgKu = `ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ پاراستنەوەی سەیارەکەت ${c.carName||''} 🔧`;
-          msgEn = `${center?center.name:'RC'} reminds you about maintenance for your ${c.carName||''} 🔧`;
+          msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بصيانة سيارتكم ${c.carName || ''} 🔧`;
+          msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ پاراستنەوەی سەیارەکەت ${c.carName || ''} 🔧`;
+          msgEn = `${center ? center.name : 'RC'} reminds you about maintenance for your ${c.carName || ''} 🔧`;
         }
+
+        // ── 2. احفظ في Firestore ──
         await db.collection('notifications').add({
           user_phone: c.user_phone,
           car_id: c.id,
-          car_name: c.carName||'',
-          type: notifFilter==='annual'?'annual':(notifFilter==='oil'?'oil':'general'),
+          car_name: c.carName || '',
+          type: notifFilter === 'annual' ? 'annual' : notifFilter === 'oil' ? 'oil' : 'general',
           item: '',
-          next_km: c.oilNextKm||'',
-          center_name: center?center.name:'RC',
+          next_km: c.oilNextKm || '',
+          center_name: center ? center.name : 'RC',
           msg_ar: msgAr,
           msg_ku: msgKu,
           msg_en: msgEn,
           read: false,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
         });
-        sentCount++;
-      } catch(e){ console.error('sendBulkNotif item error:', e); }
-    }));
 
-    toast(`${t.sent} (${sentCount})`,'success');
+        // ── 3. أرسل FCM للهاتف ──
+        const notifBody = customMsg || msgAr;
+        await sendFCMToPhone(c.user_phone, center ? center.name : 'RC Service', notifBody, {
+          type: notifFilter,
+          car_name: c.carName || ''
+        });
+
+        sentCount++;
+
+      } catch (e) {
+        console.error('sendBulkNotif item error:', c.carName, e);
+        failCount++;
+      }
+
+      // انتظر 300ms بين كل إرسال لتجنب الحد الأقصى
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    toast(`${t.sent} (${sentCount})${failCount > 0 ? ` ❌${failCount}` : ''}`, 'success');
     closeModal('modal-notif');
-  } catch(e){
+
+  } catch (e) {
     console.error('sendBulkNotif error:', e);
-    toast(t.error,'error');
+    toast(t.error, 'error');
   }
 }
 function openNotifModal(){
@@ -1877,6 +1927,51 @@ console.log("Apps Script Response:", text);
 
   } catch (e) {
     console.error("sendFCMDirect error:", e);
+  }
+}
+  // دالة مساعدة — ترسل FCM لهاتف محدد برقمه
+async function sendFCMToPhone(userPhone, title, body, extra) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('ضع')) return;
+  if (!userPhone) return;
+
+  try {
+    // جلب FCM Token
+    const userDoc = await db.collection('users').doc(userPhone).get();
+    if (!userDoc.exists) {
+      console.log('No user doc for:', userPhone);
+      return;
+    }
+
+    const fcmToken = userDoc.data().fcmToken;
+    if (!fcmToken) {
+      console.log('No FCM token for:', userPhone);
+      return;
+    }
+
+    // إرسال عبر Apps Script
+    const params = new URLSearchParams({
+      token: fcmToken,
+      title: title,
+      body: body,
+      type: extra.type || 'general',
+      car_name: extra.car_name || ''
+    });
+
+    const response = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
+      method: 'GET',
+      redirect: 'follow'
+    });
+
+    const result = await response.json();
+
+    if (result.name) {
+      console.log('✅ FCM sent to:', userPhone);
+    } else {
+      console.error('❌ FCM failed for:', userPhone, result);
+    }
+
+  } catch (e) {
+    console.error('sendFCMToPhone error for', userPhone, ':', e);
   }
 }
 
