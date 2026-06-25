@@ -1920,8 +1920,8 @@ async function sendFCMDirect(userPhone, type, itemName, nextKm, car) {
 
     const title = center ? center.name : "RC Service";
     const body = type === "oil"
-      ? `سيارتك ${car.carName || ""} تحتاج تغيير زيت عند ${nextKm || "—"} كم 🔧`
-      : `سيارتك ${car.carName || ""} تحتاج صيانة ${itemName || ""} 🔧`;
+      ? `سيارتك ${car.carName || ""} تم التغيير . الكيلومتر التالي: ${nextKm || "—"} كم 🔧`
+      : `سيارتك ${car.carName || ""} تم عمل صيانة ${itemName || ""} 🔧`;
 
     console.log("START sendFCMDirect");
 console.log("Token:", fcmToken);
