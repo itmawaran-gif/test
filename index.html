@@ -1757,9 +1757,9 @@ async function sendBulkInBackground(filtered, customMsg) {
         msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName || ''} لە ${c.oilNextKm || '—'} کم 🔧`;
         msgEn = `${center ? center.name : 'RC'} reminds you to change oil on your ${c.carName || ''} at ${c.oilNextKm || '—'} km 🔧`;
       } else {
-        msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بصيانة سيارتكم ${c.carName || ''} 🔧`;
-        msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ پاراستنەوەی سەیارەکەت ${c.carName || ''} 🔧`;
-        msgEn = `${center ? center.name : 'RC'} reminds you about maintenance for your ${c.carName || ''} 🔧`;
+        msgAr = `مركز ${center ? center.name : 'RC'} تم تغيير ${c.carName || ''} 🔧`;
+        msgKu = `ناوەندی ${center ? center.name : 'RC'} گۆڕا ${c.carName || ''} 🔧`;
+        msgEn = `${center ? center.name : 'RC'} changed ${c.carName || ''} 🔧`;
       }
 
       // حفظ في Firestore
