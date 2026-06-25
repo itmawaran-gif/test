@@ -1853,17 +1853,22 @@ console.log("URL:", APPS_SCRIPT_URL);
 
 const response = await fetch(APPS_SCRIPT_URL, {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  mode: "no-cors",
+  headers: {
+    "Content-Type": "application/json"
+  },
   body: JSON.stringify({
     token: fcmToken,
-    title: title,
-    body: body,
+    title,
+    body,
     extra: {
-      type: type,
+      type,
       car_name: car.carName || ""
     }
   })
 });
+
+console.log("Request sent");
 
 console.log("HTTP Status:", response.status);
 
