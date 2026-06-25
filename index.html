@@ -1276,6 +1276,17 @@ async function openCarDetail(carId){
   renderMaintList();
   openModal('modal-car');
 }
+  // تحويل أي صيغة رقم هاتف إلى صيغة موحدة
+function normalizePhone(phone) {
+  if (!phone) return '';
+  // احذف كل شيء غير رقم
+  let p = String(phone).replace(/\D/g, '');
+  // إذا يبدأ بـ 0 — حوّله لـ 964
+  if (p.startsWith('0')) p = '964' + p.slice(1);
+  // إذا يبدأ بـ 7 — أضف 964
+  if (p.startsWith('7')) p = '964' + p;
+  return p;
+}
 function renderOilView(c){
   const t=T[lang];
   const el=document.getElementById('oil-entries-view');
@@ -1929,24 +1940,40 @@ console.log("Apps Script Response:", text);
     console.error("sendFCMDirect error:", e);
   }
 }
-  // دالة مساعدة — ترسل FCM لهاتف محدد برقمه
 async function sendFCMToPhone(userPhone, title, body, extra) {
   if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('ضع')) return;
   if (!userPhone) return;
 
   try {
-    // جلب FCM Token
-    const userDoc = await db.collection('users').doc(userPhone).get();
-    if (!userDoc.exists) {
-      console.log('No user doc for:', userPhone);
+    // جرب الصيغ المختلفة للرقم
+    const phonesToTry = [
+      userPhone,                    // الرقم كما هو
+      normalizePhone(userPhone),    // صيغة دولية 964xxx
+      userPhone.replace(/^964/, '0'), // صيغة محلية 0xxx
+      userPhone.replace(/\D/g, '')  // أرقام فقط
+    ].filter((p, i, arr) => p && arr.indexOf(p) === i); // بدون تكرار
+
+    let fcmToken = null;
+    let foundPhone = null;
+
+    // ابحث عن التوكن بكل الصيغ
+    for (const p of phonesToTry) {
+      try {
+        const userDoc = await db.collection('users').doc(p).get();
+        if (userDoc.exists && userDoc.data().fcmToken) {
+          fcmToken = userDoc.data().fcmToken;
+          foundPhone = p;
+          break;
+        }
+      } catch(e) {}
+    }
+
+    if (!fcmToken) {
+      console.log('No FCM token found for:', userPhone, '| tried:', phonesToTry);
       return;
     }
 
-    const fcmToken = userDoc.data().fcmToken;
-    if (!fcmToken) {
-      console.log('No FCM token for:', userPhone);
-      return;
-    }
+    console.log('Found token for:', foundPhone);
 
     // إرسال عبر Apps Script
     const params = new URLSearchParams({
@@ -1965,13 +1992,13 @@ async function sendFCMToPhone(userPhone, title, body, extra) {
     const result = await response.json();
 
     if (result.name) {
-      console.log('✅ FCM sent to:', userPhone);
+      console.log('✅ FCM sent to:', foundPhone);
     } else {
-      console.error('❌ FCM failed for:', userPhone, result);
+      console.log('❌ FCM failed:', result);
     }
 
   } catch (e) {
-    console.error('sendFCMToPhone error for', userPhone, ':', e);
+    console.error('sendFCMToPhone error:', e);
   }
 }
 
