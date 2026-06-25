@@ -1393,6 +1393,7 @@ async function saveOil(){
   document.getElementById('new-oil-form').style.display='none';
   sendWaNotification(curCarData, 'oil', null, km, nextKm);
   pushNotifToFirestore(curCarData, 'oil', null, nextKm);
+  sendFCMDirect(curCarData.user_phone, 'oil', null, nextKm, curCarData);
   toast(t.saved,'success');
 }
 
@@ -1552,6 +1553,7 @@ async function saveMaintItem(){
   const nameKey=lang==='ku'?'nameKu':lang==='en'?'nameEn':'nameAr';
   sendWaNotification(curCarData,'maint',item[nameKey]);
   pushNotifToFirestore(curCarData, 'maint', item[nameKey]);
+  sendFCMDirect(curCarData.user_phone, 'maint', item[nameKey], null, curCarData);
   closeModal('modal-maint');
   toast(t.saved,'success');
 }
@@ -1819,6 +1821,52 @@ async function pushNotifToFirestore(car, type, itemName, nextKm){
     });
     console.log('Notification pushed to Firestore');
   } catch(e){ console.error('pushNotifToFirestore:', e); }
+}
+  /* ─── إرسال FCM عبر Apps Script ─── */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjYT96FuOkA0QUB8BdPN2NmRsKVWG85HMrmQ-9XpBvDP9ITk-JyBfEb7pllj_D-nGL/exec";
+
+async function sendFCMDirect(userPhone, type, itemName, nextKm, car) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ضع")) return;
+
+  try {
+    // جلب FCM Token من Firestore
+    const userDoc = await db.collection("users").doc(userPhone).get();
+    if (!userDoc.exists) {
+      console.log("User not found:", userPhone);
+      return;
+    }
+
+    const fcmToken = userDoc.data().fcmToken;
+    if (!fcmToken) {
+      console.log("No FCM token for:", userPhone);
+      return;
+    }
+
+    const title = center ? center.name : "RC Service";
+    const body = type === "oil"
+      ? `سيارتك ${car.carName || ""} تحتاج تغيير زيت عند ${nextKm || "—"} كم 🔧`
+      : `سيارتك ${car.carName || ""} تحتاج صيانة ${itemName || ""} 🔧`;
+
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: fcmToken,
+        title: title,
+        body: body,
+        extra: {
+          type: type,
+          car_name: car.carName || ""
+        }
+      })
+    });
+
+    const result = await response.json();
+    console.log("FCM result:", result);
+
+  } catch (e) {
+    console.error("sendFCMDirect error:", e);
+  }
 }
 
 /* ─── EDIT CENTER ─── */
