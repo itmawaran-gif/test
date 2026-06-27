@@ -2,13 +2,21 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RC Workshop">
+<meta name="theme-color" content="#f5a623">
 <title>RC Workshop — لوحة المركز</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@100..900&display=swap" rel="stylesheet">
+
+<!-- ══ PWA MANIFEST (injected inline via JS below) ══ -->
+
 <style>
 :root {
   --bg: #f0f0ee;
@@ -43,6 +51,30 @@ body.ltr *{font-family:'Segoe UI',sans-serif;letter-spacing:.01em}
 .screen.active{display:flex;animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
+/* ── PWA INSTALL BANNER ── */
+#pwa-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:var(--surface);border-top:2px solid var(--gold);
+  padding:14px 16px 20px;
+  box-shadow:0 -8px 32px rgba(0,0,0,.18);
+  display:none;
+  animation:slideUpBanner .35s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUpBanner{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#pwa-banner.show{display:block}
+.pwa-banner-inner{display:flex;align-items:center;gap:12px;max-width:480px;margin:0 auto}
+.pwa-banner-icon{font-size:36px;flex-shrink:0}
+.pwa-banner-text{flex:1}
+.pwa-banner-title{font-size:14px;font-weight:900;color:var(--text)}
+.pwa-banner-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.pwa-banner-actions{display:flex;gap:8px;margin-top:10px}
+.pwa-install-btn{flex:1;padding:11px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#000;font-weight:800;font-size:14px;font-family:inherit;cursor:pointer}
+.pwa-dismiss-btn{padding:11px 14px;border-radius:10px;background:transparent;border:1.5px solid var(--border);color:var(--muted);font-size:13px;font-family:inherit;cursor:pointer}
+
+/* iOS install instructions */
+.ios-instructions{font-size:12.5px;color:var(--text);line-height:1.7;margin-top:8px;background:rgba(245,166,35,.07);border-radius:10px;padding:10px 12px}
+.ios-instructions span{color:var(--gold);font-weight:800}
+
 /* ── HEADER ── */
 .app-header{width:100%;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.06)}
 .app-header-logo{display:flex;align-items:center;gap:10px}
@@ -53,7 +85,7 @@ body.ltr *{font-family:'Segoe UI',sans-serif;letter-spacing:.01em}
 .hamburger-btn:hover{border-color:var(--gold)}
 .hamburger-btn:hover span{background:var(--gold)}
 
-/* ── SETUP SCREEN ── */
+/* ── SETUP ── */
 .setup-wrap{width:calc(100% - 32px);max-width:440px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 22px;box-shadow:var(--shadow);margin-top:20px}
 .setup-hero{text-align:center;margin-bottom:24px}
 .setup-hero-icon{font-size:52px;display:block;margin-bottom:8px}
@@ -85,6 +117,31 @@ body.ltr *{font-family:'Segoe UI',sans-serif;letter-spacing:.01em}
 .lang-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
 .lang-flag{font-size:24px}
 
+/* ── LOGIN SCREEN ── */
+/* PIN input — numeric only, no suggestions */
+.pin-input{
+  text-align:center;
+  font-size:28px;
+  letter-spacing:.25em;
+  font-weight:900;
+  font-family:monospace;
+  -webkit-text-security:disc; /* hides chars on WebKit */
+}
+/* Biometric button */
+.bio-btn{
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;padding:13px;border-radius:var(--radius);
+  background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(59,130,246,.05));
+  border:1.5px solid rgba(59,130,246,.35);
+  color:var(--blue);font-weight:800;font-size:15px;
+  font-family:inherit;cursor:pointer;transition:var(--tr);
+  margin-top:10px;
+}
+.bio-btn:hover{border-color:var(--blue);background:rgba(59,130,246,.15)}
+.bio-btn:active{transform:scale(.97)}
+.bio-btn-icon{font-size:22px}
+.bio-register-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:8px}
+
 /* ── MAIN CONTENT ── */
 .main-content{padding:0 14px;width:100%;display:flex;flex-direction:column;gap:12px;padding-top:12px}
 
@@ -99,15 +156,26 @@ body.ltr *{font-family:'Segoe UI',sans-serif;letter-spacing:.01em}
 .btn-scan{padding:11px 14px;border-radius:10px;background:linear-gradient(135deg,var(--teal),#0c9678);border:none;color:#000;font-size:18px;cursor:pointer;transition:var(--tr);font-weight:700}
 .btn-scan:hover{transform:scale(1.05)}
 
-/* ── SCANNER ── */
-.scanner-wrap{background:#000;border-radius:12px;overflow:hidden;position:relative;margin-top:10px;display:none}
+/* ── SCANNER (FIXED FOR MOBILE) ── */
+.scanner-wrap{
+  background:#000;border-radius:12px;overflow:hidden;
+  position:relative;margin-top:10px;display:none;
+}
 .scanner-wrap.show{display:block}
-#scanner-video{width:100%;height:220px;object-fit:cover;display:block}
+#scanner-video{
+  width:100%;
+  height:260px;
+  object-fit:cover;
+  display:block;
+  /* CRITICAL for iOS: */
+  -webkit-playsinline:true;
+}
 .scanner-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.scanner-frame{width:160px;height:100px;border:2px solid var(--gold);border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.5)}
-.scanner-line{position:absolute;width:140px;height:2px;background:var(--gold);animation:scanLine 1.8s ease-in-out infinite;top:50%;margin-top:-50px}
-@keyframes scanLine{0%{transform:translateY(-40px)}50%{transform:translateY(40px)}100%{transform:translateY(-40px)}}
-.scanner-close{position:absolute;top:8px;inset-inline-end:8px;width:30px;height:30px;background:rgba(0,0,0,.6);border:none;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;pointer-events:all}
+.scanner-frame{width:200px;height:120px;border:2.5px solid var(--gold);border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+.scanner-line{position:absolute;width:180px;height:2.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:scanLine 1.8s ease-in-out infinite;top:50%;margin-top:-60px}
+@keyframes scanLine{0%{transform:translateY(-50px)}50%{transform:translateY(50px)}100%{transform:translateY(-50px)}}
+.scanner-close{position:absolute;top:8px;inset-inline-end:8px;width:34px;height:34px;background:rgba(0,0,0,.7);border:none;border-radius:50%;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;pointer-events:all}
+.scanner-status{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:12px;border-radius:20px;padding:4px 14px;pointer-events:none;white-space:nowrap}
 
 /* ── RESULTS LIST ── */
 .results-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
@@ -195,7 +263,6 @@ body.ltr #sidebar.open{left:0}
 .annual-bar.due{border-color:rgba(229,56,79,.4);background:rgba(229,56,79,.06)}
 .annual-bar.soon{border-color:rgba(245,166,35,.4);background:rgba(245,166,35,.06)}
 .annual-bar-left{display:flex;align-items:center;gap:9px}
-.annual-bar-text{}
 .ab-label{font-size:10.5px;color:var(--muted);font-weight:600}
 .ab-value{font-size:14px;font-weight:800}
 
@@ -332,11 +399,13 @@ textarea.form-control{resize:none}
     </div>
     <div class="form-group">
       <label class="form-label" id="lbl-center-name">اسم المركز</label>
-      <input class="form-control" id="center-name" type="text" placeholder="مركز RC للصيانة">
+      <input class="form-control" id="center-name" type="text" placeholder="مركز RC للصيانة"
+             autocomplete="organization">
     </div>
     <div class="form-group">
       <label class="form-label" id="lbl-center-phone">رقم الهاتف</label>
-      <input class="form-control" id="center-phone" type="tel" placeholder="07xxxxxxxxx">
+      <input class="form-control" id="center-phone" type="tel" placeholder="07xxxxxxxxx"
+             inputmode="tel" autocomplete="tel">
     </div>
     <div class="form-group">
       <label class="form-label" id="lbl-center-city">المدينة</label>
@@ -348,7 +417,17 @@ textarea.form-control{resize:none}
     </div>
     <div class="form-group">
       <label class="form-label" id="lbl-center-pw">كلمة المرور (PIN)</label>
-      <input class="form-control" id="center-pw" type="password" placeholder="4 أرقام" maxlength="6">
+      <!-- ✅ FIX 3: Numeric keyboard, no suggestions -->
+      <input class="form-control pin-input" id="center-pw"
+             type="text"
+             inputmode="numeric"
+             pattern="[0-9]*"
+             placeholder="رقم سري 4-6 أرقام"
+             maxlength="6"
+             autocomplete="new-password"
+             autocorrect="off"
+             autocapitalize="off"
+             spellcheck="false">
     </div>
     <button class="btn-primary" id="setup-save-btn" onclick="saveCenter()">حفظ والبدء</button>
   </div>
@@ -363,9 +442,27 @@ textarea.form-control{resize:none}
       <div class="setup-hero-sub" id="login-sub-txt"></div>
     </div>
     <div class="form-group">
-      <input class="form-control" id="login-pw" type="password" placeholder="PIN" maxlength="6" style="text-align:center;font-size:24px;letter-spacing:.2em" oninput="if(this.value.length>=1)tryLogin()">
+      <!-- ✅ FIX 3: Numeric keyboard only, no suggestions, no autocorrect -->
+      <input class="form-control pin-input" id="login-pw"
+             type="text"
+             inputmode="numeric"
+             pattern="[0-9]*"
+             placeholder="——"
+             maxlength="6"
+             autocomplete="off"
+             autocorrect="off"
+             autocapitalize="off"
+             spellcheck="false"
+             oninput="handlePinInput(this)">
     </div>
     <button class="btn-primary btn-teal" onclick="tryLogin()" id="login-btn">دخول</button>
+
+    <!-- ✅ FIX 4: Biometric button (shown only if registered) -->
+    <button class="bio-btn" id="bio-login-btn" onclick="loginWithBiometric()" style="display:none">
+      <span class="bio-btn-icon" id="bio-icon">🔬</span>
+      <span id="bio-login-txt">فتح بالبصمة / Face ID</span>
+    </button>
+    <div class="bio-register-hint" id="bio-register-hint" style="display:none"></div>
   </div>
 </div>
 
@@ -382,7 +479,6 @@ textarea.form-control{resize:none}
   </div>
 
   <div class="main-content">
-
     <!-- STATS -->
     <div class="stats-bar">
       <div class="stat-card" onclick="openStatsModal('today')">
@@ -410,25 +506,40 @@ textarea.form-control{resize:none}
       </div>
       <div id="search-plate-wrap">
         <div class="search-input-wrap">
-          <input class="form-control" id="search-input" type="text" placeholder="12345" style="direction:ltr;text-align:center;font-size:18px;font-weight:700;letter-spacing:.08em" onkeyup="if(event.key==='Enter')doSearch()">
+          <input class="form-control" id="search-input" type="text" placeholder="12345"
+                 style="direction:ltr;text-align:center;font-size:18px;font-weight:700;letter-spacing:.08em"
+                 onkeyup="if(event.key==='Enter')doSearch()">
           <button class="btn-primary" style="width:auto;padding:11px 18px" onclick="doSearch()">🔍</button>
         </div>
       </div>
       <div id="search-qr-wrap" style="display:none">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:8px" id="qr-instruction">سيفتح الكاميرا لمسح الباركود الموجود في تطبيق العميل</div>
-        <button class="btn-primary btn-teal" onclick="startScanner()">📷 <span id="start-scan-txt">فتح الكاميرا</span></button>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px" id="qr-instruction">
+          سيفتح الكاميرا لمسح الباركود الموجود في تطبيق العميل
+        </div>
+        <button class="btn-primary btn-teal" onclick="startScanner()">
+          📷 <span id="start-scan-txt">فتح الكاميرا</span>
+        </button>
       </div>
+
+      <!-- ✅ FIX 1: Scanner with proper mobile support -->
       <div class="scanner-wrap" id="scanner-wrap">
-        <video id="scanner-video" autoplay muted playsinline></video>
+        <!-- CRITICAL: playsinline + muted + autoplay for iOS -->
+        <video id="scanner-video"
+               playsinline
+               webkit-playsinline
+               muted
+               autoplay
+               style="width:100%;height:260px;object-fit:cover;display:block"></video>
         <div class="scanner-overlay">
           <div class="scanner-frame"></div>
           <div class="scanner-line"></div>
         </div>
         <button class="scanner-close" onclick="stopScanner()">✕</button>
+        <div class="scanner-status" id="scanner-status">جاري التهيئة...</div>
       </div>
+
       <div id="search-results" class="results-list"></div>
     </div>
-
   </div>
 </div>
 
@@ -439,28 +550,26 @@ textarea.form-control{resize:none}
     <div class="sb-top-title">☰ <span id="sb-menu-label">القائمة</span></div>
     <button class="sb-close" onclick="closeSidebar()">✕</button>
   </div>
-  <!-- Center Info -->
   <div class="sb-section">
     <div class="sb-section-hdr" id="sb-center-hdr">🏪 المركز</div>
     <div class="sb-center-info" id="sb-center-info"></div>
   </div>
-  <!-- Actions -->
   <div class="sb-section">
     <div class="sb-section-hdr" id="sb-actions-hdr">⚡ إجراءات</div>
     <button class="sb-btn" onclick="closeSidebar();openCraneModal()">
       <span class="sb-icon">🚛</span><span id="sb-crane-txt">إضافة / إدارة كرين</span>
     </button>
-    <!-- <button class="sb-btn" onclick="closeSidebar();openNotifModal()">
-      <span class="sb-icon">🔔</span><span id="sb-notif-txt">إرسال تنبيهات</span>
-    </button> --> 
     <button class="sb-btn" onclick="closeSidebar();openMonthlyModal()">
       <span class="sb-icon">📊</span><span id="sb-monthly-txt">إحصائيات الأشهر</span>
     </button>
     <button class="sb-btn" onclick="openEditCenter()" style="border-color:rgba(59,130,246,.35);color:var(--blue)">
       <span class="sb-icon">✏️</span><span id="sb-edit-center-txt">تعديل بيانات المركز</span>
     </button>
+    <!-- Biometric management in sidebar -->
+    <button class="sb-btn" id="sb-bio-btn" onclick="manageBiometric()" style="border-color:rgba(59,130,246,.25);color:var(--blue);display:none">
+      <span class="sb-icon" id="sb-bio-icon">🔬</span><span id="sb-bio-txt">إعداد البصمة / Face ID</span>
+    </button>
   </div>
-  <!-- Language -->
   <div class="sb-section">
     <div class="sb-section-hdr" id="sb-lang-hdr">🌐 اللغة</div>
     <div class="sb-lang-grid">
@@ -469,7 +578,6 @@ textarea.form-control{resize:none}
       <button class="sb-lang-btn" id="sb-lang-en" onclick="switchLang('en')"><span>🇬🇧 English</span><span class="chk">✓</span></button>
     </div>
   </div>
-  <!-- Theme -->
   <div class="sb-section" style="padding-bottom:28px">
     <div class="sb-section-hdr" id="sb-theme-hdr">🎨 المظهر</div>
     <div class="sb-theme-grid">
@@ -479,14 +587,32 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: CAR DETAIL ══ -->
+<!-- ══ PWA INSTALL BANNER ══ -->
+<div id="pwa-banner">
+  <div class="pwa-banner-inner">
+    <div class="pwa-banner-icon">🔧</div>
+    <div class="pwa-banner-text">
+      <div class="pwa-banner-title" id="pwa-title">تثبيت التطبيق</div>
+      <div class="pwa-banner-sub" id="pwa-sub">احفظه على شاشتك الرئيسية للوصول السريع</div>
+      <div class="pwa-banner-actions">
+        <button class="pwa-install-btn" id="pwa-install-btn" onclick="triggerPwaInstall()">📲 <span id="pwa-install-txt">تثبيت</span></button>
+        <button class="pwa-dismiss-btn" onclick="dismissPwaBanner()"><span id="pwa-later-txt">لاحقاً</span></button>
+      </div>
+      <!-- iOS specific instructions (shown instead of button) -->
+      <div class="ios-instructions" id="ios-instructions" style="display:none">
+        اضغط على <span>⬆️ مشاركة</span> ثم اختر <span>إضافة إلى الشاشة الرئيسية</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODALS (same as original) ══ -->
 <div class="modal-overlay" id="modal-car">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal('modal-car')">✕</button>
     <div class="modal-title" id="d-car-name"></div>
     <div class="modal-sub" id="d-car-sub"></div>
-    <!-- Owner -->
     <div class="owner-bar" id="d-owner-bar">
       <div class="owner-bar-left">
         <div class="owner-avatar" id="d-owner-avatar">?</div>
@@ -497,20 +623,17 @@ textarea.form-control{resize:none}
       </div>
       <button class="owner-wa-btn" id="d-wa-btn" onclick="contactOwnerWA()">💬 <span id="d-wa-txt">واتساب</span></button>
     </div>
-    <!-- Car info -->
     <div class="car-info-grid" id="d-info-grid"></div>
-    <!-- Annual -->
     <div class="annual-bar" id="d-annual-bar" onclick="openAnnualEdit()">
       <div class="annual-bar-left">
         <span style="font-size:20px">📅</span>
-        <div class="annual-bar-text">
+        <div>
           <div class="ab-label" id="d-annual-label">نفاذ السنوية</div>
           <div class="ab-value" id="d-annual-value">—</div>
         </div>
       </div>
       <span style="font-size:13px;color:var(--muted)">✏️</span>
     </div>
-    <!-- Oil -->
     <div class="expand-section">
       <div class="expand-header" onclick="toggleExpand('oil-body')">
         <div class="expand-header-left">🛢️ <span id="lbl-oil-title">زيت المحرك والفلتر</span></div>
@@ -568,7 +691,6 @@ textarea.form-control{resize:none}
         </div>
       </div>
     </div>
-    <!-- Maint -->
     <div class="expand-section">
       <div class="expand-header" onclick="toggleExpand('maint-body')">
         <div class="expand-header-left">🛠️ <span id="lbl-maint-title">بنود الصيانة</span></div>
@@ -581,7 +703,6 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: ANNUAL EDIT ══ -->
 <div class="modal-overlay" id="modal-annual">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -596,7 +717,6 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: MAINT ITEM ══ -->
 <div class="modal-overlay" id="modal-maint">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -639,7 +759,6 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: STATS ══ -->
 <div class="modal-overlay" id="modal-stats">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -650,7 +769,6 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: MONTHLY ══ -->
 <div class="modal-overlay" id="modal-monthly">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -661,7 +779,6 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: NOTIFICATIONS ══ -->
 <div class="modal-overlay" id="modal-notif">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -686,7 +803,6 @@ textarea.form-control{resize:none}
   </div>
 </div>
 
-<!-- ══ MODAL: CRANE MANAGE ══ -->
 <div class="modal-overlay" id="modal-crane">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -723,6 +839,539 @@ textarea.form-control{resize:none}
 
 <!-- ══ SCRIPTS ══ -->
 <script>
+
+/* ═══════════════════════════════════════════════
+   ✅ FIX 2: PWA — MANIFEST + INSTALL BANNER
+   ═══════════════════════════════════════════════ */
+(function initPWA() {
+  // Inject manifest via blob URL (works without a server)
+  const manifestData = {
+    name: 'RC Workshop',
+    short_name: 'RC Workshop',
+    description: 'لوحة تحكم مركز الصيانة',
+    start_url: './',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#f0f0ee',
+    theme_color: '#f5a623',
+    icons: [
+      { src: 'logo2.png', sizes: '192x192', type: 'image/png' },
+      { src: 'logo2.png', sizes: '512x512', type: 'image/png' }
+    ]
+  };
+  try {
+    const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+    const manifestURL = URL.createObjectURL(blob);
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = manifestURL;
+    document.head.appendChild(link);
+  } catch(e) {}
+
+  // Register lightweight Service Worker (inline, for caching)
+  if ('serviceWorker' in navigator) {
+    const swCode = `
+      const CACHE = 'rcw-v1';
+      self.addEventListener('install', e => {
+        self.skipWaiting();
+      });
+      self.addEventListener('activate', e => {
+        e.waitUntil(caches.keys().then(keys =>
+          Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+        ));
+      });
+      self.addEventListener('fetch', e => {
+        if (e.request.method !== 'GET') return;
+        e.respondWith(
+          fetch(e.request).catch(() => caches.match(e.request))
+        );
+      });
+    `;
+    try {
+      const swBlob = new Blob([swCode], { type: 'application/javascript' });
+      const swURL = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swURL).catch(() => {});
+    } catch(e) {}
+  }
+})();
+
+// PWA install prompt state
+let _pwaPrompt = null;
+let _pwaInstalled = localStorage.getItem('rcw_pwa_installed') === 'true';
+let _pwaDismissed = localStorage.getItem('rcw_pwa_dismissed') === 'true';
+
+// Capture the install prompt (Android/Chrome)
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  if (!_pwaInstalled && !_pwaDismissed) {
+    setTimeout(showPwaBanner, 1500);
+  }
+});
+
+// Detect if already installed
+window.addEventListener('appinstalled', () => {
+  _pwaInstalled = true;
+  localStorage.setItem('rcw_pwa_installed', 'true');
+  hidePwaBanner();
+  toast('✅ تم تثبيت التطبيق', 'success');
+});
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+function isInStandaloneMode() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true;
+}
+
+function showPwaBanner() {
+  if (_pwaInstalled || _pwaDismissed || isInStandaloneMode()) return;
+  const banner = document.getElementById('pwa-banner');
+  const iosInstr = document.getElementById('ios-instructions');
+  const installBtn = document.getElementById('pwa-install-btn');
+
+  if (isIOS()) {
+    // iOS: show manual instructions
+    installBtn.style.display = 'none';
+    iosInstr.style.display = 'block';
+  } else {
+    installBtn.style.display = '';
+    iosInstr.style.display = 'none';
+  }
+  banner.classList.add('show');
+}
+
+function hidePwaBanner() {
+  document.getElementById('pwa-banner').classList.remove('show');
+}
+
+function triggerPwaInstall() {
+  if (!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') {
+      _pwaInstalled = true;
+      localStorage.setItem('rcw_pwa_installed', 'true');
+    }
+    hidePwaBanner();
+    _pwaPrompt = null;
+  });
+}
+
+function dismissPwaBanner() {
+  hidePwaBanner();
+  _pwaDismissed = true;
+  localStorage.setItem('rcw_pwa_dismissed', 'true');
+  // Reset dismiss after 3 days
+  setTimeout(() => {
+    localStorage.removeItem('rcw_pwa_dismissed');
+  }, 3 * 24 * 60 * 60 * 1000);
+}
+
+// Show PWA banner on first visit for iOS (no beforeinstallprompt on iOS)
+document.addEventListener('DOMContentLoaded', () => {
+  if (isIOS() && !isInStandaloneMode() && !_pwaDismissed) {
+    setTimeout(showPwaBanner, 2000);
+  }
+});
+
+
+/* ═══════════════════════════════════════════════
+   ✅ FIX 4: BIOMETRIC AUTH (WebAuthn)
+   ═══════════════════════════════════════════════ */
+const BIO = {
+  supported: () => window.PublicKeyCredential !== undefined,
+  credKey: 'rcw_bio_cred',
+  pinKey: 'rcw_bio_pin',
+
+  async isAvailable() {
+    if (!this.supported()) return false;
+    try {
+      return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    } catch(e) { return false; }
+  },
+
+  hasRegistered() {
+    return !!localStorage.getItem(this.credKey);
+  },
+
+  // Register biometric + store PIN hash securely
+  async register(pin) {
+    if (!await this.isAvailable()) return false;
+    try {
+      // Create challenge
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: 'RC Workshop', id: location.hostname || 'localhost' },
+          user: {
+            id: new TextEncoder().encode('rcw-workshop-user'),
+            name: 'workshop',
+            displayName: center ? center.name : 'RC Workshop'
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: 'public-key' },   // ES256
+            { alg: -257, type: 'public-key' }  // RS256
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required'
+          },
+          timeout: 60000,
+        }
+      });
+
+      if (credential) {
+        // Store credential ID
+        const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+        localStorage.setItem(this.credKey, credId);
+        // Store PIN hash for verification after biometric
+        localStorage.setItem(this.pinKey, await this._hash(pin));
+        return true;
+      }
+    } catch(e) {
+      console.log('Biometric register error:', e.name, e.message);
+    }
+    return false;
+  },
+
+  // Authenticate with biometric
+  async authenticate() {
+    if (!this.hasRegistered()) return false;
+    try {
+      const challenge = new Uint8Array(32);
+      crypto.getRandomValues(challenge);
+
+      const credIdStr = localStorage.getItem(this.credKey);
+      const credIdBytes = Uint8Array.from(atob(credIdStr), c => c.charCodeAt(0));
+
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge,
+          allowCredentials: [{
+            id: credIdBytes,
+            type: 'public-key',
+            transports: ['internal']
+          }],
+          userVerification: 'required',
+          timeout: 60000,
+        }
+      });
+
+      return !!assertion;
+    } catch(e) {
+      console.log('Biometric auth error:', e.name, e.message);
+      return false;
+    }
+  },
+
+  // Clear biometric registration
+  clear() {
+    localStorage.removeItem(this.credKey);
+    localStorage.removeItem(this.pinKey);
+  },
+
+  async _hash(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return btoa(String.fromCharCode(...new Uint8Array(buf)));
+  }
+};
+
+async function initBiometricUI() {
+  const bioBtn = document.getElementById('bio-login-btn');
+  const bioHint = document.getElementById('bio-register-hint');
+  const sbBioBtn = document.getElementById('sb-bio-btn');
+  const bioIcon = document.getElementById('bio-icon');
+  const sbBioIcon = document.getElementById('sb-bio-icon');
+
+  // Detect icon type
+  const isFaceID = /iPhone|iPad/.test(navigator.userAgent);
+  const icon = isFaceID ? '🪪' : '🔬';
+  if(bioIcon) bioIcon.textContent = icon;
+  if(sbBioIcon) sbBioIcon.textContent = icon;
+
+  const available = await BIO.isAvailable();
+  if (!available) return;
+
+  // Show sidebar biometric button
+  if (sbBioBtn) sbBioBtn.style.display = '';
+
+  if (BIO.hasRegistered()) {
+    // Show biometric login button
+    if (bioBtn) bioBtn.style.display = '';
+    updateBioText();
+  } else {
+    // Show hint to register after next PIN login
+    if (bioHint) {
+      const txt = lang === 'en' ? 'Login with PIN to enable biometric' :
+                  lang === 'ku' ? 'پاسووەرد داخڵ بکە بۆ چالاک کردنی بیۆمەتریک' :
+                  'سجّل بكلمة المرور لتفعيل البصمة';
+      bioHint.textContent = txt;
+      bioHint.style.display = '';
+    }
+  }
+}
+
+function updateBioText() {
+  const isFaceID = /iPhone|iPad/.test(navigator.userAgent);
+  const txt = lang === 'en' ? (isFaceID ? 'Login with Face ID' : 'Login with Fingerprint') :
+              lang === 'ku' ? (isFaceID ? 'بکرەوە بە Face ID' : 'بکرەوە بە بصمة') :
+              (isFaceID ? 'فتح بـ Face ID' : 'فتح بالبصمة');
+  const el = document.getElementById('bio-login-txt');
+  if(el) el.textContent = txt;
+}
+
+async function loginWithBiometric() {
+  const bioBtn = document.getElementById('bio-login-btn');
+  if (bioBtn) { bioBtn.disabled = true; bioBtn.textContent = '⏳'; }
+
+  const ok = await BIO.authenticate();
+
+  if (bioBtn) { bioBtn.disabled = false; updateBioText(); }
+
+  if (ok) {
+    // Biometric passed — enter app
+    enterMainScreen();
+  } else {
+    const t = T[lang];
+    toast(t.wrongPw || 'فشل التحقق', 'error');
+  }
+}
+
+async function offerBiometricRegistration(pin) {
+  const available = await BIO.isAvailable();
+  if (!available || BIO.hasRegistered()) return;
+
+  const msg = lang === 'en' ? 'Enable fingerprint / Face ID login?' :
+              lang === 'ku' ? 'بصمة / Face ID چالاک بکرێت بۆ چوونەژوورەوە؟' :
+              'تفعيل الدخول بالبصمة / Face ID؟';
+
+  if (confirm(msg)) {
+    const ok = await BIO.register(pin);
+    if (ok) {
+      toast(lang === 'en' ? 'Biometric enabled ✓' :
+            lang === 'ku' ? 'بیۆمەتریک چالاک کرا ✓' :
+            'تم تفعيل البصمة ✓', 'success');
+      initBiometricUI();
+    } else {
+      toast(lang === 'en' ? 'Could not register' :
+            lang === 'ku' ? 'تۆمارکردن سەرکەوتوو نەبوو' :
+            'لم يتم التسجيل', 'error');
+    }
+  }
+}
+
+async function manageBiometric() {
+  closeSidebar();
+  const available = await BIO.isAvailable();
+  if (!available) {
+    toast(lang === 'en' ? 'Biometric not supported on this device' :
+          lang === 'ku' ? 'ئەم ئامێرە پشتگیری بیۆمەتریک ناکات' :
+          'الجهاز لا يدعم البصمة', 'error');
+    return;
+  }
+
+  if (BIO.hasRegistered()) {
+    const msg = lang === 'en' ? 'Remove biometric login?' :
+                lang === 'ku' ? 'بیۆمەتریک لابدرێت؟' :
+                'إزالة تسجيل الدخول بالبصمة؟';
+    if (confirm(msg)) {
+      BIO.clear();
+      initBiometricUI();
+      toast(lang === 'en' ? 'Biometric removed' :
+            lang === 'ku' ? 'بیۆمەتریک لا برا' :
+            'تم إزالة البصمة', 'success');
+    }
+  } else {
+    // Ask PIN first to register
+    const pin = prompt(lang === 'en' ? 'Enter current PIN to register biometric:' :
+                       lang === 'ku' ? 'پاسووەردی ئێستات داخڵ بکە:' :
+                       'أدخل كلمة المرور الحالية:');
+    if (pin && center && pin === center.pw) {
+      const ok = await BIO.register(pin);
+      if (ok) {
+        toast(lang === 'en' ? 'Biometric enabled ✓' :
+              lang === 'ku' ? 'بیۆمەتریک چالاک کرا ✓' :
+              'تم تفعيل البصمة ✓', 'success');
+        initBiometricUI();
+      }
+    } else if (pin !== null) {
+      toast(T[lang].wrongPw, 'error');
+    }
+  }
+}
+
+
+/* ═══════════════════════════════════════════════
+   ✅ FIX 1: CAMERA — MOBILE-FIXED QR SCANNER
+   ═══════════════════════════════════════════════ */
+let scanStream = null;
+let scanRAF = null;      // requestAnimationFrame ID
+let jsQRLoaded = false;
+let scanCanvas = null;
+let scanCtx = null;
+
+function loadJsQR(cb) {
+  if (jsQRLoaded) { cb(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
+  s.onload = () => { jsQRLoaded = true; cb(); };
+  s.onerror = () => toast(T[lang].error, 'error');
+  document.head.appendChild(s);
+}
+
+function startScanner() {
+  const wrap = document.getElementById('scanner-wrap');
+  const vid = document.getElementById('scanner-video');
+  const statusEl = document.getElementById('scanner-status');
+
+  wrap.classList.add('show');
+  setScanStatus('جاري تحميل الكاميرا...');
+
+  loadJsQR(() => {
+    // Prepare canvas once
+    if (!scanCanvas) {
+      scanCanvas = document.createElement('canvas');
+      scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+    }
+
+    // ✅ MOBILE FIX: ideal constraints with fallbacks
+    const constraints = {
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        scanStream = stream;
+        vid.srcObject = stream;
+
+        // ✅ MOBILE FIX: Must call play() explicitly on iOS
+        const playPromise = vid.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setScanStatus('جاهز للمسح ◀ وجّه الكاميرا للباركود');
+              startScanLoop(vid, statusEl);
+            })
+            .catch(err => {
+              console.error('Video play error:', err);
+              // Some browsers need user interaction — add tap to play
+              setScanStatus('اضغط على الشاشة لتشغيل الكاميرا');
+              wrap.addEventListener('click', function tapPlay() {
+                vid.play().then(() => {
+                  setScanStatus('جاهز للمسح');
+                  startScanLoop(vid, statusEl);
+                  wrap.removeEventListener('click', tapPlay);
+                });
+              }, { once: false });
+            });
+        }
+      })
+      .catch(err => {
+        console.error('getUserMedia error:', err.name, err.message);
+        wrap.classList.remove('show');
+        let msg = T[lang].error;
+        if (err.name === 'NotAllowedError') {
+          msg = lang === 'en' ? 'Camera permission denied — please allow in settings' :
+                lang === 'ku' ? 'مۆڵەتی کامێرا درێژ نەدراو — ڕێکخستنەکان پشک بکەوە' :
+                'تم رفض إذن الكاميرا — يرجى السماح من الإعدادات';
+        } else if (err.name === 'NotFoundError') {
+          msg = lang === 'en' ? 'No camera found on this device' :
+                lang === 'ku' ? 'کامێرا نەدۆزرایەوە' :
+                'لا توجد كاميرا على هذا الجهاز';
+        } else if (err.name === 'NotReadableError') {
+          msg = lang === 'en' ? 'Camera is in use by another app' :
+                lang === 'ku' ? 'کامێرا لە لایەن برنامەیەکی تر بەکاردێت' :
+                'الكاميرا مستخدمة من تطبيق آخر';
+        }
+        toast(msg, 'error');
+      });
+  });
+}
+
+function startScanLoop(vid, statusEl) {
+  let frameCount = 0;
+
+  function scan() {
+    if (!scanStream) return; // Scanner was stopped
+
+    // Only process every 3rd frame for performance
+    frameCount++;
+    if (frameCount % 3 === 0 && vid.readyState >= vid.HAVE_ENOUGH_DATA) {
+      const w = vid.videoWidth;
+      const h = vid.videoHeight;
+      if (w > 0 && h > 0) {
+        scanCanvas.width = w;
+        scanCanvas.height = h;
+        scanCtx.drawImage(vid, 0, 0, w, h);
+        try {
+          const imageData = scanCtx.getImageData(0, 0, w, h);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: 'dontInvert'
+          });
+          if (code && code.data) {
+            // ✅ QR found!
+            const data = code.data.trim();
+            stopScanner();
+            handleQRResult(data);
+            return;
+          }
+        } catch(e) {}
+      }
+    }
+
+    scanRAF = requestAnimationFrame(scan);
+  }
+
+  scanRAF = requestAnimationFrame(scan);
+}
+
+function handleQRResult(data) {
+  // Try phone number extraction
+  let phone = data.replace(/^tel:\+?/i, '').replace(/\D/g, '');
+  if (phone.length >= 10) {
+    document.getElementById('search-input').value = phone;
+    searchByPhone(phone);
+    switchSearchTab('plate');
+    toast('✅ تم مسح الكود', 'success');
+  } else if (data.length > 3) {
+    // Treat as plate number
+    document.getElementById('search-input').value = data;
+    doSearch();
+    switchSearchTab('plate');
+  } else {
+    toast(T[lang].error, 'error');
+  }
+}
+
+function stopScanner() {
+  // Cancel animation loop
+  if (scanRAF) { cancelAnimationFrame(scanRAF); scanRAF = null; }
+  // Stop all tracks
+  if (scanStream) {
+    scanStream.getTracks().forEach(t => t.stop());
+    scanStream = null;
+  }
+  const vid = document.getElementById('scanner-video');
+  if (vid) { vid.srcObject = null; vid.load(); }
+  document.getElementById('scanner-wrap').classList.remove('show');
+}
+
+function setScanStatus(msg) {
+  const el = document.getElementById('scanner-status');
+  if (el) el.textContent = msg;
+}
+
+
 /* ─── FIREBASE ─── */
 const firebaseConfig = {
   apiKey: "AIzaSyB4I14C54OitK1BKsOCTz56KIEsrLyCFLc",
@@ -813,8 +1462,8 @@ const T = {
     nextOilDiff:d=>`بعد ${d.toLocaleString('ar')} كم`,
     sbEditCenter:'تعديل بيانات المركز', today:'اليوم', currency:'د.ع',
     months:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
-    notifOilMsg:(car,km,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} تم تغير ${car.name} (${car.plateNumber||''}) الكيلومتر القادم ${km} كم.\nنحن بخدمتكم 🔧`,
-    notifMaintMsg:(car,item,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} لقد تم تغيير ${item} لسيارتكم ${car.name}.\nشكرا لثقتكم 🔧`,
+    notifOilMsg:(car,km,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} تم تغير ${car.carName} (${car.plateNumber||''}) الكيلومتر القادم ${km} كم.\nنحن بخدمتكم 🔧`,
+    notifMaintMsg:(car,item,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} لقد تم تغيير ${item} لسيارتكم ${car.carName}.\nشكرا لثقتكم 🔧`,
   },
   ku:{
     setupTitle:'ڕێکخستنی ناوەندی پاراستنەوە', setupSub:'تەنها یەک جار داخڵ دەکرێت',
@@ -867,8 +1516,8 @@ const T = {
     nextOilDiff:d=>`دوای ${d.toLocaleString()} کم`,
     sbEditCenter:'گۆڕینی زانیارییەکانی ناوەند', today:'ئەمڕۆ', currency:'د.ع',
     months:['ژانویە','فێبریوار','مارس','ئەپریل','مایس','حوزەیران','تەممووز','ئاب','ئەیلوول','تشرینی یەکەم','تشرینی دووەم','کانوونی دووەم'],
-    notifOilMsg:(car,km,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${car.name} کیلۆمەتری داهاتوو ${km} کم.\nسوپاس بۆ متمانەتان 🔧`,
-    notifMaintMsg:(car,item,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${item} بۆ سەیارەکەت ${car.name}.\nسوپاس بۆ متمانەتان 🔧`,
+    notifOilMsg:(car,km,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${car.carName} کیلۆمەتری داهاتوو ${km} کم.\nسوپاس بۆ متمانەتان 🔧`,
+    notifMaintMsg:(car,item,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${item} بۆ سەیارەکەت ${car.carName}.\nسوپاس بۆ متمانەتان 🔧`,
   },
   en:{
     setupTitle:'Workshop Setup', setupSub:'Entered once only',
@@ -921,8 +1570,8 @@ const T = {
     nextOilDiff:d=>`in ${d.toLocaleString()} km`,
     sbEditCenter:'Edit Center Info', today:'Today', currency:'IQD',
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    notifOilMsg:(car,km,center)=>`Hello ${car.ownerName},\n${center} reminds you that your ${car.name} (${car.plateNumber||''}) is due for an oil change at ${km} km.\nWe're at your service 🔧`,
-    notifMaintMsg:(car,item,center)=>`Hello ${car.ownerName},\n${center} changed ${item} maintenance on your ${car.name}.\nthank you 🔧`,
+    notifOilMsg:(car,km,center)=>`Hello ${car.ownerName},\n${center} reminds you that your ${car.carName} (${car.plateNumber||''}) is due for an oil change at ${km} km.\nWe're at your service 🔧`,
+    notifMaintMsg:(car,item,center)=>`Hello ${car.ownerName},\n${center} changed ${item} maintenance on your ${car.carName}.\nThank you 🔧`,
   }
 };
 
@@ -930,23 +1579,20 @@ const T = {
 let lang = localStorage.getItem('rcw_lang') || null;
 let center = JSON.parse(localStorage.getItem('rcw_center') || 'null');
 let theme = localStorage.getItem('rcw_theme') || 'light';
-let curCarData = null;   // full car doc from Firestore
+let curCarData = null;
 let curCarId = null;
 let curMaintKey = null;
 let notifFilter = 'all';
-let scanStream = null;
-let scanInterval = null;
-let jsQRLoaded = false;
-// Workshop service log: { carId: [{type, date, ts, item?}] }
 let serviceLog = JSON.parse(localStorage.getItem('rcw_log') || '{}');
+
 function saveLog(){ localStorage.setItem('rcw_log', JSON.stringify(serviceLog)); }
 function logService(carId, type, item){
   if(!serviceLog[carId]) serviceLog[carId]=[];
-  serviceLog[carId].push({ type, item:item||'', date:today(), ts:Date.now() });
+  serviceLog[carId].push({ type, item:item||'', date:todayStr(), ts:Date.now() });
   saveLog();
 }
 function getTodayServices(){
-  const t = today();
+  const t = todayStr();
   const all = [];
   Object.keys(serviceLog).forEach(cid=>{
     serviceLog[cid].forEach(e=>{ if(e.date===t) all.push({...e, carId:cid}); });
@@ -974,34 +1620,36 @@ document.addEventListener('DOMContentLoaded', ()=>{
   if(!center){ show('screen-setup'); return; }
   show('screen-login');
   set('login-sub-txt', center.name || '');
+  initBiometricUI();
 });
 
 /* ─── LANG ─── */
-function selectLang(l){ lang=l; localStorage.setItem('rcw_lang',l); applyLang(l); show('screen-setup'); }
-function switchLang(l){ lang=l; localStorage.setItem('rcw_lang',l); applyLang(l); closeSidebar(); toast(T[l].saved,'success'); if(curCarData) refreshCarModal(); renderSidebar(); renderStats(); }
+function selectLang(l){
+  lang=l; localStorage.setItem('rcw_lang',l); applyLang(l); show('screen-setup');
+}
+function switchLang(l){
+  lang=l; localStorage.setItem('rcw_lang',l); applyLang(l); closeSidebar();
+  toast(T[l].saved,'success');
+  if(curCarData) refreshCarModal();
+  renderSidebar(); renderStats();
+}
 function applyLang(l){
   const t=T[l];
   document.documentElement.lang=l==='en'?'en':'ar';
   document.documentElement.dir=l==='en'?'ltr':'rtl';
   document.body.classList.toggle('ltr', l==='en');
-  // Setup
   set('setup-title',t.setupTitle); set('setup-sub',t.setupSub);
   set('lbl-center-name',t.centerName); set('lbl-center-phone',t.centerPhone);
   set('lbl-center-city',t.centerCity); set('lbl-center-address',t.centerAddress);
   set('lbl-center-pw',t.centerPw); set('setup-save-btn',t.setupSave);
   const cs=document.getElementById('center-city');
   if(cs){ cs.innerHTML='<option value="">--</option>'; t.cities.forEach((c,i)=>{ const o=document.createElement('option'); o.value=t.cityVals[i]; o.textContent=c; cs.appendChild(o); }); }
-  // Login
   set('login-title',t.loginTitle); set('login-btn',t.loginTitle);
-  // Header
   set('header-center-name', center?center.name:t.headerTitle);
-  // Stats
   set('stat-today-label',t.statTodayLabel); set('stat-month-label',t.statMonthLabel);
   set('stat-today-sub',t.statTodaySub); set('stat-month-sub',t.statMonthSub);
-  // Search
   set('search-title-txt',t.searchTitle); set('tab-plate-txt',t.tabPlate); set('tab-qr-txt',t.tabQr);
   set('qr-instruction',t.qrInstruction); set('start-scan-txt',t.startScan);
-  // Car modal
   set('lbl-oil-title',t.oilTitle); set('lbl-maint-title',t.maintTitle);
   set('new-oil-btn-txt',t.newOilBtn); set('lbl-oil-km',t.oilKm);
   set('lbl-oil-interval',t.oilInterval); set('opt-interval-none',t.optIntervalNone);
@@ -1009,29 +1657,33 @@ function applyLang(l){
   set('lbl-filter',t.filterLbl); set('lbl-oil-notes',t.oilNotes); set('lbl-oil-cost',t.oilCost);
   set('save-oil-txt',t.saveOil); set('d-annual-label',t.annualLabel);
   set('d-wa-txt',t.waBtn);
-  // Annual modal
   set('annual-modal-title',t.annualModalTitle); set('lbl-annual-date',t.annualDateLbl); set('annual-save-btn',t.annualSave);
-  // Maint modal
   set('mm-lbl-km',t.maintKmAtChange); set('mm-lbl-date',t.maintDateAtChange);
   set('mm-lbl-interval',t.maintInterval); set('mm-lbl-notes',t.maintNotes); set('mm-lbl-cost',t.maintCost);
   set('mm-save-txt',t.maintSave);
-  // Stats modal
   set('stats-modal-title',t.statTitle);
-  // Monthly
   set('monthly-title',t.monthlyTitle);
-  // Notif
   set('notif-title',t.notifTitle); set('notif-sub',t.notifSub);
   set('notif-filter-label',t.notifFilterLabel); set('nf-all-txt',t.nfAll);
   set('nf-oil-txt',t.nfOil); set('nf-annual-txt',t.nfAnnual);
   set('lbl-notif-msg',t.notifMsgLbl); set('send-notif-txt',t.sendNotif);
-  // Crane
   set('crane-modal-title',t.craneModalTitle); set('add-crane-title',t.addCraneTitle);
   set('lbl-crane-name',t.craneName); set('lbl-crane-phone',t.cranePhone); set('crane-save-txt',t.craneSave);
-  // Sidebar
   set('sb-menu-label',t.sbMenu); set('sb-center-hdr',t.sbCenter); set('sb-actions-hdr',t.sbActions);
-  set('sb-crane-txt',t.sbCrane); set('sb-notif-txt',t.sbNotif); set('sb-monthly-txt',t.sbMonthly);
-  if(document.getElementById('sb-edit-center-txt')) set('sb-edit-center-txt', t.sbEditCenter||'تعديل بيانات المركز');
+  set('sb-crane-txt',t.sbCrane); set('sb-monthly-txt',t.sbMonthly);
+  if(document.getElementById('sb-edit-center-txt')) set('sb-edit-center-txt', t.sbEditCenter);
   set('sb-lang-hdr',t.sbLang); set('sb-theme-hdr',t.sbTheme); set('lbl-dark',t.darkMode); set('lbl-light',t.lightMode);
+  // PWA banner
+  const pwaTitle = l==='en' ? 'Install App' : l==='ku' ? 'ئەپلیکەیشن دابەزێنە' : 'تثبيت التطبيق';
+  const pwaSub = l==='en' ? 'Save to your home screen for quick access' : l==='ku' ? 'بیکە سەر شاشەی سەرەکیت بۆ دەستگەیشتنی خێرا' : 'احفظه على شاشتك الرئيسية للوصول السريع';
+  const pwaInstall = l==='en' ? '📲 Install' : l==='ku' ? '📲 دابەزاندن' : '📲 تثبيت';
+  const pwaLater = l==='en' ? 'Later' : l==='ku' ? 'دواتر' : 'لاحقاً';
+  set('pwa-title', pwaTitle); set('pwa-sub', pwaSub);
+  set('pwa-install-txt', pwaInstall.replace('📲 ', '')); set('pwa-later-txt', pwaLater);
+  const iosEl = document.getElementById('ios-instructions');
+  if(iosEl) iosEl.innerHTML = l==='en' ? `Tap <span>⬆️ Share</span> then <span>Add to Home Screen</span>` :
+    l==='ku' ? `بزرە سەر <span>⬆️ هاوبەشکردن</span> پاشان <span>زیادکردن بۆ شاشەی سەرەکی</span>` :
+    `اضغط على <span>⬆️ مشاركة</span> ثم اختر <span>إضافة إلى الشاشة الرئيسية</span>`;
 }
 
 /* ─── THEME ─── */
@@ -1048,28 +1700,53 @@ function saveCenter(){
   const name=gv('center-name').trim(), phone=gv('center-phone').trim(),
         city=gv('center-city'), address=gv('center-address').trim(), pw=gv('center-pw').trim();
   if(!name||!phone||!pw){ toast(t.fillAll,'error'); return; }
+  if(!/^\d{4,6}$/.test(pw)){
+    toast(lang==='en'?'PIN must be 4-6 digits':lang==='ku'?'PIN دەبێت 4-6 ژمارە بێت':'الرقم السري يجب أن يكون 4-6 أرقام','error');
+    return;
+  }
   center={name,phone,city,address,pw};
   localStorage.setItem('rcw_center',JSON.stringify(center));
   applyLang(lang);
   show('screen-login');
   set('login-sub-txt',name);
+  initBiometricUI();
 }
 
 /* ─── LOGIN ─── */
+// ✅ FIX 3: Handle PIN input — auto-submit when length matches
+function handlePinInput(input) {
+  // Only allow digits
+  input.value = input.value.replace(/\D/g, '');
+  if (!center) return;
+  if (input.value.length >= center.pw.length) {
+    tryLogin();
+  }
+}
+
 function tryLogin(){
   const t=T[lang];
-  const pw=gv('login-pw');
+  const pw = gv('login-pw').replace(/\D/g, '');
   if(!center){ show('screen-setup'); return; }
-  if(pw===center.pw){
+  if(pw === center.pw){
     document.getElementById('login-pw').value='';
-    show('screen-main');
-    applyLang(lang);
-    renderStats();
-    renderSidebar();
-  } else if(pw.length>=center.pw.length){
+    enterMainScreen();
+    // Offer biometric after successful PIN login
+    setTimeout(() => offerBiometricRegistration(pw), 800);
+  } else if(pw.length >= center.pw.length){
     toast(t.wrongPw,'error');
     document.getElementById('login-pw').value='';
+    // Shake animation
+    const inp = document.getElementById('login-pw');
+    inp.style.borderColor = 'var(--red)';
+    setTimeout(() => inp.style.borderColor = '', 1200);
   }
+}
+
+function enterMainScreen() {
+  show('screen-main');
+  applyLang(lang);
+  renderStats();
+  renderSidebar();
 }
 
 /* ─── SIDEBAR ─── */
@@ -1085,7 +1762,6 @@ function closeSidebar(){
   document.body.style.overflow='';
 }
 function renderSidebar(){
-  const t=T[lang];
   ['ar','ku','en'].forEach(l=>document.getElementById('sb-lang-'+l).classList.toggle('active',l===lang));
   updateThemeBtns();
   const info=document.getElementById('sb-center-info');
@@ -1099,18 +1775,15 @@ function renderSidebar(){
 
 /* ─── STATS ─── */
 function renderStats(){
-  const todaySvcs = getTodayServices();
-  const monthSvcs = getMonthServices();
-  set('stat-today-num', String(todaySvcs.length));
-  set('stat-month-num', String(monthSvcs.length));
+  set('stat-today-num', String(getTodayServices().length));
+  set('stat-month-num', String(getMonthServices().length));
 }
 async function openStatsModal(type){
   const t=T[lang];
-  set('stats-modal-title', type==='today' ? t.statTodayLabel : t.statMonthLabel);
-  const entries = type==='today' ? getTodayServices() : getMonthServices();
+  set('stats-modal-title', type==='today'?t.statTodayLabel:t.statMonthLabel);
+  const entries = type==='today'?getTodayServices():getMonthServices();
   const listEl = document.getElementById('stats-list');
   if(!entries.length){ listEl.innerHTML=`<div class="empty-state"><span>📋</span>${t.maintNoData}</div>`; openModal('modal-stats'); return; }
-  // enrich with car names from Firestore if possible
   const carNames = {};
   if(firebaseReady){
     const ids=[...new Set(entries.map(e=>e.carId))];
@@ -1121,10 +1794,7 @@ async function openStatsModal(type){
   listEl.innerHTML=`<div class="history-list">${entries.slice().reverse().map(e=>{
     const cn=carNames[e.carId]||{name:e.carId,plate:''};
     const time=e.ts?new Date(e.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
-    return `<div class="history-item">
-      <div><div class="history-car-name">${cn.name}</div><div class="history-car-plate">${cn.plate}</div></div>
-      <div class="history-time">${time}</div>
-    </div>`;
+    return `<div class="history-item"><div><div class="history-car-name">${cn.name}</div><div class="history-car-plate">${cn.plate}</div></div><div class="history-time">${time}</div></div>`;
   }).join('')}</div>`;
   openModal('modal-stats');
 }
@@ -1149,7 +1819,6 @@ async function doSearch(){
   el.innerHTML=`<div class="loading-txt">🔍</div>`;
   if(!firebaseReady){ el.innerHTML=`<div class="empty-state"><span>⚠️</span>${t.error}</div>`; return; }
   try{
-    // search by plateNumber
     const snap = await db.collection('cars').where('plateNumber','==',q).get();
     renderSearchResults(snap, el);
   } catch(err){
@@ -1187,60 +1856,17 @@ function renderSearchResults(snap, el){
   }).join('');
 }
 
-/* ─── QR SCANNER ─── */
-function loadJsQR(cb){
-  if(jsQRLoaded){ cb(); return; }
-  const s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js';
-  s.onload=()=>{ jsQRLoaded=true; cb(); };
-  s.onerror=()=>{ toast(T[lang].error,'error'); };
-  document.head.appendChild(s);
-}
-function startScanner(){
-  const wrap=document.getElementById('scanner-wrap');
-  const vid=document.getElementById('scanner-video');
-  wrap.classList.add('show');
-  loadJsQR(()=>{
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{
-      scanStream=stream; vid.srcObject=stream;
-      const canvas=document.createElement('canvas');
-      const ctx=canvas.getContext('2d');
-      scanInterval=setInterval(()=>{
-        if(vid.readyState===vid.HAVE_ENOUGH_DATA){
-          canvas.width=vid.videoWidth; canvas.height=vid.videoHeight;
-          ctx.drawImage(vid,0,0);
-          const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-          const code=jsQR(imgData.data,imgData.width,imgData.height);
-          if(code&&code.data){
-            const phone=code.data.replace(/^tel:\+?/,'').replace(/\D/g,'');
-            stopScanner();
-            if(phone){ document.getElementById('search-input').value=phone; searchByPhone(phone); switchSearchTab('plate'); }
-          }
-        }
-      },300);
-    }).catch(()=>{ toast(T[lang].error,'error'); wrap.classList.remove('show'); });
-  });
-}
-function stopScanner(){
-  clearInterval(scanInterval); scanInterval=null;
-  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
-  document.getElementById('scanner-wrap').classList.remove('show');
-  document.getElementById('scanner-video').srcObject=null;
-}
-
 /* ─── CAR DETAIL ─── */
 async function openCarDetail(carId){
   const t=T[lang];
   if(!firebaseReady){ toast(t.error,'error'); return; }
-  curCarId=carId;
-  curCarData=null;
+  curCarId=carId; curCarData=null;
   try{
     const doc=await db.collection('cars').doc(carId).get();
     if(!doc.exists){ toast(t.error,'error'); return; }
     curCarData={id:doc.id,...doc.data()};
   } catch(e){ toast(t.error,'error'); return; }
   const c=curCarData;
-  // fetch owner info
   let owner={name:'—',phone:c.user_phone||''};
   if(c.user_phone&&firebaseReady){
     try{ const ud=await db.collection('users').doc(c.user_phone).get(); if(ud.exists){ const u=ud.data(); owner={name:u.name||'—',phone:c.user_phone}; } }catch(e){}
@@ -1248,45 +1874,38 @@ async function openCarDetail(carId){
   curCarData.ownerName=owner.name; curCarData.ownerPhone=owner.phone;
   set('d-car-name', c.carName||'—');
   const typeNames={1:'خصوصي/Private',2:'أجرة/Taxi',3:'حمل/Cargo',4:'زراعي/Agricultural',5:'إنشائي/Construction',6:'دراجة/Motorcycle'};
-  set('d-car-sub', (c.plateNumber||'') + (c.carType?' | '+typeNames[c.carType]:''));
-  // owner
+  set('d-car-sub', (c.plateNumber||'')+(c.carType?' | '+typeNames[c.carType]:''));
   set('d-owner-name', owner.name);
   set('d-owner-phone', owner.phone);
   const initials=(owner.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
   set('d-owner-avatar', initials);
   document.getElementById('d-wa-btn').style.display=owner.phone?'':'none';
-  // info grid
   document.getElementById('d-info-grid').innerHTML=`
     ${c.plateNumber?`<div class="ci-box"><div class="ci-label">رقم السيارة</div><div class="ci-value">${c.plateNumber}</div></div>`:''}
     <div class="ci-box"><div class="ci-label">النوع</div><div class="ci-value">${typeNames[c.carType]||''}</div></div>
-    ${c.is4x4==='yes'||c.is4x4===true?`<div class="ci-box"><div class="ci-label">4x4</div><div class="ci-value teal">✓</div></div>`:''}
+    ${(c.is4x4==='yes'||c.is4x4===true)?`<div class="ci-box"><div class="ci-label">4x4</div><div class="ci-value teal">✓</div></div>`:''}
     ${c.oilNextKm?`<div class="ci-box"><div class="ci-label">زيت قادم</div><div class="ci-value gold">${Number(c.oilNextKm).toLocaleString()} km</div></div>`:''}`;
-  // annual bar
   renderAnnualBarModal(c.annualExpiry||'');
-  // oil
   renderOilView(c);
   document.getElementById('new-oil-form').style.display='none';
-  document.getElementById('oil-date').value=today();
+  document.getElementById('oil-date').value=todayStr();
   document.getElementById('oil-km').value=''; document.getElementById('oil-notes').value='';
   document.getElementById('oil-filter').checked=false; document.getElementById('oil-cost').value='';
   document.getElementById('oil-interval').value='0';
   document.getElementById('next-oil-box').style.display='none';
   updateOilNotifPreview();
-  // maint
   renderMaintList();
   openModal('modal-car');
 }
-  // تحويل أي صيغة رقم هاتف إلى صيغة موحدة
-function normalizePhone(phone) {
-  if (!phone) return '';
-  // احذف كل شيء غير رقم
-  let p = String(phone).replace(/\D/g, '');
-  // إذا يبدأ بـ 0 — حوّله لـ 964
-  if (p.startsWith('0')) p = '964' + p.slice(1);
-  // إذا يبدأ بـ 7 — أضف 964
-  if (p.startsWith('7')) p = '964' + p;
+
+function normalizePhone(phone){
+  if(!phone) return '';
+  let p=String(phone).replace(/\D/g,'');
+  if(p.startsWith('0')) p='964'+p.slice(1);
+  if(p.startsWith('7')) p='964'+p;
   return p;
 }
+
 function renderOilView(c){
   const t=T[lang];
   const el=document.getElementById('oil-entries-view');
@@ -1305,8 +1924,6 @@ function renderOilView(c){
   </div>`;
 }
 function refreshCarModal(){ if(curCarData) openCarDetail(curCarId); }
-
-/* ─── OWNER CONTACT ─── */
 function contactOwnerWA(){
   if(!curCarData||!curCarData.ownerPhone) return;
   window.open(`https://wa.me/${curCarData.ownerPhone.replace(/\D/g,'')}`, '_blank');
@@ -1327,15 +1944,12 @@ function renderAnnualBarModal(expiry){
   else { set('d-annual-value',t.annualDaysLeft(diff)); }
 }
 function openAnnualEdit(){
-  const t=T[lang];
   if(!curCarData) return;
   set('annual-modal-sub', curCarData.carName||'');
   document.getElementById('annual-date').value=curCarData.annualExpiry||'';
   openModal('modal-annual');
 }
-function closeAnnualModal(){
-  closeModal('modal-annual');
-}
+function closeAnnualModal(){ closeModal('modal-annual'); }
 async function saveAnnualExpiry(){
   const t=T[lang];
   const date=gv('annual-date');
@@ -1375,7 +1989,7 @@ function updateOilNotifPreview(){
   const km=document.getElementById('oil-km').value;
   const interval=parseInt(document.getElementById('oil-interval').value)||0;
   const nextKm=km&&interval>0?String(parseInt(km)+interval):'';
-  const msg=t.notifOilMsg({...curCarData, ownerName:curCarData.ownerName||'—'}, nextKm||'—', center?center.name:'RC');
+  const msg=t.notifOilMsg({...curCarData,ownerName:curCarData.ownerName||'—'}, nextKm||'—', center?center.name:'RC');
   set('oil-notif-msg',msg);
   set('oil-notif-label',t.notifPreviewLabel);
   set('oil-notif-note',t.notifNote);
@@ -1402,9 +2016,9 @@ async function saveOil(){
   renderStats();
   renderOilView(curCarData);
   document.getElementById('new-oil-form').style.display='none';
-  sendWaNotification(curCarData, 'oil', null, km, nextKm);
-  pushNotifToFirestore(curCarData, 'oil', null, nextKm);
-  sendFCMDirect(curCarData.user_phone, 'oil', null, nextKm, curCarData);
+  sendWaNotification(curCarData,'oil',null,km,nextKm);
+  pushNotifToFirestore(curCarData,'oil',null,nextKm);
+  sendFCMDirect(curCarData.user_phone,'oil',null,nextKm,curCarData);
   toast(t.saved,'success');
 }
 
@@ -1493,7 +2107,6 @@ function openMaintDetail(key){
   const currentKm=getKnownCurrentKm(curCarData);
   const status=computeMaintStatus(item,entry,currentKm);
   const isKm=item.type==='km';
-  // Status box
   const sb=document.getElementById('mm-status-box');
   let html='';
   if(status.state==='unset'&&!status.nextDue){
@@ -1515,16 +2128,14 @@ function openMaintDetail(key){
   }
   html+=`<div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">${t.maintRecommended(item[rangeKey])}</div>`;
   sb.innerHTML=html;
-  // Form
   document.getElementById('mm-km-group').style.display=isKm?'':'none';
   set('mm-interval-unit', isKm?t.maintKmUnit:t.maintDays);
   set('mm-hint', t.maintRecommended(item[rangeKey]));
   document.getElementById('mm-km').value=entry&&entry.km?entry.km:'';
-  document.getElementById('mm-date').value=entry&&entry.date?entry.date:today();
+  document.getElementById('mm-date').value=entry&&entry.date?entry.date:todayStr();
   document.getElementById('mm-interval').value=entry&&entry.interval?entry.interval:item.defaultInterval;
   document.getElementById('mm-notes').value=entry&&entry.notes?entry.notes:'';
   document.getElementById('mm-cost').value='';
-  // Notif preview
   updateMaintNotifPreview(item[nameKey]);
   openModal('modal-maint');
 }
@@ -1563,8 +2174,8 @@ async function saveMaintItem(){
   renderMaintList();
   const nameKey=lang==='ku'?'nameKu':lang==='en'?'nameEn':'nameAr';
   sendWaNotification(curCarData,'maint',item[nameKey]);
-  pushNotifToFirestore(curCarData, 'maint', item[nameKey]);
-  sendFCMDirect(curCarData.user_phone, 'maint', item[nameKey], null, curCarData);
+  pushNotifToFirestore(curCarData,'maint',item[nameKey]);
+  sendFCMDirect(curCarData.user_phone,'maint',item[nameKey],null,curCarData);
   closeModal('modal-maint');
   toast(t.saved,'success');
 }
@@ -1592,7 +2203,6 @@ function openMonthlyModal(){
   set('monthly-sub', center?center.name:'');
   const now=new Date();
   const wrap=document.getElementById('monthly-chart-wrap');
-  // Build last 12 months
   const months=[];
   for(let i=11;i>=0;i--){
     const d=new Date(now.getFullYear(),now.getMonth()-i,1);
@@ -1641,15 +2251,10 @@ async function updateNotifTargets(){
     const today_ms=new Date().setHours(0,0,0,0);
     const filtered=cars.filter(c=>{
       if(notifFilter==='all') return true;
-      if(notifFilter==='oil'){
-        if(!c.oilNextKm) return false;
-        return true; // has next km
-      }
+      if(notifFilter==='oil') return !!c.oilNextKm;
       if(notifFilter==='annual'){
         if(!c.annualExpiry) return false;
-        const exp=new Date(c.annualExpiry).setHours(0,0,0,0);
-        const diff=Math.round((exp-today_ms)/86400000);
-        return diff<=30;
+        return Math.round((new Date(c.annualExpiry).setHours(0,0,0,0)-today_ms)/86400000)<=30;
       }
       return false;
     });
@@ -1660,153 +2265,79 @@ async function updateNotifTargets(){
     </div>`).join('');
   } catch(e){ listEl.innerHTML=''; }
 }
-async function sendSingleNotifWa(carId) {
-  if (!firebaseReady) return;
-  const t = T[lang];
-  try {
-    const doc = await db.collection('cars').doc(carId).get();
-    if (!doc.exists) return;
-    const c = {id: doc.id, ...doc.data()};
-    let owner = {name: '—', phone: c.user_phone || ''};
-    if (c.user_phone) {
-      const ud = await db.collection('users').doc(c.user_phone).get();
-      if (ud.exists) { const u = ud.data(); owner.name = u.name || '—'; }
-    }
-    const customMsg = document.getElementById('notif-msg-txt').value.trim();
-    const msg = customMsg || t.notifOilMsg(
-      {carName: c.carName, plateNumber: c.plateNumber || '', ownerName: owner.name},
-      c.oilNextKm || '—',
-      center ? center.name : 'RC'
-    );
-    const phone = (c.user_phone || '').replace(/\D/g, '');
-
-    // فتح واتساب
-    if (phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-
-    // ── أضف: إرسال FCM أيضاً ──
-    if (c.user_phone) {
-      await sendFCMToPhone(
-        c.user_phone,
-        center ? center.name : 'RC Service',
-        customMsg || (c.carName + ' — ' + (t.nfOil || 'تذكير صيانة')),
-        {type: notifFilter, car_name: c.carName || ''}
-      );
-    }
-
-  } catch (e) {
-    toast(t.error, 'error');
-  }
+async function sendSingleNotifWa(carId){
+  if(!firebaseReady) return;
+  const t=T[lang];
+  try{
+    const doc=await db.collection('cars').doc(carId).get();
+    if(!doc.exists) return;
+    const c={id:doc.id,...doc.data()};
+    let owner={name:'—',phone:c.user_phone||''};
+    if(c.user_phone){ const ud=await db.collection('users').doc(c.user_phone).get(); if(ud.exists){ const u=ud.data(); owner.name=u.name||'—'; } }
+    const customMsg=document.getElementById('notif-msg-txt').value.trim();
+    const msg=customMsg||t.notifOilMsg({carName:c.carName,plateNumber:c.plateNumber||'',ownerName:owner.name},c.oilNextKm||'—',center?center.name:'RC');
+    const phone=(c.user_phone||'').replace(/\D/g,'');
+    if(phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+    if(c.user_phone) await sendFCMToPhone(c.user_phone,center?center.name:'RC Service',customMsg||(c.carName+' — '+(t.nfOil||'تذكير صيانة')),{type:notifFilter,car_name:c.carName||''});
+  } catch(e){ toast(t.error,'error'); }
 }
-async function sendBulkNotif() {
-  const t = T[lang];
-  if (!firebaseReady) { toast(t.error, 'error'); return; }
-  const customMsg = document.getElementById('notif-msg-txt').value.trim();
-
-  try {
-    const snap = await db.collection('cars').get();
-    const cars = [];
-    snap.forEach(d => cars.push({id: d.id, ...d.data()}));
-    const today_ms = new Date().setHours(0, 0, 0, 0);
-
-    const filtered = cars.filter(c => {
-      if (!c.user_phone) return false;
-      if (notifFilter === 'all') return true;
-      if (notifFilter === 'oil') return !!c.oilNextKm;
-      if (notifFilter === 'annual') {
-        if (!c.annualExpiry) return false;
-        const exp = new Date(c.annualExpiry).setHours(0, 0, 0, 0);
-        return Math.round((exp - today_ms) / 86400000) <= 30;
-      }
+async function sendBulkNotif(){
+  const t=T[lang];
+  if(!firebaseReady){ toast(t.error,'error'); return; }
+  const customMsg=document.getElementById('notif-msg-txt').value.trim();
+  try{
+    const snap=await db.collection('cars').get();
+    const cars=[]; snap.forEach(d=>cars.push({id:d.id,...d.data()}));
+    const today_ms=new Date().setHours(0,0,0,0);
+    const filtered=cars.filter(c=>{
+      if(!c.user_phone) return false;
+      if(notifFilter==='all') return true;
+      if(notifFilter==='oil') return !!c.oilNextKm;
+      if(notifFilter==='annual'){ if(!c.annualExpiry) return false; return Math.round((new Date(c.annualExpiry).setHours(0,0,0,0)-today_ms)/86400000)<=30; }
       return false;
     });
-
-    if (!filtered.length) { toast(t.maintNoData, 'error'); return; }
-
-    // ── أغلق الـ modal وأظهر toast فوراً بدون انتظار ──
+    if(!filtered.length){ toast(t.maintNoData,'error'); return; }
     closeModal('modal-notif');
-    toast(`📤 جاري الإرسال لـ ${filtered.length} عميل...`, '');
-
-    // ── ابدأ الإرسال في الخلفية بدون await ──
+    toast(`📤 جاري الإرسال لـ ${filtered.length} عميل...`,'');
     sendBulkInBackground(filtered, customMsg);
-
-  } catch (e) {
-    console.error('sendBulkNotif error:', e);
-    toast(t.error, 'error');
-  }
+  } catch(e){ toast(t.error,'error'); }
 }
-
-// ── تعمل في الخلفية بدون انتظار ──
-async function sendBulkInBackground(filtered, customMsg) {
-  const t = T[lang];
-  let sentCount = 0;
-  let failCount = 0;
-  const total = filtered.length;
-
-  for (const c of filtered) {
-    try {
-      let msgAr = '', msgKu = '', msgEn = '';
-
-      if (customMsg) {
-        msgAr = customMsg; msgKu = customMsg; msgEn = customMsg;
-      } else if (notifFilter === 'annual') {
-        msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName || ''} قاربت على الانتهاء 📅`;
-        msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName || ''} نزیکە لە بەسەرچوون 📅`;
-        msgEn = `${center ? center.name : 'RC'} reminds you that the registration for your ${c.carName || ''} is expiring soon 📅`;
-      } else if (notifFilter === 'oil') {
-        msgAr = `مركز ${center ? center.name : 'RC'} يُذكركم بتغيير زيت سيارتكم ${c.carName || ''} عند ${c.oilNextKm || '—'} كم 🔧`;
-        msgKu = `ناوەندی ${center ? center.name : 'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName || ''} لە ${c.oilNextKm || '—'} کم 🔧`;
-        msgEn = `${center ? center.name : 'RC'} reminds you to change oil on your ${c.carName || ''} at ${c.oilNextKm || '—'} km 🔧`;
+async function sendBulkInBackground(filtered, customMsg){
+  let sentCount=0, failCount=0;
+  const total=filtered.length;
+  for(const c of filtered){
+    try{
+      let msgAr='',msgKu='',msgEn='';
+      if(customMsg){ msgAr=msgKu=msgEn=customMsg; }
+      else if(notifFilter==='annual'){
+        msgAr=`مركز ${center?center.name:'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName||''} قاربت على الانتهاء 📅`;
+        msgKu=`ناوەندی ${center?center.name:'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName||''} نزیکە لە بەسەرچوون 📅`;
+        msgEn=`${center?center.name:'RC'} reminds you that the registration for your ${c.carName||''} is expiring soon 📅`;
+      } else if(notifFilter==='oil'){
+        msgAr=`مركز ${center?center.name:'RC'} يُذكركم بتغيير زيت سيارتكم ${c.carName||''} عند ${c.oilNextKm||'—'} كم 🔧`;
+        msgKu=`ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName||''} لە ${c.oilNextKm||'—'} کم 🔧`;
+        msgEn=`${center?center.name:'RC'} reminds you to change oil on your ${c.carName||''} at ${c.oilNextKm||'—'} km 🔧`;
       } else {
-        msgAr = `مركز ${center ? center.name : 'RC'} تم تغيير ${c.carName || ''} 🔧`;
-        msgKu = `ناوەندی ${center ? center.name : 'RC'} گۆڕا ${c.carName || ''} 🔧`;
-        msgEn = `${center ? center.name : 'RC'} changed ${c.carName || ''} 🔧`;
+        msgAr=`مركز ${center?center.name:'RC'} تم تغيير ${c.carName||''} 🔧`;
+        msgKu=`ناوەندی ${center?center.name:'RC'} گۆڕا ${c.carName||''} 🔧`;
+        msgEn=`${center?center.name:'RC'} changed ${c.carName||''} 🔧`;
       }
-
-      // حفظ في Firestore
       await db.collection('notifications').add({
-        user_phone: c.user_phone,
-        car_id: c.id,
-        car_name: c.carName || '',
-        type: notifFilter === 'annual' ? 'annual' : notifFilter === 'oil' ? 'oil' : 'general',
-        item: '',
-        next_km: c.oilNextKm || '',
-        center_name: center ? center.name : 'RC',
-        msg_ar: msgAr, msg_ku: msgKu, msg_en: msgEn,
-        read: false,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        user_phone:c.user_phone, car_id:c.id, car_name:c.carName||'',
+        type:notifFilter==='annual'?'annual':notifFilter==='oil'?'oil':'general',
+        item:'', next_km:c.oilNextKm||'', center_name:center?center.name:'RC',
+        msg_ar:msgAr, msg_ku:msgKu, msg_en:msgEn,
+        read:false, timestamp:firebase.firestore.FieldValue.serverTimestamp(),
       });
-
-      // إرسال FCM
-      await sendFCMToPhone(
-        c.user_phone,
-        center ? center.name : 'RC Service',
-        customMsg || msgAr,
-        {type: notifFilter, car_name: c.carName || ''}
-      );
-
+      await sendFCMToPhone(c.user_phone,center?center.name:'RC Service',customMsg||msgAr,{type:notifFilter,car_name:c.carName||''});
       sentCount++;
-
-      // حدّث toast كل 5 عملاء
-      if (sentCount % 5 === 0) {
-        toast(`📤 ${sentCount}/${total} تم الإرسال...`, '');
-      }
-
-    } catch (e) {
-      console.error('Background send error:', c.carName, e);
-      failCount++;
-    }
-
-    // انتظر 200ms بين كل إرسال
-    await new Promise(resolve => setTimeout(resolve, 200));
+      if(sentCount%5===0) toast(`📤 ${sentCount}/${total} تم الإرسال...`,'');
+    } catch(e){ failCount++; }
+    await new Promise(r=>setTimeout(r,200));
   }
-
-  // إظهار النتيجة النهائية
-  const msg = `✅ تم الإرسال: ${sentCount}${failCount > 0 ? ` | ❌ فشل: ${failCount}` : ''}`;
-  toast(msg, 'success');
-  console.log('Bulk send complete:', msg);
+  toast(`✅ تم الإرسال: ${sentCount}${failCount>0?` | ❌ فشل: ${failCount}`:''}`, 'success');
 }
 function openNotifModal(){
-  const t=T[lang];
   document.getElementById('notif-msg-txt').value='';
   notifFilter='all';
   ['all','oil','annual'].forEach(k=>document.getElementById('nf-'+k).classList.toggle('active',k==='all'));
@@ -1814,11 +2345,8 @@ function openNotifModal(){
   openModal('modal-notif');
 }
 
-/* ─── CRANE MANAGE ─── */
-async function openCraneModal(){
-  loadCraneList();
-  openModal('modal-crane');
-}
+/* ─── CRANE ─── */
+async function openCraneModal(){ loadCraneList(); openModal('modal-crane'); }
 async function saveCraneEntry(){
   const t=T[lang];
   const name=gv('crane-name').trim(), phone=gv('crane-phone-inp').trim(),
@@ -1826,7 +2354,7 @@ async function saveCraneEntry(){
   if(!name||!phone||isNaN(lat)||isNaN(lng)){ toast(t.fillAll,'error'); return; }
   if(firebaseReady){
     try{
-      await db.collection('crane').add({name,phone,lat,lng,addedBy:center?center.name:'', ts:firebase.firestore.FieldValue.serverTimestamp()});
+      await db.collection('crane').add({name,phone,lat,lng,addedBy:center?center.name:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
       document.getElementById('crane-name').value=''; document.getElementById('crane-phone-inp').value='';
       document.getElementById('crane-lat').value=''; document.getElementById('crane-lng').value='';
       toast(t.saved,'success'); loadCraneList();
@@ -1840,8 +2368,7 @@ async function loadCraneList(){
   el.innerHTML=`<div class="loading-txt">...</div>`;
   try{
     const snap=await db.collection('crane').get();
-    const items=[];
-    snap.forEach(d=>items.push({id:d.id,...d.data()}));
+    const items=[]; snap.forEach(d=>items.push({id:d.id,...d.data()}));
     if(!items.length){ el.innerHTML=`<div class="empty-state"><span>🚛</span>${t.maintNoData}</div>`; return; }
     el.innerHTML=items.map(cr=>`<div class="crane-card">
       <div class="crane-card-header"><div class="crane-name">🚛 ${cr.name}</div><div class="crane-dist">${cr.lat||''}, ${cr.lng||''}</div></div>
@@ -1857,175 +2384,69 @@ async function deleteCraneEntry(id){
   const t=T[lang];
   if(!confirm(lang==='en'?'Delete this entry?':lang==='ku'?'ئەم بابەتە بسڕرێتەوە؟':'حذف هذا الكرين؟')) return;
   if(!firebaseReady){ toast(t.error,'error'); return; }
-  try{
-    await db.collection('crane').doc(id).delete();
-    toast(t.saved,'success');
-    loadCraneList();
-  } catch(e){ toast(t.error,'error'); }
+  try{ await db.collection('crane').doc(id).delete(); toast(t.saved,'success'); loadCraneList(); }
+  catch(e){ toast(t.error,'error'); }
 }
 
-/* ─── SEND FIRESTORE NOTIFICATION (for client app) ─── */
-async function pushNotifToFirestore(car, type, itemName, nextKm){
-  if(!firebaseReady || !car || !car.user_phone) return;
-  try{
-    const nameKey = lang==='ku'?'nameKu':lang==='en'?'nameEn':'nameAr';
-    let msgAr='', msgKu='', msgEn='';
-    if(type==='oil'){
-      msgAr = `مركز ${center?center.name:'RC'} يُذكركم بتغيير زيت سيارتكم ${car.carName||''} عند ${nextKm||'—'} كم 🔧`;
-      msgKu = `ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${car.carName||''} لە ${nextKm||'—'} کم 🔧`;
-      msgEn = `${center?center.name:'RC'} reminds you to change oil on your ${car.carName||''} at ${nextKm||'—'} km 🔧`;
-    } else {
-      const item = getMaintItem(type==='maint'&&itemName ? (MAINT_ITEMS.find(m=>m.nameAr===itemName||m.nameKu===itemName||m.nameEn===itemName)||{}).key||itemName : itemName);
-      const iname = item ? (typeof item==='object'?item.nameAr:item) : itemName;
-      msgAr = `مركز ${center?center.name:'RC'}  تم عمل صيانة ${iname||''} لسيارتكم ${car.carName||''} 🔧`;
-      msgKu = `ناوەندی ${center?center.name:'RC'} کاری چاککردنەوە ئەنجامدرا ${iname||''} بۆ سەیارەکەت ${car.carName||''} 🔧`;
-      msgEn = `${center?center.name:'RC'} reminds you about ${iname||''} maintenance on your ${car.carName||''} 🔧`;
-    }
-    await db.collection('notifications').add({
-      user_phone: car.user_phone,
-      car_id: car.id||curCarId,
-      car_name: car.carName||'',
-      type: type,
-      item: itemName||'',
-      next_km: nextKm||'',
-      center_name: center?center.name:'RC',
-      msg_ar: msgAr,
-      msg_ku: msgKu,
-      msg_en: msgEn,
-      read: false,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-    });
-    console.log('Notification pushed to Firestore');
-  } catch(e){ console.error('pushNotifToFirestore:', e); }
-}
-  /* ─── إرسال FCM عبر Apps Script ─── */
+/* ─── FCM / NOTIFICATIONS ─── */
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyb7hi30nwg7_roHKTuKSZX1bUejXACwPUoGBxEQ7YrIBtw9mqiPrXiH34oxVpg8GOx/exec";
 
-async function sendFCMDirect(userPhone, type, itemName, nextKm, car) {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("ضع")) return;
-
-  try {
-    // جلب FCM Token من Firestore
-    const userDoc = await db.collection("users").doc(userPhone).get();
-    if (!userDoc.exists) {
-      console.log("User not found:", userPhone);
-      return;
-    }
-
-    const fcmToken = userDoc.data().fcmToken;
-    if (!fcmToken) {
-      console.log("No FCM token for:", userPhone);
-      return;
-    }
-
-    const title = center ? center.name : "RC Service";
-    const body = type === "oil"
-      ? `سيارتك ${car.carName || ""} تم التغيير . الكيلومتر التالي: ${nextKm || "—"} كم 🔧`
-      : `سيارتك ${car.carName || ""} تم عمل صيانة ${itemName || ""} 🔧`;
-
-    console.log("START sendFCMDirect");
-console.log("Token:", fcmToken);
-console.log("URL:", APPS_SCRIPT_URL);
-
-const response = await fetch(APPS_SCRIPT_URL, {
-  method: "POST",
-  mode: "no-cors",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    token: fcmToken,
-    title,
-    body,
-    extra: {
-      type,
-      car_name: car.carName || ""
-    }
-  })
-});
-
-console.log("Request sent");
-
-console.log("HTTP Status:", response.status);
-
-const text = await response.text();
-console.log("Apps Script Response:", text);
-
-  } catch (e) {
-    console.error("sendFCMDirect error:", e);
-  }
-}
-async function sendFCMToPhone(userPhone, title, body, extra) {
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('ضع')) return;
-  if (!userPhone) return;
-
-  try {
-    // جرب الصيغ المختلفة للرقم
-    const phonesToTry = [
-      userPhone,                    // الرقم كما هو
-      normalizePhone(userPhone),    // صيغة دولية 964xxx
-      userPhone.replace(/^964/, '0'), // صيغة محلية 0xxx
-      userPhone.replace(/\D/g, '')  // أرقام فقط
-    ].filter((p, i, arr) => p && arr.indexOf(p) === i); // بدون تكرار
-
-    let fcmToken = null;
-    let foundPhone = null;
-
-    // ابحث عن التوكن بكل الصيغ
-    for (const p of phonesToTry) {
-      try {
-        const userDoc = await db.collection('users').doc(p).get();
-        if (userDoc.exists && userDoc.data().fcmToken) {
-          fcmToken = userDoc.data().fcmToken;
-          foundPhone = p;
-          break;
-        }
-      } catch(e) {}
-    }
-
-    if (!fcmToken) {
-      console.log('No FCM token found for:', userPhone, '| tried:', phonesToTry);
-      return;
-    }
-
-    console.log('Found token for:', foundPhone);
-
-    // إرسال عبر Apps Script
-    const params = new URLSearchParams({
-      token: fcmToken,
-      title: title,
-      body: body,
-      type: extra.type || 'general',
-      car_name: extra.car_name || ''
-    });
-
-    const response = await fetch(APPS_SCRIPT_URL + '?' + params.toString(), {
-      method: 'GET',
-      redirect: 'follow'
-    });
-
-    const result = await response.json();
-
-    if (result.name) {
-      console.log('✅ FCM sent to:', foundPhone);
+async function pushNotifToFirestore(car,type,itemName,nextKm){
+  if(!firebaseReady||!car||!car.user_phone) return;
+  try{
+    let msgAr='',msgKu='',msgEn='';
+    if(type==='oil'){
+      msgAr=`مركز ${center?center.name:'RC'} يُذكركم بتغيير زيت سيارتكم ${car.carName||''} عند ${nextKm||'—'} كم 🔧`;
+      msgKu=`ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${car.carName||''} لە ${nextKm||'—'} کم 🔧`;
+      msgEn=`${center?center.name:'RC'} reminds you to change oil on your ${car.carName||''} at ${nextKm||'—'} km 🔧`;
     } else {
-      console.log('❌ FCM failed:', result);
+      msgAr=`مركز ${center?center.name:'RC'} تم عمل صيانة ${itemName||''} لسيارتكم ${car.carName||''} 🔧`;
+      msgKu=`ناوەندی ${center?center.name:'RC'} کاری چاککردنەوە ئەنجامدرا ${itemName||''} بۆ سەیارەکەت ${car.carName||''} 🔧`;
+      msgEn=`${center?center.name:'RC'} reminds you about ${itemName||''} maintenance on your ${car.carName||''} 🔧`;
     }
+    await db.collection('notifications').add({
+      user_phone:car.user_phone, car_id:car.id||curCarId, car_name:car.carName||'',
+      type, item:itemName||'', next_km:nextKm||'', center_name:center?center.name:'RC',
+      msg_ar:msgAr, msg_ku:msgKu, msg_en:msgEn,
+      read:false, timestamp:firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch(e){ console.error('pushNotifToFirestore:',e); }
+}
 
-  } catch (e) {
-    console.error('sendFCMToPhone error:', e);
-  }
+async function sendFCMDirect(userPhone,type,itemName,nextKm,car){
+  if(!APPS_SCRIPT_URL||!userPhone) return;
+  try{
+    const userDoc=await db.collection('users').doc(userPhone).get();
+    if(!userDoc.exists||!userDoc.data().fcmToken) return;
+    const fcmToken=userDoc.data().fcmToken;
+    const title=center?center.name:'RC Service';
+    const body=type==='oil'?`سيارتك ${car.carName||''} تم التغيير. الكيلومتر التالي: ${nextKm||'—'} كم 🔧`:`سيارتك ${car.carName||''} تم عمل صيانة ${itemName||''} 🔧`;
+    await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:fcmToken,title,body,extra:{type,car_name:car.carName||''}})});
+  } catch(e){ console.error('sendFCMDirect:',e); }
+}
+
+async function sendFCMToPhone(userPhone,title,body,extra){
+  if(!APPS_SCRIPT_URL||!userPhone) return;
+  try{
+    const phonesToTry=[userPhone,normalizePhone(userPhone),userPhone.replace(/^964/,'0'),userPhone.replace(/\D/g,'')].filter((p,i,arr)=>p&&arr.indexOf(p)===i);
+    let fcmToken=null;
+    for(const p of phonesToTry){
+      try{ const d=await db.collection('users').doc(p).get(); if(d.exists&&d.data().fcmToken){ fcmToken=d.data().fcmToken; break; } }catch(e){}
+    }
+    if(!fcmToken) return;
+    const params=new URLSearchParams({token:fcmToken,title,body,type:extra.type||'general',car_name:extra.car_name||''});
+    await fetch(APPS_SCRIPT_URL+'?'+params.toString(),{method:'GET',redirect:'follow'});
+  } catch(e){ console.error('sendFCMToPhone:',e); }
 }
 
 /* ─── EDIT CENTER ─── */
 function openEditCenter(){
   closeSidebar();
   if(!center) return;
-  document.getElementById('center-name').value = center.name||'';
-  document.getElementById('center-phone').value = center.phone||'';
-  document.getElementById('center-address').value = center.address||'';
-  document.getElementById('center-pw').value = center.pw||'';
-  // rebuild city select
+  document.getElementById('center-name').value=center.name||'';
+  document.getElementById('center-phone').value=center.phone||'';
+  document.getElementById('center-address').value=center.address||'';
+  document.getElementById('center-pw').value=center.pw||'';
   const t=T[lang];
   const cs=document.getElementById('center-city');
   cs.innerHTML='<option value="">--</option>';
@@ -2039,28 +2460,35 @@ function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function set(id,v){ const e=document.getElementById(id); if(e) e.textContent=v; }
 function gv(id){ const e=document.getElementById(id); return e?e.value:''; }
-function today(){ return new Date().toISOString().split('T')[0]; }
+function todayStr(){ return new Date().toISOString().split('T')[0]; }
 function formatNiceDate(val){
   if(!val) return '';
   try{ const p=String(val).split('T')[0].split('-'); if(p.length===3) return `${p[2].padStart(2,'0')}/${p[1].padStart(2,'0')}/${p[0]}`; } catch(e){}
   return val;
 }
-let toastT;
+let toastTimer;
 function toast(msg,type=''){
-  const el=document.getElementById('toast');Q
+  const el=document.getElementById('toast');
   if(!el) return;
-  clearTimeout(toastT); el.textContent=msg; el.className=`show ${type}`;
-  toastT=setTimeout(()=>el.className='',2800);
+  clearTimeout(toastTimer);
+  el.textContent=msg; el.className=`show ${type}`;
+  toastTimer=setTimeout(()=>el.className='', 2800);
 }
+
+// Close modals on backdrop click
 document.querySelectorAll('.modal-overlay').forEach(o=>{
-  o.addEventListener('click',e=>{
+  o.addEventListener('click', e=>{
     if(e.target===o){
       if(o.id==='modal-annual') closeAnnualModal();
       else closeModal(o.id);
     }
   });
 });
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeSidebar(); stopScanner(); } });
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ closeSidebar(); stopScanner(); }
+});
 </script>
 </body>
 </html>
