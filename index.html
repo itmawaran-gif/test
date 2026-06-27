@@ -365,104 +365,85 @@ textarea.form-control{resize:none}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
 .badge-count{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:10px;font-weight:900;margin-inline-start:4px}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 
-<!-- ══ LANG SCREEN ══ -->
-<div id="screen-lang" class="screen">
-  <div class="lang-hero">
-    <img src="logo2.png" alt="RC" onerror="this.style.display='none'">
-    <div style="font-size:40px;font-weight:900;color:var(--gold);text-shadow:0 0 40px rgba(245,166,35,.4)">🔧 RC</div>
-    <div class="lang-hero-sub">Workshop Center</div>
-  </div>
-  <div class="lang-grid">
-    <button class="lang-btn" onclick="selectLang('ar')">
-      <span>🇮🇶 عربي</span><span class="lang-flag">العربية</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('ku')">
-      <span>🏴 کوردی</span><span class="lang-flag">کوردی</span>
-    </button>
-    <button class="lang-btn" onclick="selectLang('en')">
-      <span>🇬🇧 English</span><span class="lang-flag">English</span>
-    </button>
-  </div>
-</div>
 
-<!-- ══ SETUP SCREEN ══ -->
-<div id="screen-setup" class="screen">
-  <div class="setup-wrap">
-    <div class="setup-hero">
-      <span class="setup-hero-icon">🏪</span>
-      <div class="setup-hero-title" id="setup-title">إعداد المركز</div>
-      <div class="setup-hero-sub" id="setup-sub">تُدخل مرة واحدة فقط</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" id="lbl-center-name">اسم المركز</label>
-      <input class="form-control" id="center-name" type="text" placeholder="مركز RC للصيانة"
-             autocomplete="organization">
-    </div>
-    <div class="form-group">
-      <label class="form-label" id="lbl-center-phone">رقم الهاتف</label>
-      <input class="form-control" id="center-phone" type="tel" placeholder="07xxxxxxxxx"
-             inputmode="tel" autocomplete="tel">
-    </div>
-    <div class="form-group">
-      <label class="form-label" id="lbl-center-city">المدينة</label>
-      <select class="form-control" id="center-city"></select>
-    </div>
-    <div class="form-group">
-      <label class="form-label" id="lbl-center-address">العنوان التفصيلي</label>
-      <input class="form-control" id="center-address" type="text" placeholder="شارع 60، بجانب...">
-    </div>
-    <div class="form-group">
-      <label class="form-label" id="lbl-center-pw">كلمة المرور (PIN)</label>
-      <!-- ✅ FIX 3: Numeric keyboard, no suggestions -->
-      <input class="form-control pin-input" id="center-pw"
-             type="text"
-             inputmode="numeric"
-             pattern="[0-9]*"
-             placeholder="رقم سري 4-6 أرقام"
-             maxlength="6"
-             autocomplete="new-password"
-             autocorrect="off"
-             autocapitalize="off"
-             spellcheck="false">
-    </div>
-    <button class="btn-primary" id="setup-save-btn" onclick="saveCenter()">حفظ والبدء</button>
-  </div>
-</div>
-
-<!-- ══ LOGIN SCREEN ══ -->
+<!-- ══ LOGIN SCREEN (GAS-based) ══ -->
 <div id="screen-login" class="screen">
-  <div class="setup-wrap" style="max-width:360px">
+  <div class="setup-wrap" style="max-width:380px">
     <div class="setup-hero">
-      <span class="setup-hero-icon">🔐</span>
-      <div class="setup-hero-title" id="login-title">أدخل كلمة المرور</div>
-      <div class="setup-hero-sub" id="login-sub-txt"></div>
+      <span class="setup-hero-icon">🔧</span>
+      <div class="setup-hero-title" id="login-title">تسجيل الدخول</div>
+      <div class="setup-hero-sub" id="login-sub-txt">RC Workshop Center</div>
     </div>
+
     <div class="form-group">
-      <!-- ✅ FIX 3: Numeric keyboard only, no suggestions, no autocorrect -->
-      <input class="form-control pin-input" id="login-pw"
+      <label class="form-label" id="lbl-login-user">اسم المستخدم</label>
+      <input class="form-control" id="login-username"
              type="text"
-             inputmode="numeric"
-             pattern="[0-9]*"
-             placeholder="——"
-             maxlength="6"
-             autocomplete="off"
+             placeholder="username"
+             autocomplete="username"
              autocorrect="off"
              autocapitalize="off"
              spellcheck="false"
-             oninput="handlePinInput(this)">
+             style="direction:ltr;text-align:center;font-size:16px;letter-spacing:.05em">
     </div>
-    <button class="btn-primary btn-teal" onclick="tryLogin()" id="login-btn">دخول</button>
+    <div class="form-group">
+      <label class="form-label" id="lbl-login-pw">كلمة المرور</label>
+      <div style="position:relative">
+        <input class="form-control" id="login-pw"
+               type="password"
+               placeholder="••••••"
+               autocomplete="current-password"
+               autocorrect="off"
+               autocapitalize="off"
+               spellcheck="false"
+               style="direction:ltr;text-align:center;font-size:20px;letter-spacing:.15em;padding-inline-end:44px"
+               onkeyup="if(event.key==='Enter')doGasLogin()">
+        <button onclick="togglePwVisibility()" id="pw-eye-btn"
+                style="position:absolute;top:50%;inset-inline-end:12px;transform:translateY(-50%);background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);line-height:1">👁</button>
+      </div>
+    </div>
 
-    <!-- ✅ FIX 4: Biometric button (shown only if registered) -->
-    <button class="bio-btn" id="bio-login-btn" onclick="loginWithBiometric()" style="display:none">
+    <!-- Loading state -->
+    <div id="login-loading" style="display:none;text-align:center;padding:8px 0;color:var(--muted);font-size:13px">
+      <span style="animation:spin 1s linear infinite;display:inline-block">⏳</span>
+      <span id="login-loading-txt"> جاري التحقق...</span>
+    </div>
+    <div id="login-error" style="display:none;color:var(--red);font-size:13px;text-align:center;padding:6px 0;font-weight:700"></div>
+
+    <button class="btn-primary btn-teal" onclick="doGasLogin()" id="login-btn" style="margin-top:6px">
+      🔓 <span id="login-btn-txt">دخول</span>
+    </button>
+
+    <!-- ✅ Biometric button (shown only if session exists & bio registered) -->
+    <button class="bio-btn" id="bio-login-btn" onclick="loginWithBiometric()" style="display:none;margin-top:10px">
       <span class="bio-btn-icon" id="bio-icon">🔬</span>
       <span id="bio-login-txt">فتح بالبصمة / Face ID</span>
     </button>
-    <div class="bio-register-hint" id="bio-register-hint" style="display:none"></div>
+
+    <!-- Language selector in login -->
+    <div style="display:flex;justify-content:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+      <button onclick="switchLang('ar')" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700" id="login-lang-ar">🇮🇶 عربي</button>
+      <button onclick="switchLang('ku')" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700" id="login-lang-ku">🏴 کوردی</button>
+      <button onclick="switchLang('en')" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--muted);padding:4px 8px;border-radius:6px;font-family:inherit;font-weight:700" id="login-lang-en">🇬🇧 EN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ COMPLETE INFO MODAL (shown when sheet fields are missing) ══ -->
+<div class="modal-overlay" id="modal-complete-info">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="complete-info-title">🏪 أكمل بيانات المركز</div>
+    <div class="modal-sub" id="complete-info-sub">بعض البيانات مفقودة — أدخلها لتُحفظ في النظام</div>
+    <div id="complete-info-fields"></div>
+    <button class="btn-primary btn-teal" onclick="saveCompleteInfo()" id="complete-info-save-btn">
+      💾 <span id="complete-info-save-txt">حفظ والمتابعة</span>
+    </button>
   </div>
 </div>
 
@@ -584,6 +565,13 @@ textarea.form-control{resize:none}
       <button class="sb-theme-btn" id="btn-dark" onclick="setTheme('dark')"><span class="th-ico">🌙</span><span id="lbl-dark">ليلي</span></button>
       <button class="sb-theme-btn active" id="btn-light" onclick="setTheme('light')"><span class="th-ico">☀️</span><span id="lbl-light">عادي</span></button>
     </div>
+  </div>
+  <!-- LOGOUT -->
+  <div class="sb-section" style="padding-bottom:32px">
+    <button class="sb-btn" onclick="confirmLogout()"
+            style="border-color:rgba(229,56,79,.35);color:var(--red);background:rgba(229,56,79,.05)">
+      <span class="sb-icon">🚪</span><span id="sb-logout-txt">تسجيل الخروج</span>
+    </button>
   </div>
 </div>
 
@@ -1011,7 +999,7 @@ const BIO = {
           user: {
             id: new TextEncoder().encode('rcw-workshop-user'),
             name: 'workshop',
-            displayName: center ? center.name : 'RC Workshop'
+            displayName: centerName()
           },
           pubKeyCredParams: [
             { alg: -7, type: 'public-key' },   // ES256
@@ -1187,12 +1175,12 @@ async function manageBiometric() {
             'تم إزالة البصمة', 'success');
     }
   } else {
-    // Ask PIN first to register
-    const pin = prompt(lang === 'en' ? 'Enter current PIN to register biometric:' :
+    // Ask password first to register
+    const pw = prompt(lang === 'en' ? 'Enter current password to register biometric:' :
                        lang === 'ku' ? 'پاسووەردی ئێستات داخڵ بکە:' :
                        'أدخل كلمة المرور الحالية:');
-    if (pin && center && pin === center.pw) {
-      const ok = await BIO.register(pin);
+    if (pw && session && pw === session.password) {
+      const ok = await BIO.register(pw);
       if (ok) {
         toast(lang === 'en' ? 'Biometric enabled ✓' :
               lang === 'ku' ? 'بیۆمەتریک چالاک کرا ✓' :
@@ -1464,6 +1452,13 @@ const T = {
     months:['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
     notifOilMsg:(car,km,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} تم تغير ${car.carName} (${car.plateNumber||''}) الكيلومتر القادم ${km} كم.\nنحن بخدمتكم 🔧`,
     notifMaintMsg:(car,item,center)=>`مرحباً ${car.ownerName}،\nمركز ${center} لقد تم تغيير ${item} لسيارتكم ${car.carName}.\nشكرا لثقتكم 🔧`,
+    // Auth
+    loginTitle:'تسجيل الدخول', loginUserLbl:'اسم المستخدم', loginPwLbl:'كلمة المرور',
+    loginBtn:'دخول', loginLoading:' جاري التحقق...',
+    completeInfoTitle:'🏪 أكمل بيانات المركز',
+    completeInfoSub:'بعض البيانات مفقودة — أدخلها لتُحفظ في النظام',
+    completeInfoSave:'حفظ والمتابعة',
+    logoutBtn:'تسجيل الخروج',
   },
   ku:{
     setupTitle:'ڕێکخستنی ناوەندی پاراستنەوە', setupSub:'تەنها یەک جار داخڵ دەکرێت',
@@ -1518,6 +1513,12 @@ const T = {
     months:['ژانویە','فێبریوار','مارس','ئەپریل','مایس','حوزەیران','تەممووز','ئاب','ئەیلوول','تشرینی یەکەم','تشرینی دووەم','کانوونی دووەم'],
     notifOilMsg:(car,km,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${car.carName} کیلۆمەتری داهاتوو ${km} کم.\nسوپاس بۆ متمانەتان 🔧`,
     notifMaintMsg:(car,item,center)=>`سڵاو ${car.ownerName}،\nناوەندی ${center} گۆڕاوە ${item} بۆ سەیارەکەت ${car.carName}.\nسوپاس بۆ متمانەتان 🔧`,
+    loginTitle:'چوونەژوورەوە', loginUserLbl:'ناوی بەکارهێنەر', loginPwLbl:'پاسووەرد',
+    loginBtn:'چوونەژوورەوە', loginLoading:' پشکنین...',
+    completeInfoTitle:'🏪 زانیارییەکانی ناوەند تەواو بکە',
+    completeInfoSub:'هەندێک زانیاری کەمە — داخڵیان بکە',
+    completeInfoSave:'خەزنکردن و بەردەوام بوون',
+    logoutBtn:'دەرچوون',
   },
   en:{
     setupTitle:'Workshop Setup', setupSub:'Entered once only',
@@ -1572,18 +1573,45 @@ const T = {
     months:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
     notifOilMsg:(car,km,center)=>`Hello ${car.ownerName},\n${center} reminds you that your ${car.carName} (${car.plateNumber||''}) is due for an oil change at ${km} km.\nWe're at your service 🔧`,
     notifMaintMsg:(car,item,center)=>`Hello ${car.ownerName},\n${center} changed ${item} maintenance on your ${car.carName}.\nThank you 🔧`,
+    loginTitle:'Sign In', loginUserLbl:'Username', loginPwLbl:'Password',
+    loginBtn:'Sign In', loginLoading:' Verifying...',
+    completeInfoTitle:'🏪 Complete Center Info',
+    completeInfoSub:'Some details are missing — please fill them in',
+    completeInfoSave:'Save & Continue',
+    logoutBtn:'Sign Out',
   }
 };
 
+/* ─── GAS CONFIG ─── */
+// ضع هنا رابط نشر Google Apps Script بعد النشر
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzqdcrvU_FtnVFu7FiTvkY7ZkJB25vtuyAVfm4jIBHaDswZ_vBoZDRj_laBdvB9eaXE/exec";
+
 /* ─── STATE ─── */
 let lang = localStorage.getItem('rcw_lang') || null;
-let center = JSON.parse(localStorage.getItem('rcw_center') || 'null');
 let theme = localStorage.getItem('rcw_theme') || 'light';
 let curCarData = null;
 let curCarId = null;
 let curMaintKey = null;
 let notifFilter = 'all';
 let serviceLog = JSON.parse(localStorage.getItem('rcw_log') || '{}');
+
+// Session: { username, password, center:{centerName,phone,city,address,...} }
+let session = JSON.parse(localStorage.getItem('rcw_session') || 'null');
+// For backward compat with rest of code
+let center = session ? session.center : null;
+
+function saveSession(s) {
+  session = s;
+  center = s ? s.center : null;
+  if (s) localStorage.setItem('rcw_session', JSON.stringify(s));
+  else localStorage.removeItem('rcw_session');
+}
+
+// Helper: get display name regardless of field name used
+function centerName() {
+  if (!center) return 'RC';
+  return center.centerName || center.name || 'RC';
+}
 
 function saveLog(){ localStorage.setItem('rcw_log', JSON.stringify(serviceLog)); }
 function logService(carId, type, item){
@@ -1615,18 +1643,23 @@ function getMonthServices(){
 document.addEventListener('DOMContentLoaded', ()=>{
   initFirebase();
   applyTheme(theme);
-  if(!lang){ show('screen-lang'); return; }
+
+  // Apply lang (default to Arabic if not set)
+  if (!lang) { lang = 'ar'; localStorage.setItem('rcw_lang','ar'); }
   applyLang(lang);
-  if(!center){ show('screen-setup'); return; }
-  show('screen-login');
-  set('login-sub-txt', center.name || '');
-  initBiometricUI();
+
+  // If saved session exists → skip login, go directly to main
+  if (session && session.center) {
+    enterMainScreen();
+    // Refresh center data silently in background
+    refreshCenterDataFromGAS();
+  } else {
+    show('screen-login');
+    initBiometricUI();
+  }
 });
 
 /* ─── LANG ─── */
-function selectLang(l){
-  lang=l; localStorage.setItem('rcw_lang',l); applyLang(l); show('screen-setup');
-}
 function switchLang(l){
   lang=l; localStorage.setItem('rcw_lang',l); applyLang(l); closeSidebar();
   toast(T[l].saved,'success');
@@ -1638,18 +1671,26 @@ function applyLang(l){
   document.documentElement.lang=l==='en'?'en':'ar';
   document.documentElement.dir=l==='en'?'ltr':'rtl';
   document.body.classList.toggle('ltr', l==='en');
-  set('setup-title',t.setupTitle); set('setup-sub',t.setupSub);
-  set('lbl-center-name',t.centerName); set('lbl-center-phone',t.centerPhone);
-  set('lbl-center-city',t.centerCity); set('lbl-center-address',t.centerAddress);
-  set('lbl-center-pw',t.centerPw); set('setup-save-btn',t.setupSave);
-  const cs=document.getElementById('center-city');
-  if(cs){ cs.innerHTML='<option value="">--</option>'; t.cities.forEach((c,i)=>{ const o=document.createElement('option'); o.value=t.cityVals[i]; o.textContent=c; cs.appendChild(o); }); }
-  set('login-title',t.loginTitle); set('login-btn',t.loginTitle);
-  set('header-center-name', center?center.name:t.headerTitle);
+  // Login screen
+  set('login-title', t.loginTitle||'تسجيل الدخول');
+  set('login-sub-txt', center?center.centerName:'RC Workshop Center');
+  set('lbl-login-user', t.loginUserLbl||'اسم المستخدم');
+  set('lbl-login-pw', t.loginPwLbl||'كلمة المرور');
+  set('login-btn-txt', t.loginBtn||'دخول');
+  set('login-loading-txt', t.loginLoading||' جاري التحقق...');
+  // Complete info modal
+  set('complete-info-title', t.completeInfoTitle||'🏪 أكمل بيانات المركز');
+  set('complete-info-sub', t.completeInfoSub||'بعض البيانات مفقودة — أدخلها لتُحفظ في النظام');
+  set('complete-info-save-txt', t.completeInfoSave||'حفظ والمتابعة');
+  // Header
+  set('header-center-name', center?center.centerName:(t.headerTitle||'RC Workshop'));
+  // Stats
   set('stat-today-label',t.statTodayLabel); set('stat-month-label',t.statMonthLabel);
   set('stat-today-sub',t.statTodaySub); set('stat-month-sub',t.statMonthSub);
+  // Search
   set('search-title-txt',t.searchTitle); set('tab-plate-txt',t.tabPlate); set('tab-qr-txt',t.tabQr);
   set('qr-instruction',t.qrInstruction); set('start-scan-txt',t.startScan);
+  // Car modal
   set('lbl-oil-title',t.oilTitle); set('lbl-maint-title',t.maintTitle);
   set('new-oil-btn-txt',t.newOilBtn); set('lbl-oil-km',t.oilKm);
   set('lbl-oil-interval',t.oilInterval); set('opt-interval-none',t.optIntervalNone);
@@ -1657,29 +1698,36 @@ function applyLang(l){
   set('lbl-filter',t.filterLbl); set('lbl-oil-notes',t.oilNotes); set('lbl-oil-cost',t.oilCost);
   set('save-oil-txt',t.saveOil); set('d-annual-label',t.annualLabel);
   set('d-wa-txt',t.waBtn);
+  // Annual modal
   set('annual-modal-title',t.annualModalTitle); set('lbl-annual-date',t.annualDateLbl); set('annual-save-btn',t.annualSave);
+  // Maint modal
   set('mm-lbl-km',t.maintKmAtChange); set('mm-lbl-date',t.maintDateAtChange);
   set('mm-lbl-interval',t.maintInterval); set('mm-lbl-notes',t.maintNotes); set('mm-lbl-cost',t.maintCost);
   set('mm-save-txt',t.maintSave);
+  // Stats modal
   set('stats-modal-title',t.statTitle);
+  // Monthly
   set('monthly-title',t.monthlyTitle);
+  // Notif
   set('notif-title',t.notifTitle); set('notif-sub',t.notifSub);
   set('notif-filter-label',t.notifFilterLabel); set('nf-all-txt',t.nfAll);
   set('nf-oil-txt',t.nfOil); set('nf-annual-txt',t.nfAnnual);
   set('lbl-notif-msg',t.notifMsgLbl); set('send-notif-txt',t.sendNotif);
+  // Crane
   set('crane-modal-title',t.craneModalTitle); set('add-crane-title',t.addCraneTitle);
   set('lbl-crane-name',t.craneName); set('lbl-crane-phone',t.cranePhone); set('crane-save-txt',t.craneSave);
+  // Sidebar
   set('sb-menu-label',t.sbMenu); set('sb-center-hdr',t.sbCenter); set('sb-actions-hdr',t.sbActions);
   set('sb-crane-txt',t.sbCrane); set('sb-monthly-txt',t.sbMonthly);
   if(document.getElementById('sb-edit-center-txt')) set('sb-edit-center-txt', t.sbEditCenter);
   set('sb-lang-hdr',t.sbLang); set('sb-theme-hdr',t.sbTheme); set('lbl-dark',t.darkMode); set('lbl-light',t.lightMode);
+  if(document.getElementById('sb-logout-txt')) set('sb-logout-txt', t.logoutBtn||'تسجيل الخروج');
   // PWA banner
   const pwaTitle = l==='en' ? 'Install App' : l==='ku' ? 'ئەپلیکەیشن دابەزێنە' : 'تثبيت التطبيق';
   const pwaSub = l==='en' ? 'Save to your home screen for quick access' : l==='ku' ? 'بیکە سەر شاشەی سەرەکیت بۆ دەستگەیشتنی خێرا' : 'احفظه على شاشتك الرئيسية للوصول السريع';
-  const pwaInstall = l==='en' ? '📲 Install' : l==='ku' ? '📲 دابەزاندن' : '📲 تثبيت';
-  const pwaLater = l==='en' ? 'Later' : l==='ku' ? 'دواتر' : 'لاحقاً';
   set('pwa-title', pwaTitle); set('pwa-sub', pwaSub);
-  set('pwa-install-txt', pwaInstall.replace('📲 ', '')); set('pwa-later-txt', pwaLater);
+  set('pwa-install-txt', l==='en'?'Install':l==='ku'?'دابەزاندن':'تثبيت');
+  set('pwa-later-txt', l==='en'?'Later':l==='ku'?'دواتر':'لاحقاً');
   const iosEl = document.getElementById('ios-instructions');
   if(iosEl) iosEl.innerHTML = l==='en' ? `Tap <span>⬆️ Share</span> then <span>Add to Home Screen</span>` :
     l==='ku' ? `بزرە سەر <span>⬆️ هاوبەشکردن</span> پاشان <span>زیادکردن بۆ شاشەی سەرەکی</span>` :
@@ -1694,52 +1742,232 @@ function updateThemeBtns(){
   document.getElementById('btn-light').classList.toggle('active',theme==='light');
 }
 
-/* ─── SETUP ─── */
-function saveCenter(){
-  const t=T[lang];
-  const name=gv('center-name').trim(), phone=gv('center-phone').trim(),
-        city=gv('center-city'), address=gv('center-address').trim(), pw=gv('center-pw').trim();
-  if(!name||!phone||!pw){ toast(t.fillAll,'error'); return; }
-  if(!/^\d{4,6}$/.test(pw)){
-    toast(lang==='en'?'PIN must be 4-6 digits':lang==='ku'?'PIN دەبێت 4-6 ژمارە بێت':'الرقم السري يجب أن يكون 4-6 أرقام','error');
+/* ══════════════════════════════════════════════
+   ✅ GAS LOGIN — اسم المستخدم + كلمة المرور
+   ══════════════════════════════════════════════ */
+
+// Toggle password visibility
+function togglePwVisibility() {
+  const inp = document.getElementById('login-pw');
+  const btn = document.getElementById('pw-eye-btn');
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+function setLoginLoading(on) {
+  document.getElementById('login-loading').style.display = on ? '' : 'none';
+  document.getElementById('login-btn').disabled = on;
+  document.getElementById('login-error').style.display = 'none';
+}
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = '';
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-pw').focus();
+}
+
+async function doGasLogin() {
+  const username = document.getElementById('login-username').value.trim();
+  const password = document.getElementById('login-pw').value.trim();
+  const t = T[lang];
+
+  if (!username || !password) {
+    showLoginError(t.fillAll || 'يرجى تعبئة الحقول المطلوبة');
     return;
   }
-  center={name,phone,city,address,pw};
-  localStorage.setItem('rcw_center',JSON.stringify(center));
-  applyLang(lang);
-  show('screen-login');
-  set('login-sub-txt',name);
-  initBiometricUI();
-}
 
-/* ─── LOGIN ─── */
-// ✅ FIX 3: Handle PIN input — auto-submit when length matches
-function handlePinInput(input) {
-  // Only allow digits
-  input.value = input.value.replace(/\D/g, '');
-  if (!center) return;
-  if (input.value.length >= center.pw.length) {
-    tryLogin();
+  setLoginLoading(true);
+
+  try {
+    const url = `${GAS_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&t=${Date.now()}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.success) {
+      const errMsg = data.error === 'invalid_credentials'
+        ? (t.wrongPw || 'اسم المستخدم أو كلمة المرور غير صحيحة')
+        : (t.error || 'حدث خطأ');
+      showLoginError(errMsg);
+      setLoginLoading(false);
+      return;
+    }
+
+    // ✅ Login success
+    const centerData = data.center;
+    // Save session locally
+    saveSession({ username, password, center: centerData });
+
+    setLoginLoading(false);
+
+    // Offer biometric after first successful login
+    setTimeout(() => offerBiometricRegistration(password), 600);
+
+    // Check missing fields
+    if (data.missingFields && data.missingFields.length > 0) {
+      showCompleteInfoModal(data.missingFields);
+    } else {
+      enterMainScreen();
+    }
+
+  } catch (err) {
+    console.error('GAS login error:', err);
+    // If offline but have a session → allow in
+    if (session && session.username === username && session.password === password) {
+      toast('⚠️ وضع غير متصل — تم الدخول من الجلسة المحفوظة', 'error');
+      setLoginLoading(false);
+      enterMainScreen();
+    } else {
+      showLoginError(t.error || 'تعذّر الاتصال بالخادم');
+      setLoginLoading(false);
+    }
   }
 }
 
-function tryLogin(){
-  const t=T[lang];
-  const pw = gv('login-pw').replace(/\D/g, '');
-  if(!center){ show('screen-setup'); return; }
-  if(pw === center.pw){
-    document.getElementById('login-pw').value='';
+/* ─── Refresh center data silently from GAS (on auto-login) ─── */
+async function refreshCenterDataFromGAS() {
+  if (!session) return;
+  try {
+    const url = `${GAS_URL}?action=login&username=${encodeURIComponent(session.username)}&password=${encodeURIComponent(session.password)}&t=${Date.now()}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.success && data.center) {
+      saveSession({ ...session, center: data.center });
+      applyLang(lang); // refresh header with new center name
+      renderSidebar();
+    }
+  } catch(e) { /* silent fail — use cached data */ }
+}
+
+/* ─── Complete Missing Info Modal ─── */
+let _missingFields = [];
+
+function showCompleteInfoModal(missingFields) {
+  _missingFields = missingFields;
+  const t = T[lang];
+
+  const fieldConfig = {
+    centerName: { label: t.centerName||'اسم المركز', type:'text', placeholder:'مركز RC للصيانة' },
+    phone:      { label: t.centerPhone||'رقم الهاتف', type:'tel', placeholder:'07xxxxxxxxx', inputmode:'tel' },
+    city:       { label: t.centerCity||'المدينة', type:'select' },
+    address:    { label: t.centerAddress||'العنوان التفصيلي', type:'text', placeholder:'شارع 60...' },
+  };
+
+  const fieldsEl = document.getElementById('complete-info-fields');
+  fieldsEl.innerHTML = missingFields.map(f => {
+    const cfg = fieldConfig[f] || { label: f, type:'text', placeholder:'' };
+    if (cfg.type === 'select') {
+      const opts = t.cities.map((c,i) => `<option value="${t.cityVals[i]}">${c}</option>`).join('');
+      return `<div class="form-group">
+        <label class="form-label">${cfg.label}</label>
+        <select class="form-control" id="ci-${f}"><option value="">--</option>${opts}</select>
+      </div>`;
+    }
+    return `<div class="form-group">
+      <label class="form-label">${cfg.label}</label>
+      <input class="form-control" id="ci-${f}" type="${cfg.type}"
+             ${cfg.inputmode?`inputmode="${cfg.inputmode}"`:''}
+             placeholder="${cfg.placeholder}" autocomplete="off">
+    </div>`;
+  }).join('');
+
+  openModal('modal-complete-info');
+}
+
+async function saveCompleteInfo() {
+  const t = T[lang];
+  const updates = {};
+  let valid = true;
+
+  for (const f of _missingFields) {
+    const el = document.getElementById('ci-' + f);
+    const val = el ? el.value.trim() : '';
+    if (!val) { valid = false; break; }
+    updates[f] = val;
+  }
+
+  if (!valid) { toast(t.fillAll||'يرجى تعبئة الحقول','error'); return; }
+
+  const saveBtn = document.getElementById('complete-info-save-btn');
+  saveBtn.disabled = true;
+
+  try {
+    const body = {
+      action: 'updateCenter',
+      username: session.username,
+      password: session.password,
+      ...updates
+    };
+
+    const res = await fetch(GAS_URL, {
+      method: 'POST',
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // Update local session with new values
+      const newCenter = { ...session.center, ...updates };
+      saveSession({ ...session, center: newCenter });
+      closeModal('modal-complete-info');
+      toast(t.saved||'تم الحفظ ✓','success');
+      enterMainScreen();
+    } else {
+      toast(t.error||'حدث خطأ','error');
+    }
+  } catch(err) {
+    // Save locally even if GAS is offline
+    const newCenter = { ...session.center, ...updates };
+    saveSession({ ...session, center: newCenter });
+    closeModal('modal-complete-info');
+    toast('⚠️ تم الحفظ محلياً','success');
     enterMainScreen();
-    // Offer biometric after successful PIN login
-    setTimeout(() => offerBiometricRegistration(pw), 800);
-  } else if(pw.length >= center.pw.length){
-    toast(t.wrongPw,'error');
-    document.getElementById('login-pw').value='';
-    // Shake animation
-    const inp = document.getElementById('login-pw');
-    inp.style.borderColor = 'var(--red)';
-    setTimeout(() => inp.style.borderColor = '', 1200);
   }
+
+  saveBtn.disabled = false;
+}
+
+/* ─── LOGOUT ─── */
+function confirmLogout() {
+  closeSidebar();
+  const msg = lang==='en' ? 'Sign out?' : lang==='ku' ? 'دەرچوون؟' : 'تسجيل الخروج؟';
+  if (!confirm(msg)) return;
+  doLogout();
+}
+function doLogout() {
+  // Clear biometric too
+  BIO.clear();
+  // Clear session
+  saveSession(null);
+  // Keep lang & theme
+  // Reset state
+  curCarData = null; curCarId = null; curMaintKey = null;
+  // Show login
+  show('screen-login');
+  document.getElementById('login-username').value = '';
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('bio-login-btn').style.display = 'none';
+  applyLang(lang);
+}
+
+/* ─── EDIT CENTER (from sidebar — sends to GAS) ─── */
+async function openEditCenter(){
+  closeSidebar();
+  if(!session) return;
+  const t = T[lang];
+  const c = session.center || {};
+  showCompleteInfoModal(['centerName','phone','city','address'].filter(f => true));
+  // Pre-fill with existing values
+  setTimeout(() => {
+    ['centerName','phone','city','address'].forEach(f => {
+      const el = document.getElementById('ci-' + f);
+      if (el && c[f]) el.value = c[f];
+    });
+    set('complete-info-title', t.sbEditCenter||'تعديل بيانات المركز');
+    set('complete-info-sub', '');
+    _missingFields = ['centerName','phone','city','address'];
+  }, 50);
 }
 
 function enterMainScreen() {
@@ -1747,6 +1975,7 @@ function enterMainScreen() {
   applyLang(lang);
   renderStats();
   renderSidebar();
+  initBiometricUI();
 }
 
 /* ─── SIDEBAR ─── */
@@ -1766,10 +1995,11 @@ function renderSidebar(){
   updateThemeBtns();
   const info=document.getElementById('sb-center-info');
   if(info&&center){
-    info.innerHTML=`<div class="sb-center-name">${center.name}</div>
-    <div class="sb-center-row">📞 <strong>${center.phone}</strong></div>
+    info.innerHTML=`<div class="sb-center-name">${center.centerName||center.name||''}</div>
+    <div class="sb-center-row">📞 <strong>${center.phone||''}</strong></div>
     <div class="sb-center-row">🏙️ <strong>${center.city||''}</strong></div>
-    <div class="sb-center-row">📍 <strong>${center.address||''}</strong></div>`;
+    <div class="sb-center-row">📍 <strong>${center.address||''}</strong></div>
+    <div class="sb-center-row">👤 <strong style="color:var(--muted)">${session?session.username:''}</strong></div>`;
   }
 }
 
@@ -1989,7 +2219,7 @@ function updateOilNotifPreview(){
   const km=document.getElementById('oil-km').value;
   const interval=parseInt(document.getElementById('oil-interval').value)||0;
   const nextKm=km&&interval>0?String(parseInt(km)+interval):'';
-  const msg=t.notifOilMsg({...curCarData,ownerName:curCarData.ownerName||'—'}, nextKm||'—', center?center.name:'RC');
+  const msg=t.notifOilMsg({...curCarData,ownerName:curCarData.ownerName||'—'}, nextKm||'—', centerName());
   set('oil-notif-msg',msg);
   set('oil-notif-label',t.notifPreviewLabel);
   set('oil-notif-note',t.notifNote);
@@ -2142,7 +2372,7 @@ function openMaintDetail(key){
 function updateMaintNotifPreview(itemName){
   if(!curCarData) return;
   const t=T[lang];
-  const msg=t.notifMaintMsg({...curCarData,ownerName:curCarData.ownerName||'—'}, itemName||'', center?center.name:'RC');
+  const msg=t.notifMaintMsg({...curCarData,ownerName:curCarData.ownerName||'—'}, itemName||'', centerName());
   set('mm-notif-msg',msg);
   set('mm-notif-label',t.notifPreviewLabel);
   set('mm-notif-note',t.notifNote);
@@ -2185,8 +2415,8 @@ function sendWaNotification(car,type,itemName,km,nextKm){
   if(!car||!car.ownerPhone) return;
   const t=T[lang];
   let msg='';
-  if(type==='oil') msg=t.notifOilMsg({...car,ownerName:car.ownerName||'—'}, nextKm||'—', center?center.name:'RC');
-  else msg=t.notifMaintMsg({...car,ownerName:car.ownerName||'—'}, itemName||'', center?center.name:'RC');
+  if(type==='oil') msg=t.notifOilMsg({...car,ownerName:car.ownerName||'—'}, nextKm||'—', centerName());
+  else msg=t.notifMaintMsg({...car,ownerName:car.ownerName||'—'}, itemName||'', centerName());
   const phone=car.ownerPhone.replace(/\D/g,'');
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
 }
@@ -2200,7 +2430,7 @@ function toggleExpand(id){
 /* ─── MONTHLY STATS ─── */
 function openMonthlyModal(){
   const t=T[lang];
-  set('monthly-sub', center?center.name:'');
+  set('monthly-sub', centerName());
   const now=new Date();
   const wrap=document.getElementById('monthly-chart-wrap');
   const months=[];
@@ -2275,10 +2505,10 @@ async function sendSingleNotifWa(carId){
     let owner={name:'—',phone:c.user_phone||''};
     if(c.user_phone){ const ud=await db.collection('users').doc(c.user_phone).get(); if(ud.exists){ const u=ud.data(); owner.name=u.name||'—'; } }
     const customMsg=document.getElementById('notif-msg-txt').value.trim();
-    const msg=customMsg||t.notifOilMsg({carName:c.carName,plateNumber:c.plateNumber||'',ownerName:owner.name},c.oilNextKm||'—',center?center.name:'RC');
+    const msg=customMsg||t.notifOilMsg({carName:c.carName,plateNumber:c.plateNumber||'',ownerName:owner.name},c.oilNextKm||'—',centerName());
     const phone=(c.user_phone||'').replace(/\D/g,'');
     if(phone) window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,'_blank');
-    if(c.user_phone) await sendFCMToPhone(c.user_phone,center?center.name:'RC Service',customMsg||(c.carName+' — '+(t.nfOil||'تذكير صيانة')),{type:notifFilter,car_name:c.carName||''});
+    if(c.user_phone) await sendFCMToPhone(c.user_phone,centerName(),customMsg||(c.carName+' — '+(t.nfOil||'تذكير صيانة')),{type:notifFilter,car_name:c.carName||''});
   } catch(e){ toast(t.error,'error'); }
 }
 async function sendBulkNotif(){
@@ -2310,26 +2540,26 @@ async function sendBulkInBackground(filtered, customMsg){
       let msgAr='',msgKu='',msgEn='';
       if(customMsg){ msgAr=msgKu=msgEn=customMsg; }
       else if(notifFilter==='annual'){
-        msgAr=`مركز ${center?center.name:'RC'} يُذكركم بأن السنوية لسيارتكم ${c.carName||''} قاربت على الانتهاء 📅`;
-        msgKu=`ناوەندی ${center?center.name:'RC'} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName||''} نزیکە لە بەسەرچوون 📅`;
-        msgEn=`${center?center.name:'RC'} reminds you that the registration for your ${c.carName||''} is expiring soon 📅`;
+        msgAr=`مركز ${centerName()} يُذكركم بأن السنوية لسيارتكم ${c.carName||''} قاربت على الانتهاء 📅`;
+        msgKu=`ناوەندی ${centerName()} بیرت خستەوە کە ساڵانەی سەیارەکەت ${c.carName||''} نزیکە لە بەسەرچوون 📅`;
+        msgEn=`${centerName()} reminds you that the registration for your ${c.carName||''} is expiring soon 📅`;
       } else if(notifFilter==='oil'){
-        msgAr=`مركز ${center?center.name:'RC'} يُذكركم بتغيير زيت سيارتكم ${c.carName||''} عند ${c.oilNextKm||'—'} كم 🔧`;
-        msgKu=`ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName||''} لە ${c.oilNextKm||'—'} کم 🔧`;
-        msgEn=`${center?center.name:'RC'} reminds you to change oil on your ${c.carName||''} at ${c.oilNextKm||'—'} km 🔧`;
+        msgAr=`مركز ${centerName()} يُذكركم بتغيير زيت سيارتكم ${c.carName||''} عند ${c.oilNextKm||'—'} كم 🔧`;
+        msgKu=`ناوەندی ${centerName()} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${c.carName||''} لە ${c.oilNextKm||'—'} کم 🔧`;
+        msgEn=`${centerName()} reminds you to change oil on your ${c.carName||''} at ${c.oilNextKm||'—'} km 🔧`;
       } else {
-        msgAr=`مركز ${center?center.name:'RC'} تم تغيير ${c.carName||''} 🔧`;
-        msgKu=`ناوەندی ${center?center.name:'RC'} گۆڕا ${c.carName||''} 🔧`;
-        msgEn=`${center?center.name:'RC'} changed ${c.carName||''} 🔧`;
+        msgAr=`مركز ${centerName()} تم تغيير ${c.carName||''} 🔧`;
+        msgKu=`ناوەندی ${centerName()} گۆڕا ${c.carName||''} 🔧`;
+        msgEn=`${centerName()} changed ${c.carName||''} 🔧`;
       }
       await db.collection('notifications').add({
         user_phone:c.user_phone, car_id:c.id, car_name:c.carName||'',
         type:notifFilter==='annual'?'annual':notifFilter==='oil'?'oil':'general',
-        item:'', next_km:c.oilNextKm||'', center_name:center?center.name:'RC',
+        item:'', next_km:c.oilNextKm||'', center_name:centerName(),
         msg_ar:msgAr, msg_ku:msgKu, msg_en:msgEn,
         read:false, timestamp:firebase.firestore.FieldValue.serverTimestamp(),
       });
-      await sendFCMToPhone(c.user_phone,center?center.name:'RC Service',customMsg||msgAr,{type:notifFilter,car_name:c.carName||''});
+      await sendFCMToPhone(c.user_phone,centerName(),customMsg||msgAr,{type:notifFilter,car_name:c.carName||''});
       sentCount++;
       if(sentCount%5===0) toast(`📤 ${sentCount}/${total} تم الإرسال...`,'');
     } catch(e){ failCount++; }
@@ -2354,7 +2584,7 @@ async function saveCraneEntry(){
   if(!name||!phone||isNaN(lat)||isNaN(lng)){ toast(t.fillAll,'error'); return; }
   if(firebaseReady){
     try{
-      await db.collection('crane').add({name,phone,lat,lng,addedBy:center?center.name:'',ts:firebase.firestore.FieldValue.serverTimestamp()});
+      await db.collection('crane').add({name,phone,lat,lng,addedBy:centerName(),ts:firebase.firestore.FieldValue.serverTimestamp()});
       document.getElementById('crane-name').value=''; document.getElementById('crane-phone-inp').value='';
       document.getElementById('crane-lat').value=''; document.getElementById('crane-lng').value='';
       toast(t.saved,'success'); loadCraneList();
@@ -2396,17 +2626,17 @@ async function pushNotifToFirestore(car,type,itemName,nextKm){
   try{
     let msgAr='',msgKu='',msgEn='';
     if(type==='oil'){
-      msgAr=`مركز ${center?center.name:'RC'} يُذكركم بتغيير زيت سيارتكم ${car.carName||''} عند ${nextKm||'—'} كم 🔧`;
-      msgKu=`ناوەندی ${center?center.name:'RC'} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${car.carName||''} لە ${nextKm||'—'} کم 🔧`;
-      msgEn=`${center?center.name:'RC'} reminds you to change oil on your ${car.carName||''} at ${nextKm||'—'} km 🔧`;
+      msgAr=`مركز ${centerName()} يُذكركم بتغيير زيت سيارتكم ${car.carName||''} عند ${nextKm||'—'} كم 🔧`;
+      msgKu=`ناوەندی ${centerName()} بیرت خستەوە بۆ گۆڕینی ڕۆنی سەیارەکەت ${car.carName||''} لە ${nextKm||'—'} کم 🔧`;
+      msgEn=`${centerName()} reminds you to change oil on your ${car.carName||''} at ${nextKm||'—'} km 🔧`;
     } else {
-      msgAr=`مركز ${center?center.name:'RC'} تم عمل صيانة ${itemName||''} لسيارتكم ${car.carName||''} 🔧`;
-      msgKu=`ناوەندی ${center?center.name:'RC'} کاری چاککردنەوە ئەنجامدرا ${itemName||''} بۆ سەیارەکەت ${car.carName||''} 🔧`;
-      msgEn=`${center?center.name:'RC'} reminds you about ${itemName||''} maintenance on your ${car.carName||''} 🔧`;
+      msgAr=`مركز ${centerName()} تم عمل صيانة ${itemName||''} لسيارتكم ${car.carName||''} 🔧`;
+      msgKu=`ناوەندی ${centerName()} کاری چاککردنەوە ئەنجامدرا ${itemName||''} بۆ سەیارەکەت ${car.carName||''} 🔧`;
+      msgEn=`${centerName()} reminds you about ${itemName||''} maintenance on your ${car.carName||''} 🔧`;
     }
     await db.collection('notifications').add({
       user_phone:car.user_phone, car_id:car.id||curCarId, car_name:car.carName||'',
-      type, item:itemName||'', next_km:nextKm||'', center_name:center?center.name:'RC',
+      type, item:itemName||'', next_km:nextKm||'', center_name:centerName(),
       msg_ar:msgAr, msg_ku:msgKu, msg_en:msgEn,
       read:false, timestamp:firebase.firestore.FieldValue.serverTimestamp(),
     });
@@ -2419,7 +2649,7 @@ async function sendFCMDirect(userPhone,type,itemName,nextKm,car){
     const userDoc=await db.collection('users').doc(userPhone).get();
     if(!userDoc.exists||!userDoc.data().fcmToken) return;
     const fcmToken=userDoc.data().fcmToken;
-    const title=center?center.name:'RC Service';
+    const title=centerName();
     const body=type==='oil'?`سيارتك ${car.carName||''} تم التغيير. الكيلومتر التالي: ${nextKm||'—'} كم 🔧`:`سيارتك ${car.carName||''} تم عمل صيانة ${itemName||''} 🔧`;
     await fetch(APPS_SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:fcmToken,title,body,extra:{type,car_name:car.carName||''}})});
   } catch(e){ console.error('sendFCMDirect:',e); }
@@ -2437,21 +2667,6 @@ async function sendFCMToPhone(userPhone,title,body,extra){
     const params=new URLSearchParams({token:fcmToken,title,body,type:extra.type||'general',car_name:extra.car_name||''});
     await fetch(APPS_SCRIPT_URL+'?'+params.toString(),{method:'GET',redirect:'follow'});
   } catch(e){ console.error('sendFCMToPhone:',e); }
-}
-
-/* ─── EDIT CENTER ─── */
-function openEditCenter(){
-  closeSidebar();
-  if(!center) return;
-  document.getElementById('center-name').value=center.name||'';
-  document.getElementById('center-phone').value=center.phone||'';
-  document.getElementById('center-address').value=center.address||'';
-  document.getElementById('center-pw').value=center.pw||'';
-  const t=T[lang];
-  const cs=document.getElementById('center-city');
-  cs.innerHTML='<option value="">--</option>';
-  t.cities.forEach((c,i)=>{ const o=document.createElement('option'); o.value=t.cityVals[i]; o.textContent=c; if(t.cityVals[i]===center.city) o.selected=true; cs.appendChild(o); });
-  show('screen-setup');
 }
 
 /* ─── HELPERS ─── */
